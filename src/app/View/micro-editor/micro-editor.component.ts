@@ -158,6 +158,12 @@ export class MicroEditorComponent implements AfterViewInit {
       }
     )
 
+
+    // clear Errors on refresh
+    this.directorService.refreshNotifier$.subscribe( _ => {
+      this.removeErrorHighlighting();
+    })
+
   }
 
   private highlightLine(line: number){

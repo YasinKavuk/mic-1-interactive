@@ -96,6 +96,9 @@ export class DirectorService {
   private _aluFlags = new BehaviorSubject({ N: false, Z: false });
   public aluFlags$ = this._aluFlags.asObservable();
 
+  private _refreshNotifier = new BehaviorSubject(false);
+  public refreshNotifier$ = this._consoleNotifier.asObservable();
+
 
 
 
@@ -394,6 +397,8 @@ export class DirectorService {
     for (let register of registers) {
       register.setValue(0);
     }
+
+    this._refreshNotifier.next(true);
 
     // reset Queues
     this.MBRMemoryQueue = [];
