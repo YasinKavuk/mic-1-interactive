@@ -205,7 +205,7 @@ describe('complete workflow test without animation', () => {
       .should('have.text', '204')
   });
 
-  it('tests siwtiching of the editors when the toggle-switch is pressed', () => {
+  it('tests switiching of the editors when the toggle-switch is pressed', () => {
     cy.get('body > app-root > app-grid-view > mat-grid-list > div > mat-grid-tile:nth-child(2) > div > div > p')
       .should('have.text', 'Microprograms')
     cy.get('body > app-root > app-grid-view > mat-grid-list > div > mat-grid-tile:nth-child(3) > div > div > p')
@@ -215,6 +215,16 @@ describe('complete workflow test without animation', () => {
       .should('have.text', 'Macroassembler')
     cy.get('body > app-root > app-grid-view > mat-grid-list > div > mat-grid-tile:nth-child(3) > div > div > p')
       .should('have.text', 'Microprograms')
+  });
+
+  it('tests presentation mode', () => {
+    cy.getDemoCode1();
+    cy.get('body > app-root > app-grid-view > mat-grid-list > div > mat-grid-tile:nth-child(3) > div > div > app-editor > div > div.ace_scroller > div')
+      .should('has.css', 'font-size', '14px')
+    cy.get('#mat-slide-toggle-3').click()
+    cy.get('body > app-root > app-grid-view > mat-grid-list > div > mat-grid-tile:nth-child(3) > div > div > app-editor > div > div.ace_scroller > div')
+      .should('has.css', 'font-size', '26px')
+    cy.get('#MBR > foreignObject > div').should('have.css', 'font-size', '18px')
   });
 
   it('Test demo code 1, the result has to be 15', {defaultCommandTimeout: 120000}, () => {
