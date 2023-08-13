@@ -205,6 +205,18 @@ describe('complete workflow test without animation', () => {
       .should('have.text', '204')
   });
 
+  it('tests siwtiching of the editors when the toggle-switch is pressed', () => {
+    cy.get('body > app-root > app-grid-view > mat-grid-list > div > mat-grid-tile:nth-child(2) > div > div > p')
+      .should('have.text', 'Microprograms')
+    cy.get('body > app-root > app-grid-view > mat-grid-list > div > mat-grid-tile:nth-child(3) > div > div > p')
+      .should('have.text', 'Macroassembler')
+    cy.get('#mat-slide-toggle-2').click();
+    cy.get('body > app-root > app-grid-view > mat-grid-list > div > mat-grid-tile:nth-child(2) > div > div > p')
+      .should('have.text', 'Macroassembler')
+    cy.get('body > app-root > app-grid-view > mat-grid-list > div > mat-grid-tile:nth-child(3) > div > div > p')
+      .should('have.text', 'Microprograms')
+  });
+
   it('Test demo code 1, the result has to be 15', {defaultCommandTimeout: 120000}, () => {
     cy.getDemoCode1();
     cy.pushResetButton();
