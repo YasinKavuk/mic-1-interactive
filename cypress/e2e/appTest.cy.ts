@@ -9,7 +9,7 @@ describe('complete workflow test without animation', () => {
 
   it('Tests whether the About Dialog is opening', ()=> {
     cy.get('body > app-root > app-tool-bar > mat-toolbar > button:nth-child(9)')
-      .click();
+      .click(); 
     cy.get('#mat-dialog-0 > app-about-dialog > h1').should('include.text', 'About');
   });
 
@@ -138,6 +138,72 @@ describe('complete workflow test without animation', () => {
     cy.get('#mat-tab-label-0-1').click();
     cy.get('#mat-tab-content-0-1 > div > app-debug-console > div > p').should('include.text', 'InvalidAluInstruction')
   })
+
+  it('Tests whether the memory view does show the right values after loading the code', () => {
+    cy.getDemoCode1();
+    cy.pushResetButton();
+
+    // navigates to the memory view
+    cy.get('body > app-root > app-grid-view > mat-grid-list > div > mat-grid-tile:nth-child(4) > div > div > mat-tab-group > mat-tab-header > button.mat-ripple.mat-tab-header-pagination.mat-tab-header-pagination-after.mat-elevation-z4')
+      .click().click();
+    cy.get('#mat-tab-label-0-2 > div > span').click();
+    cy.get('#mat-tab-content-0-2 > div > app-memory-view > div > mat-tree > mat-tree-node:nth-child(1) > button')
+      .click();
+
+    // tests whether the values are right on every second entry in the memory view
+    cy.get('#mat-tab-content-0-2 > div > app-memory-view > div > mat-tree > mat-tree-node:nth-child(2) > div > span.address')
+      .should('have.text', '(0x00)')
+    cy.get('#mat-tab-content-0-2 > div > app-memory-view > div > mat-tree > mat-tree-node:nth-child(2) > div > span.value')
+      .should('have.text', '182')
+    cy.get('#mat-tab-content-0-2 > div > app-memory-view > div > mat-tree > mat-tree-node:nth-child(4) > div > span.address')
+      .should('have.text', '(0x02)')
+    cy.get('#mat-tab-content-0-2 > div > app-memory-view > div > mat-tree > mat-tree-node:nth-child(4) > div > span.value')
+      .should('have.text', '1')
+    cy.get('#mat-tab-content-0-2 > div > app-memory-view > div > mat-tree > mat-tree-node:nth-child(6) > div > span.address')
+      .should('have.text', '(0x04)')
+    cy.get('#mat-tab-content-0-2 > div > app-memory-view > div > mat-tree > mat-tree-node:nth-child(6) > div > span.value')
+      .should('have.text', '1')
+    cy.get('#mat-tab-content-0-2 > div > app-memory-view > div > mat-tree > mat-tree-node:nth-child(8) > div > span.address')
+      .should('have.text', '(0x06)')
+    cy.get('#mat-tab-content-0-2 > div > app-memory-view > div > mat-tree > mat-tree-node:nth-child(8) > div > span.value')
+      .should('have.text', '0')
+    cy.get('#mat-tab-content-0-2 > div > app-memory-view > div > mat-tree > mat-tree-node:nth-child(10) > div > span.address')
+      .should('have.text', '(0x08)')
+    cy.get('#mat-tab-content-0-2 > div > app-memory-view > div > mat-tree > mat-tree-node:nth-child(10) > div > span.value')
+      .should('have.text', '7')
+    cy.get('#mat-tab-content-0-2 > div > app-memory-view > div > mat-tree > mat-tree-node:nth-child(12) > div > span.address')
+      .should('have.text', '(0x0A)')
+    cy.get('#mat-tab-content-0-2 > div > app-memory-view > div > mat-tree > mat-tree-node:nth-child(12) > div > span.value')
+      .should('have.text', '8')
+    cy.get('#mat-tab-content-0-2 > div > app-memory-view > div > mat-tree > mat-tree-node:nth-child(14) > div > span.address')
+      .should('have.text', '(0x0C)')
+    cy.get('#mat-tab-content-0-2 > div > app-memory-view > div > mat-tree > mat-tree-node:nth-child(14) > div > span.value')
+      .should('have.text', '0')
+    cy.get('#mat-tab-content-0-2 > div > app-memory-view > div > mat-tree > mat-tree-node:nth-child(16) > div > span.address')
+      .should('have.text', '(0x0E)')
+    cy.get('#mat-tab-content-0-2 > div > app-memory-view > div > mat-tree > mat-tree-node:nth-child(16) > div > span.value')
+      .should('have.text', '255')
+    cy.get('#mat-tab-content-0-2 > div > app-memory-view > div > mat-tree > mat-tree-node:nth-child(18) > div > span.address')
+      .should('have.text', '(0x10)')
+    cy.get('#mat-tab-content-0-2 > div > app-memory-view > div > mat-tree > mat-tree-node:nth-child(18) > div > span.value')
+      .should('have.text', '3')
+    cy.get('#mat-tab-content-0-2 > div > app-memory-view > div > mat-tree > mat-tree-node:nth-child(20) > div > span.address')
+      .should('have.text', '(0x12)')
+    cy.get('#mat-tab-content-0-2 > div > app-memory-view > div > mat-tree > mat-tree-node:nth-child(20) > div > span.value')
+      .should('have.text', '0')
+    cy.get('#mat-tab-content-0-2 > div > app-memory-view > div > mat-tree > mat-tree-node:nth-child(22) > div > span.address')
+      .should('have.text', '(0x14)')
+    cy.get('#mat-tab-content-0-2 > div > app-memory-view > div > mat-tree > mat-tree-node:nth-child(22) > div > span.value')
+      .should('have.text', '1')
+    cy.get('#mat-tab-content-0-2 > div > app-memory-view > div > mat-tree > mat-tree-node:nth-child(24) > div > span.address')
+      .should('have.text', '(0x16)')
+    cy.get('#mat-tab-content-0-2 > div > app-memory-view > div > mat-tree > mat-tree-node:nth-child(24) > div > span.value')
+      .should('have.text', '2')
+    cy.get('#mat-tab-content-0-2 > div > app-memory-view > div > mat-tree > mat-tree-node:nth-child(26) > div > span.address')
+      .should('have.text', '(0x18)')
+    cy.get('#mat-tab-content-0-2 > div > app-memory-view > div > mat-tree > mat-tree-node:nth-child(26) > div > span.value')
+      .should('have.text', '204')
+  });
 
   it('Test demo code 1, the result has to be 15', {defaultCommandTimeout: 120000}, () => {
     cy.getDemoCode1();
