@@ -10,7 +10,7 @@ import { ControllerService } from 'src/app/Presenter/controller.service';
 export class ToolBarMicViewComponent implements OnInit {
 
   animate = true;
-  animationSpeed = 2;
+  animationSpeed:number;
 
   disableRunButton = true;
   disableStepButton = true;
@@ -22,6 +22,7 @@ export class ToolBarMicViewComponent implements OnInit {
 
   ngOnInit(): void {
     this.animate = this.director.animationEnabled;
+    this.animationSpeed = this.director.animationSpeed;
 
     this.director.finishedRun$.subscribe( result => {
       result ? this.enableRunButtons() : this.disableRunButtons();
@@ -62,8 +63,7 @@ export class ToolBarMicViewComponent implements OnInit {
 
   changeAnimSpeed(event:any){
     this.animationSpeed = event.value;
-    this.director.animationSpeed = this.animationSpeed;
-
+    this.director.setAnimationSpeed(this.animationSpeed);
   }
 
   toggleAnimVisibility(){

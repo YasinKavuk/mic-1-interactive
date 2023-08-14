@@ -35,6 +35,7 @@ export class DirectorService {
     private macroProvider: MacroProviderService,
     private microProvider: MicroProviderService,
   ) {
+    // load AnimationEnabled from LocalStorage
     let enableAnim = localStorage.getItem("animationEnabled");
     // if there is no data in localStorage enable the animation
     if (enableAnim === "false") {
@@ -42,6 +43,15 @@ export class DirectorService {
     } else {
       this.animationEnabled = true;
     }
+
+    // load animationSpeed from LocalStorage
+    let animationSpeed = localStorage.getItem("animationSpeed");
+    if (animationSpeed !== null) {
+      this.animationSpeed = parseFloat(animationSpeed);
+    } else {
+      this.animationSpeed = 2;
+    }
+
   }
 
   private currentAddress = 1;
@@ -54,7 +64,7 @@ export class DirectorService {
   public isRunning = false;
   public endOfProgram = true;
 
-  public animationSpeed = 2;
+  public animationSpeed: number;
   public animationEnabled = true;
   public isAnimating = false;
 
@@ -487,5 +497,10 @@ export class DirectorService {
   public toggleAnimationEnabled(enabled: boolean) {
     this.animationEnabled = enabled;
     localStorage.setItem("animationEnabled", String(enabled));
+  }
+
+  public setAnimationSpeed(speed: number) {
+    this.animationSpeed = speed;
+    localStorage.setItem("animationSpeed", String(speed));
   }
 }
