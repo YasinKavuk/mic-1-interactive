@@ -22,6 +22,9 @@ export class ToolBarComponent implements OnInit {
 
   public currentApplicationVersion = environment.appVersion;
 
+  lightMode: boolean;
+
+
   constructor(
     private controllerService: ControllerService,
     private dialog: MatDialog,
@@ -29,7 +32,9 @@ export class ToolBarComponent implements OnInit {
     private presentationController: PresentationControllerService,
   ) { }
 
-  ngOnInit(): void { }
+  ngOnInit(): void { 
+    this.lightMode = this.themeControl.darkMode;
+  }
 
   ngDoCheck() {
   }
