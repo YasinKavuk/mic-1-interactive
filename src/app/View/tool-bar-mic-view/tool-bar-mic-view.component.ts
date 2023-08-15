@@ -1,11 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { DirectorService } from 'src/app/Controller/director.service';
-import { ControlStoreService } from 'src/app/Controller/Emulator/control-store.service';
-import { MainMemoryService } from 'src/app/Controller/Emulator/main-memory.service';
-import { MacroParserService } from 'src/app/Controller/macro-parser.service';
-import { MacroProviderService } from 'src/app/Controller/macro-provider.service';
-import { MacroTokenizerService } from 'src/app/Controller/macro-tokenizer.service';
-import { MicroProviderService } from 'src/app/Controller/micro-provider.service';
+import { DirectorService } from 'src/app/Presenter/director.service';
+import { ControllerService } from 'src/app/Presenter/controller.service';
 
 @Component({
   selector: 'app-tool-bar-mic-view',
@@ -15,24 +10,20 @@ import { MicroProviderService } from 'src/app/Controller/micro-provider.service'
 export class ToolBarMicViewComponent implements OnInit {
 
   animate = true;
-  animationSpeed = 2;
+  animationSpeed:number;
 
   disableRunButton = true;
   disableStepButton = true;
 
   constructor(
-    private memory: MainMemoryService,
-    private controlStore: ControlStoreService,
     private director: DirectorService,
-    private macroTokenizer: MacroTokenizerService,
-    private macroParser: MacroParserService,
-    private macroProvider: MacroProviderService,
-    private microProvider: MicroProviderService
+    private controller: ControllerService,
   ) {}
 
   ngOnInit(): void {
-    this.director.animationEnabled = this.animate;
-    
+    this.animate = this.director.animationEnabled;
+    this.animationSpeed = this.director.animationSpeed;
+
     this.director.finishedRun$.subscribe( result => {
       result ? this.enableRunButtons() : this.disableRunButtons();
     })
@@ -43,41 +34,15 @@ export class ToolBarMicViewComponent implements OnInit {
   }
 
   step(){
-    if(this.macroProvider.getMacroGotChanged() || this.microProvider.getMicroGotChanged()){
-      this.controlStore.loadMicro();
-      this.macroTokenizer.init(); 
-      this.macroParser.parse();
-      this.director.reset();
-    }
-    this.disableRunButtons();
-
-    this.director.init();
-    this.director.step();
-
-    this.macroProvider.isLoaded();
-    this.microProvider.isLoaded();
+    this.controller.step();
   }
 
   stepMacro(){
-    if(this.macroProvider.getMacroGotChanged() || this.microProvider.getMicroGotChanged()){
-      this.controlStore.loadMicro();
-      this.macroTokenizer.init(); 
-      this.macroParser.parse();
-      this.director.reset();
-    }
-
-    this.director.init();
-    this.director.runMacroInstruction();
-
-    this.macroProvider.isLoaded();
-    this.microProvider.isLoaded();
+    this.controller.stepMacro();
   }
 
   reset(){
-    this.director.reset();
-
-    // step through INVOKEVIRUAL for main method
-    this.stepMacro();
+    this.controller.reset();
   }
 
   private enableRunButtons(){
@@ -90,32 +55,19 @@ export class ToolBarMicViewComponent implements OnInit {
     this.disableStepButton = true;
   }
 
-
-
   run(){
-    if(this.macroProvider.getMacroGotChanged() || this.microProvider.getMicroGotChanged()){
-      this.controlStore.loadMicro();
-      this.macroTokenizer.init(); 
-      this.macroParser.parse();
-      this.director.reset();
-    }
-
+    this.controller.run();
     this.disableRunButtons();
-    this.director.run();
-
-    this.macroProvider.isLoaded();
-    this.microProvider.isLoaded();
   }
 
 
   changeAnimSpeed(event:any){
     this.animationSpeed = event.value;
-    this.director.animationSpeed = this.animationSpeed;
-
+    this.director.setAnimationSpeed(this.animationSpeed);
   }
 
   toggleAnimVisibility(){
-    this.director.animationEnabled = this.animate;
+    this.director.toggleAnimationEnabled(this.animate);
   }
 
 }

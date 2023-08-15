@@ -44,7 +44,7 @@ export class ParserService {
 
 
 
-  public init(instruction: Token[], address: number) {
+  private init(instruction: Token[], address: number) {
 
     this.tokens = instruction;
     this.address = address
@@ -59,7 +59,10 @@ export class ParserService {
   }
 
 
-  parse(): Instruction {
+  parse(instruction: Token[], address: number): Instruction {
+
+    this.init(instruction, address);
+
     if (this.tokens.length == 0) {
       throw new Error("EmptyInstructionError");
     }
@@ -98,7 +101,7 @@ export class ParserService {
       Alu:   ${this.alu.join("")},
       C:     ${this.c.join("")},
       Mem:   ${this.mem.join("")},
-      B:     ${this.b.join("")}, 
+      B:     ${this.b.join("")},
     `)
     }
 
@@ -265,11 +268,23 @@ export class ParserService {
     let aluInstruction = this.tokens.slice(0, dividerPos + 1);
     let registerAmount = aluInstruction.filter(x => x.type == "REGISTER").length
 
+
+
+
     // split shifter and Alu instructions
     let shifterInstruction: Token[] = [];
     for (let i = 0; i < aluInstruction.length; i++) {
+
       if (aluInstruction[i].type == "BITWISE_OPERATOR") {
-        shifterInstruction = aluInstruction.splice(i, 2);
+        // shifter Instruction has to be at the end of the AluInstruction
+        if (aluInstruction.length - i <= 3) {
+          shifterInstruction = aluInstruction.splice(i, 2);
+          break;
+        } else {
+          throw new Error("InvalidAluInstruction - Shifter Operation must come at the end of the Alu Instruction")
+        }
+
+
       }
     }
 
@@ -331,7 +346,7 @@ export class ParserService {
       } else { aluInstruction.shift(); }
     }
 
-    // 0 
+    // 0
     if (aluInstruction[0].value == "0") {
       this.alu = [0, 0, 0, 1, 0, 0, 0, 0];
       return;
@@ -347,7 +362,7 @@ export class ParserService {
   }
 
   private aluCase1Reg(aluInstruction: Token[]) {
-    // Alu instructions with one Register can be "A", "B", "-A", "A+1", "B+1" or "B-1". 
+    // Alu instructions with one Register can be "A", "B", "-A", "A+1", "B+1" or "B-1".
 
     if (aluInstruction.length > 4) { throw new Error("InvalidAluInstruction"); }
 
@@ -611,10 +626,10 @@ export class ParserService {
 
 
 
-  /**  
+  /**
    * Find the Address for each micro-instruction and create Labels (if given)
    * @param input - Array of Instruction Strings
-   * @return dictionary with addresses and Array with Tokens  
+   * @return dictionary with addresses and Array with Tokens
    * */
   public index(input: string[]): { [address: number]: Line } {
     let tokens: Token[][] = [];
@@ -630,8 +645,7 @@ export class ParserService {
 
     // tokenize all lines
     for (let i = 0; i < input.length; i++) {
-      this.microTokenizer.init(input[i]);
-      tokens[i] = this.microTokenizer.getAllTokens();
+      tokens[i] = this.microTokenizer.getAllTokens(input[i]);
     }
 
     // find the address for each instruction and (if given) create a Label
@@ -641,7 +655,7 @@ export class ParserService {
       // skip empty lines
       if (line.length == 0 || tokens.length == 0) { continue; }
 
-      // if instruction has given Address, e.g (0xF7) -> take it 
+      // if instruction has given Address, e.g (0xF7) -> take it
       if (line[0].type == "ADDRESS") {
         const match = /[a-fA-F0-9]{2,3}/.exec(line[0].value);
         if (match == null) {

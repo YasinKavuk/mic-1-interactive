@@ -1,5 +1,5 @@
 import { AfterViewInit, Component, ElementRef, EventEmitter, Input, Output, QueryList, ViewChild, ViewChildren } from '@angular/core';
-import { BBusResult } from 'src/app/Controller/Emulator/b-bus.service';
+import { BBusResult } from 'src/app/Model/Emulator/b-bus.service';
 import { SvgUtilitiesService } from '../svg-utilities.service';
 declare let anime: any;
 

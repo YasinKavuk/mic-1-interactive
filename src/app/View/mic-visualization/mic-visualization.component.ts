@@ -1,11 +1,10 @@
 import { AfterViewInit, Component, ViewChild } from '@angular/core';
-import { DirectorService } from 'src/app/Controller/director.service';
-import { BBusResult, BBusService } from 'src/app/Controller/Emulator/b-bus.service';
-import { CBusResult } from 'src/app/Controller/Emulator/c-bus.service';
+import { DirectorService } from 'src/app/Presenter/director.service';
+import { BBusResult } from 'src/app/Model/Emulator/b-bus.service';
+import { CBusResult } from 'src/app/Model/Emulator/c-bus.service';
 import { ABusComponent } from '../SVG/a-bus/a-bus.component';
 import { BBusComponent } from '../SVG/b-bus/b-bus.component';
 import { CBusComponent } from '../SVG/c-bus/c-bus.component';
-import { RegistersComponent } from '../SVG/registers/registers.component';
 import { ShifterComponent } from '../SVG/shifter/shifter.component';
 
 @Component({
@@ -22,7 +21,6 @@ export class MicVisualizationComponent implements AfterViewInit {
   animationSpeed = 2;
 
   constructor(
-    private bBusService: BBusService,
     private director: DirectorService,
   ) { }
 
@@ -42,7 +40,6 @@ export class MicVisualizationComponent implements AfterViewInit {
         }
       }
     )
-
 
     this.director.startAnimation.subscribe(
       results => {
@@ -64,7 +61,6 @@ export class MicVisualizationComponent implements AfterViewInit {
               const cBusAnim = this.cBus.startAnimation(cBusResult.registers, cBusResult.value);
               cBusAnim.then(()=> this.director.animationComplete = true);
             })
-            
           })
         }
 

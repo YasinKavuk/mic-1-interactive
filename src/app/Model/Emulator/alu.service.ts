@@ -30,7 +30,7 @@ export class AluService {
 
   /** get the B-Bus value */
   private getB(): void{
-    this.b = this.busB.getValue() 
+    this.b = this.busB.getValue()
   }
 
   /** get the A-Bus value which in Mic-1 is the H Register */
@@ -65,7 +65,7 @@ export class AluService {
   /** @param operation - [F0,F1,ENA,ENB,INVA,INC]  */
   public calc(operation: Array<number>){
     if (operation.length != 6) {
-      throw new Error("ProtocolError - Alu-Operation must have 6 Bits but " + operation.length + " were given"); 
+      throw new Error("ProtocolError - Alu-Operation must have 6 Bits but " + operation.length + " were given");
     }
 
     this.a = undefined;
@@ -73,7 +73,7 @@ export class AluService {
     // Check ENA and ENB
     if(operation[2]){ this.getA();}
     if(operation[3]){ this.getB();}
-    
+
     // execute operation
     let op: string = operation.join("");
     this._result = this.operations[op](this.a,this.b)

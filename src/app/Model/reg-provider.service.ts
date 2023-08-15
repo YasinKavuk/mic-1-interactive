@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Register } from '../Model/Registers';
+import { Register } from './Registers';
 
 @Injectable({
   providedIn: 'root'
@@ -14,7 +14,7 @@ export class RegProviderService {
                                   new Register("CPP", 0, 32),
                                   new Register("TOS", 0, 32),
                                   new Register("OPC", 0, 32),
-                                  new Register("H", 0, 32)] 
+                                  new Register("H", 0, 32)]
 
 
   constructor() { }

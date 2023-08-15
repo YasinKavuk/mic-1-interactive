@@ -22,8 +22,8 @@ export class BBusService {
   }
 
   /**
-   * 
-   * @param reg 
+   *
+   * @param reg
    * @returns BBusResult :: {register: string, value: number}
    */
   public activate(reg: Array<number>): BBusResult {

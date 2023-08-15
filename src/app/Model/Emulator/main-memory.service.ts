@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { RegProviderService } from '../reg-provider.service';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -8,12 +9,13 @@ export class MainMemoryService {
 
   private memory: { [key: number]: number } = {}
 
-  private methodAreaSize: number;
-  private constantPoolSize: number;
+  public methodAreaSize: number;
+  public constantPoolSize: number;
 
   private _stackStartAddress = 0;
 
-  public finished = false;
+  private _updateMemoryView = new BehaviorSubject({address: 0, value: 0});
+  public updateMemoryView$ = this._updateMemoryView.asObservable();
 
   constructor(
     private regProvider: RegProviderService,
@@ -28,7 +30,6 @@ export class MainMemoryService {
     this.methodAreaSize = 0;
     this.constantPoolSize = 0;
     this._stackStartAddress = 0;
-    this.finished = false;
   }
 
   public store_32(address: number, value: number, setter?: boolean) {
@@ -47,6 +48,8 @@ export class MainMemoryService {
     this.memory[address + 1] = view.getUint8(1);
     this.memory[address + 2] = view.getUint8(2);
     this.memory[address + 3] = view.getUint8(3);
+
+    this._updateMemoryView.next({ address: address, value: value});
   }
 
   private store_8(address: number, value: number) {
@@ -70,9 +73,8 @@ export class MainMemoryService {
   }
 
   public get_8(address: number, intern?: boolean): number {
-    if (address >= this.methodAreaSize) { 
+    if (address >= this.methodAreaSize) {
       console.warn("PC reading outside of Method Area (PC is not pointing to Code), current PC value: ", address);
-      this.finished = true;
     }
     if (address in this.memory) {
       return this.memory[address];
@@ -120,12 +122,12 @@ export class MainMemoryService {
     for (let i = 0; i < keys.length; i += 4) {
       console.log(`  ${this.dec2hex(parseInt(keys[i]))}        0b${this.get_32(parseInt(keys[i])).toString(2)} = ${this.get_32(parseInt(keys[i]))}`)
     }
-    
+
     console.groupEnd();
   }
 
 
-  private dec2hex(number: number) {
+  public dec2hex(number: number) {
     let prefix = "0x"
     if (number < 16) {
       prefix = prefix + "0"
@@ -141,7 +143,6 @@ export class MainMemoryService {
     for (let i = 0; i < code.length; i++) {
       this.store_8(i, code[i]);
     }
-    this.finished = false;
   }
 
   /**
@@ -169,6 +170,10 @@ export class MainMemoryService {
       this.store_32(start + i * 4, 0);
     }
     this.regProvider.getRegister("SP").setValue(this.regProvider.getRegister("SP").getValue() + amount);
+  }
+
+  public getMemory(){
+    return this.memory;
   }
 
 

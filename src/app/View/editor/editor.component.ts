@@ -1,12 +1,11 @@
 import { AfterViewInit, Component, ElementRef, OnChanges, SimpleChanges, ViewChild } from "@angular/core";
-import { MacroProviderService } from "src/app/Controller/macro-provider.service";
-import { ControllerService } from "src/app/Controller/controller.service";
+import { MacroProviderService } from "src/app/Model/macro-provider.service";
 import * as ace from "ace-builds";
-import { DirectorService } from "src/app/Controller/director.service";
+import { DirectorService } from "src/app/Presenter/director.service";
 import { timer } from "rxjs";
-import { MacroParserService } from "src/app/Controller/macro-parser.service";
-import { ThemeControlService } from "src/app/Controller/theme-control.service";
-import { PresentationModeControllerService } from "src/app/Controller/presentation-mode-controller.service";
+import { ThemeControlService } from "src/app/Presenter/theme-control.service";
+import { PresentationControllerService } from "src/app/Presenter/presentation-controller.service";
+import { ControllerService } from "src/app/Presenter/controller.service";
 
 
 const LANG = "ace/mode/mic1";
@@ -46,16 +45,13 @@ export class EditorComponent implements AfterViewInit {
   file: String;
 
   constructor(
-    private macroProvider: MacroProviderService,
-    private controllerService: ControllerService,
     private directorService: DirectorService,
-    private macroParser: MacroParserService,
     private themeController: ThemeControlService,
-    private presentationModeController: PresentationModeControllerService,
+    private presentationController: PresentationControllerService,
+    private controller: ControllerService,
   ) { }
 
   ngOnInit(): void {
-    this.content = this.macroProvider.getMacro();
   }
 
   ngAfterViewInit(): void {
@@ -73,9 +69,21 @@ export class EditorComponent implements AfterViewInit {
       this.content = this.aceEditor.getValue();
 
       // Updates the macrocode on the macro provider
-      this.macroProvider.setMacro(this.content);
+      this.controller.setMacroInModel(this.content);
       this.removeErrorHighlighting();
     })
+
+    // toggle Breakpoints
+    let editor = this.aceEditor;
+
+    let setBreakpoint = (line: number) => {
+      let editorLineWithoutEmptyRows = this.controller.getEditorLineWithoutEmptyRows(line);
+      this.directorService.setMacroBreakpoint(editorLineWithoutEmptyRows + 1);
+    }
+
+    let clearBreakpoint = (line: number) => {
+      this.directorService.clearMacroBreakpoint(line + 1);
+    }
 
 
     // toggle Theme
@@ -88,18 +96,6 @@ export class EditorComponent implements AfterViewInit {
         }
       }
     )
-
-    // toggle Breakpoints
-    let editor = this.aceEditor;
-
-    let setBreakpoint = (line: number) => {
-      let editorLineWithoutEmptyRows = this.macroProvider.getEditorLineWithoutEmptyRows(line);
-      this.directorService.setMacroBreakpoint(editorLineWithoutEmptyRows + 1);
-    }
-
-    let clearBreakpoint = (line: number) => {
-      this.directorService.clearMacroBreakpoint(line + 1);
-    }
 
     this.aceEditor.on("guttermousedown", function (e) {
       let target = e.domEvent.target;
@@ -123,15 +119,15 @@ export class EditorComponent implements AfterViewInit {
     });
 
     // flash an error message when an error occurs
-    this.macroParser.errorFlasher$.subscribe(error => {
+    this.presentationController.errorFlasher$.subscribe(error => {
       if (error.error) {
-        let editorErrorLine = this.macroProvider.getEditorLineWithParserLine(error.line);
+        let editorErrorLine = this.controller.getEditorLineWithParserLine(error.line);
         this.flashErrorMessage(error.error, editorErrorLine);
       }
     });
 
     // change editor options when Presentationmode is toggled
-    this.presentationModeController.presentationMode$.subscribe(presentationMode => {
+    this.presentationController.presentationMode$.subscribe(presentationMode => {
       if(presentationMode.presentationMode == true){
         this.aceEditor.setOptions(editorOptionsPresentation)
       }
@@ -143,12 +139,23 @@ export class EditorComponent implements AfterViewInit {
     // highlight line if we hit a breakpoint
     this.directorService.breakpointFlasherMacro$.subscribe(breakpoint => {
       if (breakpoint.line) {
-        let editorBreakpointLine = this.macroProvider.getEditorLineWithParserLine(breakpoint.line);
+        let editorBreakpointLine = this.controller.getEditorLineWithParserLine(breakpoint.line);
         this.highlightBreakpoint(editorBreakpointLine)
         const source = timer(10000);
         source.subscribe(() => this.removeBreakpointHighlighting())
       }
     });
+
+    // updates macrocode when new code is imported or macrocode is loaded from local storage
+    this.controller.macroCode$.subscribe(
+      content => {
+        this.content = content.macroCode;
+        this.removeErrorHighlighting();
+        this.aceEditor.session.setValue(this.content);
+        this.directorService.clearMacroBreakpoints();
+        this.aceEditor.session.setValue(this.content);
+      }
+    )
   }
 
   private highlightBreakpoint(line: number) {
@@ -170,21 +177,6 @@ export class EditorComponent implements AfterViewInit {
     this.aceEditor.getSession().addMarker(new ace.Range(line - 1, 0, line, 0), "ace_error-line", "text");
     this.aceEditor.scrollToRow(line - 4);
 
-  }
-
-  ngDoCheck() {
-    if (this.macroProvider.getMacro() !== this.content) {
-      this.content = this.macroProvider.getMacro();
-      this.removeErrorHighlighting();
-      this.aceEditor.session.setValue(this.content);
-      this.directorService.clearMacroBreakpoints();
-      this.aceEditor.session.setValue(this.content);
-    }
-  }
-
-  import(event: any) {
-    this.file = event.target.files[0];
-    this.controllerService.importMacro(this.file);
   }
 
   private removeErrorHighlighting() {
@@ -215,12 +207,8 @@ export class EditorComponent implements AfterViewInit {
     }
   }
 
-  exportMacro() {
-    this.controllerService.exportMacro();
-  }
-
   getOptions(){
-    if(this.presentationModeController.getPresentationMode() == false){
+    if(this.presentationController.getPresentationMode() == false){
       return editorOptions
     }
     else{

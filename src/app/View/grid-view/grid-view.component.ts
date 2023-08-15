@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { GridViewControllerService } from 'src/app/Controller/grid-view-controller.service';
+import { PresentationControllerService } from 'src/app/Presenter/presentation-controller.service';
 
 @Component({
   selector: 'app-grid-view',
@@ -10,15 +10,20 @@ export class GridViewComponent implements OnInit {
   areEditorsSwapped: boolean = false;
 
   constructor(
-    private gridViewController: GridViewControllerService,
+    private presentationController: PresentationControllerService,
   ) { }
 
   ngOnInit(): void {
+    this.presentationController.switchEditors$.subscribe(
+      content => {
+        if(content.switchEditors === true){
+          this.areEditorsSwapped = true;
+        }
+        else{
+          this.areEditorsSwapped = false;
+        }
+      }
+    )
   }
 
-  ngDoCheck(){
-    if(this.gridViewController.getAreEditorsSwapped() !== this.areEditorsSwapped){
-      this.areEditorsSwapped = !this.areEditorsSwapped;
-    }
-  }
 }

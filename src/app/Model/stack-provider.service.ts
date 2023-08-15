@@ -16,11 +16,11 @@ export class StackProviderService  {
   private _lv: number = 0;
 
   private _items: [number,number][] = [];
-  
+
   public get items() : [number,number][]  {
     return this._items;
   }
-  
+
 
 
   public update(){

@@ -1,17 +1,67 @@
 <svg:g #nArrow id="ALU N Arrow" transform="translate(0 -150)">
     <path id="Arrow 19"
+        transform="scale(-1, 1) translate(-624, 0)"
         d="M424 763.287L414 757.514V769.061L424 763.287ZM374 764.287H415V762.287H374V764.287Z"
         [attr.fill]="nFlag  ? 'red' : 'black'" />
     <path id="N"
+        transform="translate(-240, 0)"
         d="M431.977 757.273V766H430.955L426.199 759.148H426.114V766H425.057V757.273H426.08L430.852 764.142H430.938V757.273H431.977Z"
         [attr.fill]="nFlag  ? 'red' : 'black'" />
 </g>
 <svg:g #zArrow id="ALU Z Arrow" transform="translate(0 -150)">
     <path id="Arrow 20_26"
+        transform="scale(-1, 1) translate(-624, 0)"
         d="M424 780L414 774.226V785.774L424 780ZM362 781H415V779H362V781Z"
         [attr.fill]="zFlag  ? 'red' : 'black'"
          />
     <path id="Z"
+        transform="translate(-240, 0)"
         d="M424.767 784.787V784.02L429.472 776.997H424.716V776.06H430.733V776.827L426.028 783.85H430.784V784.787H424.767Z"
         [attr.fill]="zFlag  ? 'red' : 'black'" />
+</g>
+
+<svg:g id="Alu-Bits" transform="translate(150, 600)">
+
+    <g id="N-Bit">
+        <g id="Rectangle 1">
+            <rect id="Rectangle 1_2" x="1" y="19" width="45" height="19.32" fill="#D9D9D9" stroke="black" stroke-width="2"/>
+            <line id="Line 10" x1="23.2025" y1="17.9948" x2="23.2025" y2="39.32" stroke="black"/>
+        </g>
+
+        <!-- Z Name  -->
+        <foreignObject x="1" y="20" width="22" height="19">
+            <div class="center" [ngClass]="{'presentationMode': presentationMode}">
+                Z 
+            </div>
+        </foreignObject>
+
+        <!-- Z Value-->
+        <foreignObject x="22" y="20" width="22" height="19">
+            <div class="center Z_Value" [ngClass]="{'presentationMode': presentationMode}">
+                0 
+            </div>
+        </foreignObject>
+    </g>
+
+    <g id="Z-Bit">
+        <g id="Rectangle 1_3">
+            <rect id="Rectangle 1_4" x="1" y="2" width="45" height="19.32" fill="#D9D9D9" stroke="black" stroke-width="2"/>
+            <line id="Line 10_2" x1="23.2025" y1="0.994781" x2="23.2025" y2="22.32" stroke="black"/>
+        </g>
+
+        <!-- N Name  -->
+        <foreignObject x="1" y="2" width="22" height="19">
+            <div class="center" [ngClass]="{'presentationMode': presentationMode}">
+                N 
+            </div>
+        </foreignObject>
+
+        <!-- N Value  -->
+        <foreignObject x="22" y="2" width="22" height="19">
+            <div class="center N_Value" [ngClass]="{'presentationMode': presentationMode}">
+                0 
+            </div>
+        </foreignObject>
+        
+    </g>
 </g>

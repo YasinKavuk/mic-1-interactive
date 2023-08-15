@@ -1,8 +1,6 @@
 import { AfterViewChecked, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { DirectorService } from 'src/app/Controller/director.service';
-import { MacroParserService } from 'src/app/Controller/macro-parser.service';
-import { MacroProviderService } from 'src/app/Controller/macro-provider.service';
-import { PresentationModeControllerService } from 'src/app/Controller/presentation-mode-controller.service';
+import { DirectorService } from 'src/app/Presenter/director.service';
+import { PresentationControllerService } from 'src/app/Presenter/presentation-controller.service';
 
 
 interface Line {
@@ -22,15 +20,13 @@ export class DebugConsoleComponent implements OnInit, AfterViewChecked {
 
   constructor(
     private director: DirectorService,
-    private macroParser: MacroParserService,
-    private macroProvider: MacroProviderService,
-    private presentationModeController: PresentationModeControllerService,
+    private presentationController: PresentationControllerService,
   ) { }
 
   ngOnInit(): void {
 
-    // toggle presentationMode 
-    this.presentationModeController.presentationMode$.subscribe( mode => {
+    // toggle presentationMode
+    this.presentationController.presentationMode$.subscribe( mode => {
       this.presentationMode = mode.presentationMode;
     })
 
@@ -45,11 +41,10 @@ export class DebugConsoleComponent implements OnInit, AfterViewChecked {
     )
 
     // log MacroErrors
-    this.macroParser.errorFlasher$.subscribe(
-      error => {
-        if (!error.error) { return };
-        let content = "macrocode:" + this.macroProvider.getEditorLineWithParserLine(error.line) + "\t->\t" + error.error;
-        this.content.push({ type: "error", content: content });
+    this.presentationController.errorFlasher$.subscribe(
+      a => {
+        if (!a.error) { return };
+        this.content.push({ type: "error", content: a.content });
       }
     )
 
@@ -60,15 +55,6 @@ export class DebugConsoleComponent implements OnInit, AfterViewChecked {
         this.content.push({ type: "info", content: "microcode \t->\t Hit Breakpoint in line " + breakpoint.line })
       }
     )
-
-    /*
-    this.director.breakpointFlasherMacro$.subscribe(
-      breakpoint => {
-        if (!breakpoint.line) { return };
-        this.content.push({type: "info", content: "macrocode \t->\t Hit Breakpoint in line " + breakpoint.line})
-      }
-    )
-    */
 
     // log reset Event
     this.director.consoleNotifier$.subscribe(

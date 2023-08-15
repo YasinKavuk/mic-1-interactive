@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Microprogramms } from '../Microprogramms/Microprograms';
+import { Microprogramms } from '../../assets/Microprogramms/Microprograms';
 
 @Injectable({
   providedIn: 'root'

@@ -18,7 +18,7 @@ export class CBusService {
   public get writtenRegisters(): string[]{
     return this._writtenRegisters;
   }
-  
+
   // all Register that can be written by the C-Bus (ordered according to Tannenbaum)
   private readonly registers: string[] = [
     "H",

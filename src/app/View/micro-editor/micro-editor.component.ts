@@ -1,11 +1,10 @@
 import { AfterViewInit, Component, ElementRef, ViewChild, ɵɵqueryRefresh } from "@angular/core";
-import { MicroProviderService } from "src/app/Controller/micro-provider.service";
-import { ControllerService } from "src/app/Controller/controller.service";
+import { ControllerService } from "src/app/Presenter/controller.service";
 import * as ace from "ace-builds";
-import { DirectorService } from "src/app/Controller/director.service";
+import { DirectorService } from "src/app/Presenter/director.service";
 import { timer } from "rxjs";
-import { ThemeControlService } from "src/app/Controller/theme-control.service";
-import { PresentationModeControllerService } from "src/app/Controller/presentation-mode-controller.service";
+import { ThemeControlService } from "src/app/Presenter/theme-control.service";
+import { PresentationControllerService } from "src/app/Presenter/presentation-controller.service";
 
 
 const LANG = "ace/mode/micro";
@@ -44,16 +43,14 @@ export class MicroEditorComponent implements AfterViewInit {
 
 
   constructor(
-    private microProvider: MicroProviderService,
-    private controllerService: ControllerService,
+    private controller: ControllerService,
     private directorService: DirectorService,
     private themeControl: ThemeControlService,
-    private presentationModeController: PresentationModeControllerService,
+    private presentationController: PresentationControllerService,
   ) { }
 
 
   ngOnInit(): void {
-    this.content = this.microProvider.getMicro();
   }
 
   ngAfterViewInit(): void {
@@ -71,7 +68,7 @@ export class MicroEditorComponent implements AfterViewInit {
       this.content = this.aceEditor.getValue();
 
       // Updates the microcode on the micro provider
-      this.microProvider.setMicro(this.content);
+      this.controller.setMicroInModel(this.content);
       this.removeErrorHighlighting();
     })
 
@@ -127,7 +124,7 @@ export class MicroEditorComponent implements AfterViewInit {
     })
 
     // change editor options when Presentationmode is toggled
-    this.presentationModeController.presentationMode$.subscribe(presentationMode => {
+    this.presentationController.presentationMode$.subscribe(presentationMode => {
       if(presentationMode.presentationMode == true){
         this.aceEditor.setOptions(editorOptionsPresentation)
       }
@@ -150,7 +147,22 @@ export class MicroEditorComponent implements AfterViewInit {
       this.highlightLine(line.line);
     })
 
+    // updates microcode when new code is imported or microcode is loaded from local storage
+    this.controller.microCode$.subscribe(
+      content => {
+        this.content = content.microCode;
+        this.removeErrorHighlighting();
+        this.aceEditor.session.clearBreakpoints();
+        this.directorService.clearMicroBreakpoints();
+        this.aceEditor.session.setValue(this.content);
+      }
+    )
 
+
+    // clear Errors on refresh
+    this.directorService.refreshNotifier$.subscribe( _ => {
+      this.removeErrorHighlighting();
+    })
 
   }
 
@@ -159,7 +171,7 @@ export class MicroEditorComponent implements AfterViewInit {
     this.aceEditor.getSession().addMarker(new ace.Range(line - 1, 0, line, 0), "ace_highlight-line", "text");
   }
 
-  
+
 
   private highlightBreakpoint(line: number) {
     this.aceEditor.getSession().addMarker(new ace.Range(line - 1, 0, line, 0), "ace_breakpoint-line", "text");
@@ -181,21 +193,6 @@ export class MicroEditorComponent implements AfterViewInit {
     this.aceEditor.getSession().addMarker(new ace.Range(line - 1, 0, line, 0), "ace_error-line", "text");
     this.aceEditor.scrollToRow(line - 4);
 
-  }
-
-  ngDoCheck() {
-    if (this.microProvider.getMicro() !== this.content) {
-      this.content = this.microProvider.getMicro();
-      this.removeErrorHighlighting();
-      this.aceEditor.session.clearBreakpoints();
-      this.directorService.clearMicroBreakpoints();
-      this.aceEditor.session.setValue(this.content);
-    }
-  }
-
-  import(event: any) {
-    this.file = event.target.files[0];
-    this.controllerService.importMicro(this.file);
   }
 
   private removeErrorHighlighting() {
@@ -241,7 +238,7 @@ export class MicroEditorComponent implements AfterViewInit {
 
 
   getOptions(){
-    if(this.presentationModeController.getPresentationMode() == false){
+    if(this.presentationController.getPresentationMode() == false){
       return editorOptions
     }
     else{

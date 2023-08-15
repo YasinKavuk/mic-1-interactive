@@ -43,7 +43,7 @@ export class MacroTokenizerService {
     [/^[a-z]([a-zA-Z0-9]+)?/, "NEW_VARIABLE"],
   ];
 
-  
+
   private string: string = "";
   private curser: number = 0;
 
@@ -69,7 +69,7 @@ export class MacroTokenizerService {
       }
       console.log(this.token);
       this.tokens.push(this.token);
-    } 
+    }
     this.resetTokenizer();
   }
 
@@ -90,7 +90,7 @@ export class MacroTokenizerService {
     if (!this.hasMoreTokens()){
       return null;
     }
-    
+
     const string = this.string.slice(this.curser);
 
     for (const [regexp, tokenType] of this.Spec){
@@ -100,12 +100,12 @@ export class MacroTokenizerService {
       if (tokenValue == null) {
         continue;
       }
-      
+
       // Skip null Token, e.g whitespace and comment
       if (tokenType == null) {
         return this.getNextToken();
       }
-      
+
       return{
         type: tokenType,
         value: tokenValue,

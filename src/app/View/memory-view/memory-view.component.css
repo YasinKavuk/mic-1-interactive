@@ -1,0 +1,66 @@
+.table {
+    height: 100%;
+    width: 100%;
+    overflow-y: auto;
+}
+
+#memory {
+    width: 100px;
+    color: white;
+    text-align: center;
+}
+
+#memory td,
+#memory th {
+    border: 1px solid grey;
+    padding: 3px;
+}
+
+#memory tr:nth-child(even) {
+    background-color: #5c5852;
+}
+
+#memory tr:nth-child(odd) {
+    background-color: #403d39;
+}
+
+#memory tr:hover {
+    background-color: #7c7c7c;
+}
+
+#memory th {
+    padding-top: 3px;
+    padding-bottom: 3px;
+    text-align: left;
+    background-color: #006e46;
+    color: white;
+}
+
+
+
+.mat-tree {
+    background: transparent;
+}
+
+.mat-tree-node {
+    color: white;
+}
+
+.entry{
+    display: flex;
+    justify-content: center;
+}
+
+.wrapper{
+    overflow-y: auto;
+    max-height: 100%;
+    width: 100%;
+}
+
+.value{
+    margin-left: 30%;
+}
+
+.light{
+    color:black;
+}

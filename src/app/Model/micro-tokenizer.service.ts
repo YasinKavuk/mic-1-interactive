@@ -88,7 +88,7 @@ export class MicroTokenizerService {
 
   constructor() { }
 
-  init(string:string): void{
+  private init(string:string): void{
       this.string = string
       this.curser = 0;
   }
@@ -135,7 +135,8 @@ export class MicroTokenizerService {
     throw new SyntaxError(`Unexpected token: "${string[0]}"`); 
   }
 
-  getAllTokens():Token[]{
+  getAllTokens(string:string):Token[]{
+    this.init(string);
     let tokens: Token[] = [];
     while(true){
       let token = this.getNextToken();

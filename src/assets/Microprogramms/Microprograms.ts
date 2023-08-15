@@ -22,7 +22,9 @@ export class Microprogramms{
 
 (0x05)DUP: MAR = SP = SP+1
     MDR=TOS;wr;goto Main1
-    (0x57)POP: MAR=SP=SP-1; rd;
+
+(0x57)POP: MAR=SP=SP-1; rd;
+    pop1:   //wait
     TOS=MDR;goto Main1
 
 (0x19)SWAP: MAR=SP-1; rd;
@@ -115,7 +117,8 @@ export class Microprogramms{
     PC=PC+1; fetch
     LV=TOS; goto Main1
 
-(0xAF)IRETURN:MAR=SP=LV; rd
+(0xCC)IRETURN:MAR=SP=LV; rd
+    ireturn1:   //wait
     LV=MAR=MDR; rd
     MAR=LV+1
     PC=MDR;rd;fetch

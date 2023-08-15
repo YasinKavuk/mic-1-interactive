@@ -1,18 +1,18 @@
 import { Injectable } from '@angular/core';
-import { AluService } from './Emulator/alu.service';
-import { BBusService, BBusResult } from './Emulator/b-bus.service';
-import { CBusService, CBusResult } from './Emulator/c-bus.service';
-import { ControlStoreService } from './Emulator/control-store.service';
-import { MainMemoryService } from './Emulator/main-memory.service';
-import { Instruction, Line, ParserService } from './Emulator/parser.service';
-import { ShifterService } from './Emulator/shifter.service';
-import { RegProviderService } from './reg-provider.service';
-import { StackProviderService } from './stack-provider.service';
+import { AluService } from '../Model/Emulator/alu.service';
+import { BBusService, BBusResult } from '../Model/Emulator/b-bus.service';
+import { CBusService, CBusResult } from '../Model/Emulator/c-bus.service';
+import { ControlStoreService } from '../Model/Emulator/control-store.service';
+import { MainMemoryService } from '../Model/Emulator/main-memory.service';
+import { Instruction, Line, ParserService } from '../Model/Emulator/parser.service';
+import { ShifterService } from '../Model/Emulator/shifter.service';
+import { RegProviderService } from '../Model/reg-provider.service';
+import { StackProviderService } from '../Model/stack-provider.service';
 import { BehaviorSubject, Subscription } from 'rxjs';
-import { MacroParserService } from './macro-parser.service';
-import { MacroTokenizerService } from './macro-tokenizer.service';
-import { MacroProviderService } from './macro-provider.service';
-import { MicroProviderService } from './micro-provider.service';
+import { MacroParserService } from '../Model/macro-parser.service';
+import { MacroTokenizerService } from '../Model/macro-tokenizer.service';
+import { MacroProviderService } from '../Model/macro-provider.service';
+import { MicroProviderService } from '../Model/micro-provider.service';
 
 
 @Injectable({
@@ -34,7 +34,25 @@ export class DirectorService {
     private macroTokenizer: MacroTokenizerService,
     private macroProvider: MacroProviderService,
     private microProvider: MicroProviderService,
-  ) { }
+  ) {
+    // load AnimationEnabled from LocalStorage
+    let enableAnim = localStorage.getItem("animationEnabled");
+    // if there is no data in localStorage enable the animation
+    if (enableAnim === "false") {
+      this.animationEnabled = false;
+    } else {
+      this.animationEnabled = true;
+    }
+
+    // load animationSpeed from LocalStorage
+    let animationSpeed = localStorage.getItem("animationSpeed");
+    if (animationSpeed !== null) {
+      this.animationSpeed = parseFloat(animationSpeed);
+    } else {
+      this.animationSpeed = 2;
+    }
+
+  }
 
   private currentAddress = 1;
   private lineNumber = 0;
@@ -46,7 +64,7 @@ export class DirectorService {
   public isRunning = false;
   public endOfProgram = true;
 
-  public animationSpeed = 2;
+  public animationSpeed: number;
   public animationEnabled = true;
   public isAnimating = false;
 
@@ -60,7 +78,7 @@ export class DirectorService {
   private hitBreakpoint = false;
 
 
-  // Observables to notify other components 
+  // Observables to notify other components
   private startAnimationSource = new BehaviorSubject([]);
   public startAnimation = this.startAnimationSource.asObservable();
 
@@ -87,6 +105,9 @@ export class DirectorService {
 
   private _aluFlags = new BehaviorSubject({ N: false, Z: false });
   public aluFlags$ = this._aluFlags.asObservable();
+
+  private _refreshNotifier = new BehaviorSubject(false);
+  public refreshNotifier$ = this._consoleNotifier.asObservable();
 
 
 
@@ -140,8 +161,12 @@ export class DirectorService {
 
   public async step() {
 
-    // check if program is finished -- pc reads outside of Code Area
-    if (this.mainMemory.finished && (this.currentAddress === 1 || this.currentAddress === 0)) {
+    if (this.isAnimating) {
+      this.updateRegisterVis();
+    }
+
+    // the flag 0xFF means the program is finished - if we find it -> end program
+    if (this.currentAddress === 255) {
       this.endOfProgram = true;
       this._consoleNotifier.next("Program terminated successfully!");
       this._finishedRun.next(false); // disableButtons
@@ -221,12 +246,29 @@ export class DirectorService {
 
 
     // parse instruction
-    this.parser.init(tokens, this.currentAddress);
     let microInstruction: Instruction
     try {
-      microInstruction = this.parser.parse();
+      microInstruction = this.parser.parse(tokens, this.currentAddress);
     } catch (error) {
       if (error instanceof Error) {
+
+        // skip rest of current step if the instruction is empty
+        if (error.message === "EmptyInstructionError") {
+
+          // if the next Instruction is not defined -> error
+          if (this.controlStore.getMicro()[this.currentAddress + 1] === undefined) {
+            this._errorFlasher.next({ line: this.lineNumber, error: error.message });
+            this.endOfProgram = true;
+            return;
+          };
+
+          // if next instruction is defined skip to next instruction
+          this.currentAddress++;
+          this._finishedRun.next(true);
+          this.updateRegisterVis();
+          return;
+        }
+
         console.error("Error in line " + this.lineNumber + " - " + error);
         this._errorFlasher.next({ line: this.lineNumber, error: error.message });
       }
@@ -276,8 +318,7 @@ export class DirectorService {
 
     // find address after a jump
     let micro = this.controlStore.getMicro()
-    if (micro[this.currentAddress] === undefined) {
-      this.lineNumber
+    if (micro[this.currentAddress] === undefined && this.currentAddress !== 255) {
 
       let closestLine = Infinity;
       let address: string;
@@ -367,6 +408,8 @@ export class DirectorService {
       register.setValue(0);
     }
 
+    this._refreshNotifier.next(true);
+
     // reset Queues
     this.MBRMemoryQueue = [];
     this.MDRMemoryQueue = [];
@@ -398,7 +441,6 @@ export class DirectorService {
 
     //reset program
     this.endOfProgram = false;
-    this.mainMemory.finished = false;
 
     // reset stack View
     this.stackProvider.update()
@@ -450,5 +492,15 @@ export class DirectorService {
 
   public clearMacroBreakpoints() {
     this.macroBreakpoints = [];
+  }
+
+  public toggleAnimationEnabled(enabled: boolean) {
+    this.animationEnabled = enabled;
+    localStorage.setItem("animationEnabled", String(enabled));
+  }
+
+  public setAnimationSpeed(speed: number) {
+    this.animationSpeed = speed;
+    localStorage.setItem("animationSpeed", String(speed));
   }
 }
