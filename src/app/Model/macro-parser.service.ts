@@ -703,13 +703,18 @@ export class MacroParserService {
               if(label !== undefined && label > 0){
                 offset = label - this.parsedTokenNumber;
                 console.log("OFFSET: " + offset);
-                this.addrToOffset[this.parsedTokenNumber+5] = this.parsedTokenNumber+3 + offset;
-                const buffer = new ArrayBuffer(2);
-                const view = new DataView(buffer, 0);
-                view.setInt16(0, offset);
-                this.parsedCode.push(view.getUint8(0));
-                this.parsedTokenNumber += 1;
-                parsedParameter = view.getUint8(1);
+                // only consider label when it is in the same method
+                if((this.parsedTokenNumber+offset) >= startTokenNumberMethod){ 
+                  this.addrToOffset[this.parsedTokenNumber+5] = this.parsedTokenNumber+3 + offset;
+                  const buffer = new ArrayBuffer(2);
+                  const view = new DataView(buffer, 0);
+                  view.setInt16(0, offset);
+                  this.parsedCode.push(view.getUint8(0));
+                  this.parsedTokenNumber += 1;
+                  parsedParameter = view.getUint8(1);
+                }else{
+                  throw new Error("The Label '" + instructionToken[i] + "' and the jump instruction is not in the same method");
+                }
               }
               // case for the label beeing in an later line than the GOTO
               else{
@@ -757,7 +762,7 @@ export class MacroParserService {
                   parsedParameter = view.getUint8(1);
                 }
                 else{
-                  // throw new Error("Unexpected token: " + instructionToken[i]);
+                  throw new Error("The Label '" + instructionToken[i] + "' and the jump instruction is not in the same method");
                 }
               }
             }
