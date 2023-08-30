@@ -2,6 +2,7 @@
     <input #fileMac hidden type="file" (change)="importMacro($event)" accept=".txt">
     <input #fileMic hidden type="file" (change)="importMicro($event)" accept=".txt">
 
+    <!-- Import/Export -->
     <div mdbDropdown class="dropdown">
         <button mat-button
           class="btn btn-primary dropdown-toggle"
@@ -21,16 +22,34 @@
 
     <span class="spacer"></span>
 
-    <div class="modeSwitcher">
-      <mat-slide-toggle [(ngModel)]="this.lightMode" (change)="toggleTheme($event)">Light Mode</mat-slide-toggle>
-      <mat-slide-toggle (change)="switchEditors($event)">Switch Editors</mat-slide-toggle>
-      <mat-slide-toggle (change)="togglePresentationMode($event)">Presentation Mode</mat-slide-toggle>
-    </div>
 
-    <span class="verticalLine"></span>
     <a mat-button target="_blank" href="https://github.com/vs-ude/mic-1-toolbox/discussions/120">Forum</a>
     <button class="btn" mat-button (click)="openGettingStartedDialog()">Getting Started</button>
     <button class="btn" mat-button (click)="openAboutDialog()">About</button>
     <span class="version">v{{ currentApplicationVersion }}</span>
+
+
+    <!-- Settings Menu -->
+    <span class="verticalLine"></span>
+    <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Settings Dialog">
+      <mat-icon>more_vert</mat-icon>
+    </button>
+    <mat-menu #menu="matMenu">
+      <div style="margin-bottom: 2%;">
+        <mat-slide-toggle [(ngModel)]="this.lightMode" (change)="toggleTheme($event)" [ngStyle]="lightMode && {'color':'#f0f0f0'}">
+          Light Mode
+        </mat-slide-toggle>
+      </div>
+      <div style="margin-bottom: 2%;">
+        <mat-slide-toggle (change)="switchEditors($event)" [ngStyle]="lightMode && {'color':'#f0f0f0'}">
+          Switch Editors
+        </mat-slide-toggle>
+      </div>
+      <div style="margin-bottom: 2%;">
+        <mat-slide-toggle (change)="togglePresentationMode($event)" [ngStyle]="lightMode && {'color':'#f0f0f0'}">
+          Presentation Mode
+        </mat-slide-toggle>
+      </div>
+    </mat-menu>
 
 </mat-toolbar>
