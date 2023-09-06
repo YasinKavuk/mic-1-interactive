@@ -41,21 +41,21 @@ function pushMacStepButton(): void{
 }
 
 function getDemoCode1(): void {
-  cy.get('body > app-root > app-tool-bar > mat-toolbar > button:nth-child(8)')
+  cy.get('body > app-root > app-tool-bar > mat-toolbar > button:nth-child(6)')
     .click();
     cy.get('#mat-dialog-0 > app-getting-started-dialog > mat-dialog-content > ul > li:nth-child(13) > mat-dialog-actions > button:nth-child(1)')
     .click();
 }
 
 function getDemoCode2(): void {
-  cy.get('body > app-root > app-tool-bar > mat-toolbar > button:nth-child(8)')
+  cy.get('body > app-root > app-tool-bar > mat-toolbar > button:nth-child(6)')
     .click();
   cy.get('#mat-dialog-0 > app-getting-started-dialog > mat-dialog-content > ul > li:nth-child(13) > mat-dialog-actions > button:nth-child(2)')
     .click();
 }
 
 function getDemoCode3(): void {
-  cy.get('body > app-root > app-tool-bar > mat-toolbar > button:nth-child(8)')
+  cy.get('body > app-root > app-tool-bar > mat-toolbar > button:nth-child(6)')
     .click();
   cy.get('#mat-dialog-0 > app-getting-started-dialog > mat-dialog-content > ul > li:nth-child(13) > mat-dialog-actions > button:nth-child(3)')
     .click();
