@@ -2,8 +2,11 @@
     <input #fileMac hidden type="file" (change)="importMacro($event)" accept=".txt">
     <input #fileMic hidden type="file" (change)="importMicro($event)" accept=".txt">
 
-    <!-- Import/Export -->
-    <div mdbDropdown class="dropdown">
+    <!-- Import/Export Buttons-->
+    <button mat-button (click)="openImportDialog()" style="font-size: x-small;"><mat-icon>file_open</mat-icon>Import</button>
+    <button mat-button (click)="openExportDialog()" style="font-size: x-small;"><mat-icon>upload_file</mat-icon>Export</button>
+
+    <!-- <div mdbDropdown class="dropdown">
         <button mat-button
           class="btn btn-primary dropdown-toggle"
           type="button"
@@ -18,9 +21,12 @@
           <li><button mat-button (click)="exportMacro()">Export Macro</button></li>
           <li><button mat-button (click)="exportMicro()">Export Micro</button></li>
         </ul>
-    </div>
+    </div> -->
+
+
 
     <span class="spacer"></span>
+
 
 
     <a mat-button target="_blank" href="https://github.com/vs-ude/mic-1-toolbox/discussions/120">Forum</a>

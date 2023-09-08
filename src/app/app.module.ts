@@ -37,6 +37,8 @@ import { AluFlagArrowsComponent } from './View/SVG/alu-flag-arrows/alu-flag-arro
 import { MemoryViewComponent } from './View/memory-view/memory-view.component';
 import {MatTreeModule} from '@angular/material/tree';
 import {MatMenuModule} from '@angular/material/menu';
+import { ImportDialogComponent } from './View/import-dialog/import-dialog.component';
+import { ExportDialogComponent } from './View/export-dialog/export-dialog.component';
 
 
 
@@ -60,6 +62,8 @@ import {MatMenuModule} from '@angular/material/menu';
     DebugConsoleComponent,
     AluFlagArrowsComponent,
     MemoryViewComponent,
+    ImportDialogComponent,
+    ExportDialogComponent,
   ],
   imports: [
     BrowserModule,

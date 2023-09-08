@@ -3,6 +3,8 @@ import { ControllerService } from 'src/app/Presenter/controller.service';
 import { MatDialog } from '@angular/material/dialog';
 import { GettingStartedDialogComponent } from './getting-started-dialog/getting-started-dialog.component';
 import { AboutDialogComponent } from './about-dialog/about-dialog.component';
+import { ImportDialogComponent } from '../import-dialog/import-dialog.component';
+import { ExportDialogComponent } from '../export-dialog/export-dialog.component';
 import { MatSlideToggleChange } from '@angular/material/slide-toggle';
 import { ThemeControlService } from 'src/app/Presenter/theme-control.service';
 import { PresentationControllerService } from 'src/app/Presenter/presentation-controller.service';
@@ -73,6 +75,22 @@ export class ToolBarComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       console.log(`Dialog result: $(result)`);
     });
+  }
+
+  openImportDialog(){
+    const dialogRef = this.dialog.open(ImportDialogComponent);
+
+    dialogRef.afterClosed().subscribe(result =>{
+      console.log(`Dialog result: $(result)`)
+    })
+  }
+
+  openExportDialog(){
+    const dialogRef = this.dialog.open(ExportDialogComponent);
+
+    dialogRef.afterClosed().subscribe(result =>{
+      console.log(`Dialog result: $(result)`)
+    })
   }
 
   public switchEditors(event: MatSlideToggleChange){
