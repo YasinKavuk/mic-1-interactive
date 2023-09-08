@@ -14,7 +14,7 @@ import { ToolBarMicViewComponent } from './View/tool-bar-mic-view/tool-bar-mic-v
 import { EditorComponent } from './View/editor/editor.component';
 import { TextFieldModule } from '@angular/cdk/text-field';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { StackComponent } from './View/stack/stack.component';
 import { MicroEditorComponent } from './View/micro-editor/micro-editor.component';
@@ -37,8 +37,10 @@ import { AluFlagArrowsComponent } from './View/SVG/alu-flag-arrows/alu-flag-arro
 import { MemoryViewComponent } from './View/memory-view/memory-view.component';
 import {MatTreeModule} from '@angular/material/tree';
 import {MatMenuModule} from '@angular/material/menu';
-import { ImportDialogComponent } from './View/import-dialog/import-dialog.component';
-import { ExportDialogComponent } from './View/export-dialog/export-dialog.component';
+import { ImportDialogComponent } from './View/tool-bar/import-dialog/import-dialog.component';
+import { ExportDialogComponent } from './View/tool-bar/export-dialog/export-dialog.component';
+import { NgxDropzoneModule } from 'ngx-dropzone';
+import { MatInputModule } from '@angular/material/input';
 
 
 
@@ -86,6 +88,9 @@ import { ExportDialogComponent } from './View/export-dialog/export-dialog.compon
     MatSlideToggleModule,
     MatTreeModule,
     MatMenuModule,
+    NgxDropzoneModule,
+    MatInputModule,
+    ReactiveFormsModule
   ],
 
   providers: [],

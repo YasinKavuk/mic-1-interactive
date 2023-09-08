@@ -3,8 +3,8 @@ import { ControllerService } from 'src/app/Presenter/controller.service';
 import { MatDialog } from '@angular/material/dialog';
 import { GettingStartedDialogComponent } from './getting-started-dialog/getting-started-dialog.component';
 import { AboutDialogComponent } from './about-dialog/about-dialog.component';
-import { ImportDialogComponent } from '../import-dialog/import-dialog.component';
-import { ExportDialogComponent } from '../export-dialog/export-dialog.component';
+import { ImportDialogComponent } from './import-dialog/import-dialog.component';
+import { ExportDialogComponent } from './export-dialog/export-dialog.component';
 import { MatSlideToggleChange } from '@angular/material/slide-toggle';
 import { ThemeControlService } from 'src/app/Presenter/theme-control.service';
 import { PresentationControllerService } from 'src/app/Presenter/presentation-controller.service';
@@ -39,26 +39,6 @@ export class ToolBarComponent implements OnInit {
   }
 
   ngDoCheck() {
-  }
-
-  importMacro(event: any) {
-    this.file = event.target.files[0];
-    this.importMac.nativeElement.value = '';
-    this.controllerService.importMacro(this.file);
-  }
-
-  importMicro(event: any) {
-    this.file = event.target.files[0];
-    this.importMic.nativeElement.value = '';
-    this.controllerService.importMicro(this.file);
-  }
-
-  exportMacro() {
-    this.controllerService.exportMacro();
-  }
-
-  exportMicro() {
-    this.controllerService.exportMicro();
   }
 
   openGettingStartedDialog() {

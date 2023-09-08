@@ -1,29 +1,12 @@
 <mat-toolbar>
-    <input #fileMac hidden type="file" (change)="importMacro($event)" accept=".txt">
-    <input #fileMic hidden type="file" (change)="importMicro($event)" accept=".txt">
+    <!-- <input #fileMac hidden type="file" (change)="importMacro($event)" accept=".txt">
+    <input #fileMic hidden type="file" (change)="importMicro($event)" accept=".txt"> -->
 
     <!-- Import/Export Buttons-->
     <button mat-button (click)="openImportDialog()" style="font-size: x-small;"><mat-icon>file_open</mat-icon>Import</button>
     <button mat-button (click)="openExportDialog()" style="font-size: x-small;"><mat-icon>upload_file</mat-icon>Export</button>
 
-    <!-- <div mdbDropdown class="dropdown">
-        <button mat-button
-          class="btn btn-primary dropdown-toggle"
-          type="button"
-          id="dropdownMenu2"
-          mdbDropdownToggle
-          aria-expanded="false">
-          Import/Export
-        </button>
-        <ul mdbDropdownMenu class="dropdown-menu" aria-labelledby="dropdownMenu2">
-          <li><button mat-button (click)="fileMac.click()">Import Macro</button></li>
-          <li><button mat-button (click)="fileMic.click()">Import Micro</button></li>
-          <li><button mat-button (click)="exportMacro()">Export Macro</button></li>
-          <li><button mat-button (click)="exportMicro()">Export Micro</button></li>
-        </ul>
-    </div> -->
-
-
+    
 
     <span class="spacer"></span>
 

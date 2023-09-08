@@ -384,8 +384,24 @@ export class ControllerService {
     this.microProvider.isLoaded();
   }
 
+  // takes imported files and imports them to the app depending on how many files were selected
+  importFiles(files:File[]){
+    if(files.length < 1){ 
+      alert("There are no files selected")
+    }
+    else if(files.length == 1){
+      this.importMacroToEditor(files[0])
+      this.importMicroToEditor(files[0])
+    }
+    else{
+      alert("more than 1 file, should enable tutor mode and load files there")
+    }
+  }
+
+
+
   //reads the imported file and sets it in the macroassembler editor
-  importMacro(file: any){
+  importMacroToEditor(file: any){
     if(file.type === "text/plain"){
       let fileReader = new FileReader();
       fileReader.readAsText(file);
@@ -401,7 +417,7 @@ export class ControllerService {
   }
 
   //reads the imported file and sets it in the microprograms editor
-  importMicro(file: any){
+  importMicroToEditor(file: any){
     if(file.type === "text/plain"){
       let fileReader = new FileReader();
       fileReader.readAsText(file);
@@ -416,18 +432,73 @@ export class ControllerService {
     }
   }
 
+
+
   //downloads a txt file with the macrocode as content
-  exportMacro(){
-    var textMac: string = this.macroProvider.getMacro();
-    var data = new Blob([textMac], {type: 'text/plain'});
-    FileSaver.saveAs(data, 'macro.txt');
+  export(name: string, macroBool: boolean, microBool: boolean, comment: string){
+    const textMac: string = this.macroProvider.getMacro();
+    const textMic: string = this.microProvider.getMicro();
+
+    const {create} = require('xmlbuilder2');
+    var data = new Blob();
+
+    if(macroBool == true && microBool == true){
+      const xml = create({version: '1.0'})
+      .ele('root')
+        .ele('name').txt(name).up()
+        .ele('macro').txt(textMac).up()
+        .ele('micro').txt(textMic).up()
+        .ele('comment').txt(comment).up()
+      .up()
+      const data = new Blob([xml], {type: 'text/plain'})
+      FileSaver.saveAs(data, name + ".xml")
+    }
+    else if(macroBool == true){
+      const xml = create({version: '1.0'})
+      .ele('root')
+        .ele('name').txt(name).up()
+        .ele('macro').txt(textMac).up()
+        .ele('micro').txt('').up()
+        .ele('comment').txt(comment).up()
+      .up()
+      const data = new Blob([xml], {type: 'text/plain'})
+      FileSaver.saveAs(data, name + ".xml")
+    }
+    else if(microBool == true){
+      const xml = create({version: '1.0'})
+      .ele('root')
+        .ele('name').txt(name).up()
+        .ele('macro').txt('').up()
+        .ele('micro').txt(textMic).up()
+        .ele('comment').txt(comment).up()
+      .up()
+      const data = new Blob([xml], {type: 'text/plain'})
+      FileSaver.saveAs(data, name + ".xml")
+    }
+    else{
+      const xml = create({version: '1.0'})
+      .ele('root')
+        .ele('name').txt(name).up()
+        .ele('macro').txt('').up()
+        .ele('micro').txt('').up()
+        .ele('comment').txt(comment).up()
+      .up()
+      const data = new Blob([xml], {type: 'text/plain'})
+      FileSaver.saveAs(data, name + ".xml")
+    }
   }
 
-  exportMicro(){
-    var textMic: string = this.microProvider.getMicro();
-    var data = new Blob([textMic], {type: 'text/plain'});
-    FileSaver.saveAs(data, 'micro.txt');
-  }
+  // exportMacro(){
+  //   var textMac: string = this.macroProvider.getMacro();
+  //   var data = new Blob([textMac], {type: 'text/plain'});
+  //   FileSaver.saveAs(data, 'macro.txt');
+  // }
+
+  // exportMicro(){
+  //   var textMic: string = this.microProvider.getMicro();
+  //   var data = new Blob([textMic], {type: 'text/plain'});
+  //   FileSaver.saveAs(data, 'micro.txt');
+  // }
 
   setMacroInModel(macro: string){
     this.macroProvider.setMacro(macro);
