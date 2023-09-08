@@ -33,5 +33,6 @@ export class ExportDialogComponent implements OnInit {
     if(this.exportForm.valid){
       this.controller.export(this.exportForm.value.name, this.exportForm.value.checkboxes.macroBool, this.exportForm.value.checkboxes.microBool, this.exportForm.value.comment);
     }
+    this.dialogRef.close();
   }
 }
