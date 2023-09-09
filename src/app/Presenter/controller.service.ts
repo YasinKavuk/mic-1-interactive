@@ -8,7 +8,6 @@ import { MacroParserService } from '../Model/macro-parser.service';
 import { DirectorService } from './director.service';
 import { BehaviorSubject } from 'rxjs';
 import { MainMemoryService } from '../Model/Emulator/main-memory.service';
-import { XmlParser } from '@angular/compiler';
 
 
 const code1: string = `.main
