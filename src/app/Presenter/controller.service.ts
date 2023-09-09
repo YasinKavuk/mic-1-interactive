@@ -8,6 +8,7 @@ import { MacroParserService } from '../Model/macro-parser.service';
 import { DirectorService } from './director.service';
 import { BehaviorSubject } from 'rxjs';
 import { MainMemoryService } from '../Model/Emulator/main-memory.service';
+import { XmlParser } from '@angular/compiler';
 
 
 const code1: string = `.main
@@ -385,120 +386,82 @@ export class ControllerService {
   }
 
   // takes imported files and imports them to the app depending on how many files were selected
-  importFiles(files:File[]){
+  importFiles(files:any[]){
     if(files.length < 1){ 
       alert("There are no files selected")
     }
     else if(files.length == 1){
-      this.importMacroToEditor(files[0])
-      this.importMicroToEditor(files[0])
+      if(files[0].type === "application/json"){
+        this.importToEditors(files[0])
+        // this.importMicroToEditor(files[0])
+      }else{alert("Wrong type on file: " + files[0].name)}
     }
     else{
       alert("more than 1 file, should enable tutor mode and load files there")
     }
   }
 
+  importToEditors(file: File){
+    let fileReader = new FileReader();
+    fileReader.readAsText(file);
 
-
-  //reads the imported file and sets it in the macroassembler editor
-  importMacroToEditor(file: any){
-    if(file.type === "text/plain"){
-      let fileReader = new FileReader();
-      fileReader.readAsText(file);
-
-      fileReader.onload = (e) => {
-        this.macroProvider.setMacro(fileReader.result.toString());
-        this._macroCode.next({ macroCode: fileReader.result.toString()});
+    fileReader.onload = (e) => {
+      if(JSON.parse(fileReader.result.toString()).macro !== '<DO NOT IMPORT>'){
+        this.macroProvider.setMacro(JSON.parse(fileReader.result.toString()).macro);
+        this._macroCode.next({ macroCode: JSON.parse(fileReader.result.toString()).macro});
       }
 
-    }else{
-      alert("Wrong file type!")
-    }
-  }
-
-  //reads the imported file and sets it in the microprograms editor
-  importMicroToEditor(file: any){
-    if(file.type === "text/plain"){
-      let fileReader = new FileReader();
-      fileReader.readAsText(file);
-
-      fileReader.onload = (e) => {
-        this.microProvider.setMicro(fileReader.result.toString());
-        this._microCode.next({ microCode: fileReader.result.toString()});
+      if(JSON.parse(fileReader.result.toString()).micro !== '<DO NOT IMPORT>'){
+        this.microProvider.setMicro(JSON.parse(fileReader.result.toString()).micro);
+        this._microCode.next({ microCode: JSON.parse(fileReader.result.toString()).micro});
       }
+    } 
 
-    }else{
-      alert("Wrong file type!")
-    }
   }
 
+  // //reads the imported file and sets it in the macroassembler editor
+  // importMacroToEditor(file: File){
+  //   let fileReader = new FileReader();
+  //   fileReader.readAsText(file);
 
+  //   fileReader.onload = (e) => {
+  //     this.macroProvider.setMacro(JSON.parse(fileReader.result.toString()).macro);
+  //     this._macroCode.next({ macroCode: JSON.parse(fileReader.result.toString()).macro});
+  //   } 
+  // }
 
-  //downloads a txt file with the macrocode as content
+  // //reads the imported file and sets it in the microprograms editor
+  // importMicroToEditor(file: File){
+  //   let fileReader = new FileReader();
+  //   console.log(file)
+  //   fileReader.readAsText(file);
+
+  //   fileReader.onload = (e) => {
+  //     this.microProvider.setMicro(JSON.parse(fileReader.result.toString()).micro);
+  //     this._microCode.next({ microCode: JSON.parse(fileReader.result.toString()).micro});
+  //   }
+  // }
+
+  //downloads a json file with the macrocode and microcode as content
   export(name: string, macroBool: boolean, microBool: boolean, comment: string){
-    const textMac: string = this.macroProvider.getMacro();
-    const textMic: string = this.microProvider.getMicro();
+    var textMac: string = ''
+    var textMic: string = ''
+    if(macroBool){
+      textMac = this.macroProvider.getMacro();
+    }else{textMac = '<DO NOT IMPORT>'}
+    if(microBool){
+      textMic = this.microProvider.getMicro();
+    }else{textMic = '<DO NOT IMPORT>'}
 
-    const {create} = require('xmlbuilder2');
-    var data = new Blob();
-
-    if(macroBool == true && microBool == true){
-      const xml = create({version: '1.0'})
-      .ele('root')
-        .ele('name').txt(name).up()
-        .ele('macro').txt(textMac).up()
-        .ele('micro').txt(textMic).up()
-        .ele('comment').txt(comment).up()
-      .up()
-      const data = new Blob([xml], {type: 'text/plain'})
-      FileSaver.saveAs(data, name + ".xml")
+    const json: JSON = <JSON><unknown>{
+      "name": name,
+      "macro": textMac,
+      "micro": textMic,
+      "comment": comment
     }
-    else if(macroBool == true){
-      const xml = create({version: '1.0'})
-      .ele('root')
-        .ele('name').txt(name).up()
-        .ele('macro').txt(textMac).up()
-        .ele('micro').txt('').up()
-        .ele('comment').txt(comment).up()
-      .up()
-      const data = new Blob([xml], {type: 'text/plain'})
-      FileSaver.saveAs(data, name + ".xml")
-    }
-    else if(microBool == true){
-      const xml = create({version: '1.0'})
-      .ele('root')
-        .ele('name').txt(name).up()
-        .ele('macro').txt('').up()
-        .ele('micro').txt(textMic).up()
-        .ele('comment').txt(comment).up()
-      .up()
-      const data = new Blob([xml], {type: 'text/plain'})
-      FileSaver.saveAs(data, name + ".xml")
-    }
-    else{
-      const xml = create({version: '1.0'})
-      .ele('root')
-        .ele('name').txt(name).up()
-        .ele('macro').txt('').up()
-        .ele('micro').txt('').up()
-        .ele('comment').txt(comment).up()
-      .up()
-      const data = new Blob([xml], {type: 'text/plain'})
-      FileSaver.saveAs(data, name + ".xml")
-    }
+    const dataJson = new Blob([JSON.stringify(json)], {type: 'application/json'})
+    FileSaver.saveAs(dataJson, name + ".json")
   }
-
-  // exportMacro(){
-  //   var textMac: string = this.macroProvider.getMacro();
-  //   var data = new Blob([textMac], {type: 'text/plain'});
-  //   FileSaver.saveAs(data, 'macro.txt');
-  // }
-
-  // exportMicro(){
-  //   var textMic: string = this.microProvider.getMicro();
-  //   var data = new Blob([textMic], {type: 'text/plain'});
-  //   FileSaver.saveAs(data, 'micro.txt');
-  // }
 
   setMacroInModel(macro: string){
     this.macroProvider.setMacro(macro);

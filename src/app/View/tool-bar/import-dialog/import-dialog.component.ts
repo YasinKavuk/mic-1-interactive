@@ -19,7 +19,6 @@ export class ImportDialogComponent implements OnInit {
   }
 
   onSelect(event: any){
-    console.log(event)
     this.files.push(...event.addedFiles)
   }
 
@@ -29,6 +28,7 @@ export class ImportDialogComponent implements OnInit {
 
   onAddFiles(){
     this.controller.importFiles(this.files);
+    this.dialogRef.close();
   }
 
 }
