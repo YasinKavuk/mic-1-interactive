@@ -1,7 +1,4 @@
 <mat-toolbar>
-    <!-- <input #fileMac hidden type="file" (change)="importMacro($event)" accept=".txt">
-    <input #fileMic hidden type="file" (change)="importMicro($event)" accept=".txt"> -->
-
     <!-- Import/Export Buttons-->
     <button mat-button (click)="openImportDialog()" style="font-size: x-small;"><mat-icon>file_open</mat-icon>Import</button>
     <button mat-button (click)="openExportDialog()" style="font-size: x-small;"><mat-icon>upload_file</mat-icon>Export</button>
@@ -15,6 +12,7 @@
     <a mat-button target="_blank" href="https://github.com/vs-ude/mic-1-toolbox/discussions/120">Forum</a>
     <button class="btn" mat-button (click)="openGettingStartedDialog()">Getting Started</button>
     <button class="btn" mat-button (click)="openAboutDialog()">About</button>
+
     <span class="version">v{{ currentApplicationVersion }}</span>
 
 
