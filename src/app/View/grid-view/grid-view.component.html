@@ -3,7 +3,10 @@
         <div>
             <app-tool-bar-mic-view></app-tool-bar-mic-view>
             <hr color="black">
-            <app-mic-visualization></app-mic-visualization>
+
+
+            <app-mic-visualization *ngIf="!tutorMode"></app-mic-visualization>
+            <app-tutor-mode *ngIf="tutorMode"></app-tutor-mode>
         </div>
     </mat-grid-tile>
 

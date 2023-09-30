@@ -8,8 +8,9 @@ import { RegProviderService } from '../Model/reg-provider.service';
   providedIn: 'root'
 })
 export class PresentationControllerService {
-  presentationMode: boolean = false;
-  areEditorsSwapped: boolean = false;
+  private presentationMode: boolean = false;
+  private areEditorsSwapped: boolean = false;
+  private tutorMode: boolean = false;
 
   private _presentationMode = new BehaviorSubject({ presentationMode: false });
   public presentationMode$ = this._presentationMode.asObservable();
@@ -25,6 +26,9 @@ export class PresentationControllerService {
 
   private _memoryViewRefresher = new BehaviorSubject({ bool: false, methodEntries: [{ name: "", address: 0 }], constantEntries: [{ name: "", address: 0 }], generalEntries: [{ name: "", address: 0 }] });
   public memoryViewRefresher$ = this._memoryViewRefresher.asObservable();
+
+  private _tutorMode = new BehaviorSubject({ tutorMode: false });
+  public tutorMode$ = this._tutorMode.asObservable();
 
 
   constructor(
@@ -48,6 +52,11 @@ export class PresentationControllerService {
       this.presentationMode = false;
       this._presentationMode.next({ presentationMode: false });
     }
+  }
+
+  public setTutorMode(tutorMode:boolean){
+    this.tutorMode = tutorMode;
+    this._tutorMode.next({tutorMode: this.tutorMode});
   }
 
   getPresentationMode() {

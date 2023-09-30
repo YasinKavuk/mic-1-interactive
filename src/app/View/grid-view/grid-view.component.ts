@@ -8,6 +8,7 @@ import { PresentationControllerService } from 'src/app/Presenter/presentation-co
 })
 export class GridViewComponent implements OnInit {
   areEditorsSwapped: boolean = false;
+  tutorMode: boolean = false;
 
   constructor(
     private presentationController: PresentationControllerService,
@@ -24,6 +25,14 @@ export class GridViewComponent implements OnInit {
         }
       }
     )
+
+    
+    this.presentationController.tutorMode$.subscribe(
+      content => {
+        this.tutorMode = content.tutorMode;
+      }
+    )
+
   }
 
 }

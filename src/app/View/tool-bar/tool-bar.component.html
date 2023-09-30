@@ -37,6 +37,12 @@
           Presentation Mode
         </mat-slide-toggle>
       </div>
+      <div style="margin-bottom: 2%;">
+        <mat-slide-toggle (change)="toggleTutorMode($event)" [ngStyle]="lightMode && {'color':'#f0f0f0'}">
+          Tutor Mode
+        </mat-slide-toggle>
+      </div>
+
     </mat-menu>
 
 </mat-toolbar>

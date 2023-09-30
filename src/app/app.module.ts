@@ -41,6 +41,7 @@ import { ImportDialogComponent } from './View/tool-bar/import-dialog/import-dial
 import { ExportDialogComponent } from './View/tool-bar/export-dialog/export-dialog.component';
 import { NgxDropzoneModule } from 'ngx-dropzone';
 import { MatInputModule } from '@angular/material/input';
+import { TutorModeComponent } from './View/tutor-mode/tutor-mode.component';
 
 
 
@@ -66,6 +67,7 @@ import { MatInputModule } from '@angular/material/input';
     MemoryViewComponent,
     ImportDialogComponent,
     ExportDialogComponent,
+    TutorModeComponent,
   ],
   imports: [
     BrowserModule,

@@ -85,4 +85,8 @@ export class ToolBarComponent implements OnInit {
     this.presentationController.toggleMode();
   }
 
+  public toggleTutorMode(event: MatSlideToggleChange){
+    this.presentationController.setTutorMode(event.checked);
+  }
+
 }
