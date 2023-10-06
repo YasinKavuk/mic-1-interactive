@@ -216,4 +216,8 @@ export class EditorComponent implements AfterViewInit {
     }
   }
 
+  onSelect(event: any){
+    this.controller.importFiles(event.addedFiles);
+  }
+
 }
