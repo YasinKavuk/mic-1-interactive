@@ -2,38 +2,36 @@
 <!-- Dropzone  -->
 
 
-<div class="dropZone">
-    <ngx-dropzone *ngIf="!hideDropzone" (change)="onSelect($event)" style="width: 366px; height: 200px;">
-        <ngx-dropzone-label>Drag and Drop Files or click here</ngx-dropzone-label>
+<div class="dropZone" *ngIf="files.length < 1">
+    <ngx-dropzone *ngIf="!hideDropzone" (change)="onSelect($event)" style="width: 95%; height: 200px; background-color: #ccc5b9;">
+        <ngx-dropzone-label>There are no files yet. Drag and Drop Files or click here. You can also use the import button on the toolbar.</ngx-dropzone-label>
         <ngx-dropzone-preview *ngFor="let f of files" [removable]="true" (removed)="onRemove(f)">
             <ngx-dropzone-label>
                 {{f.name}} {{f.type}}
             </ngx-dropzone-label>>
         </ngx-dropzone-preview>
     </ngx-dropzone>
-
-    <button *ngIf="!hideDropzone" style="margin-left: 310px;" (click)="onAddFiles()">import</button>
 </div>
 
 
 
 <!-- File View -->
 <div class="file-container">
-    <div *ngFor="let file of files" class="file">
+    <div *ngFor="let file of files; let i = index" class="file">
         <div class="file-component"><mat-icon> insert_drive_file</mat-icon></div>
         <div class="file-component file-name">{{file.name}}</div>
         <div class="file-component">
-            <button mat-icon-button color="primary">
+            <button (click)="importToBothEditors(i)" mat-icon-button color="primary">
                 <mat-icon>play_arrow</mat-icon>
             </button>
         </div>
         <div class="file-component">
-            <button mat-icon-button color="accent">
+            <button (click)="importToMicroEditor(i)" mat-icon-button color="accent">
                 <mat-icon>play_circle_filled</mat-icon>
             </button>
         </div>
         <div class="file-component">
-            <button mat-icon-button color="warn">
+            <button (click)="importToMacroEditor(i)" mat-icon-button color="warn">
                 <mat-icon>play_circle_outline</mat-icon>
             </button>
         </div>

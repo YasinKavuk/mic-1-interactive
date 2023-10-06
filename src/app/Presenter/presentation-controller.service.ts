@@ -30,6 +30,9 @@ export class PresentationControllerService {
   private _tutorMode = new BehaviorSubject({ tutorMode: false });
   public tutorMode$ = this._tutorMode.asObservable();
 
+  private _loadFilesToTutMode = new BehaviorSubject({ files: [] });
+  public loadFilesToTutMode$ = this._loadFilesToTutMode.asObservable();
+
 
   constructor(
     private macroProvider: MacroProviderService,
@@ -57,6 +60,12 @@ export class PresentationControllerService {
   public setTutorMode(tutorMode:boolean){
     this.tutorMode = tutorMode;
     this._tutorMode.next({tutorMode: this.tutorMode});
+  }
+
+  // activates the tutor mode and also sends the files that can be imported to the tutor mode component
+  enableTutModeWithFiles(files:any[]){
+    this._tutorMode.next({tutorMode: true})
+    this._loadFilesToTutMode.next({files})
   }
 
   getPresentationMode() {

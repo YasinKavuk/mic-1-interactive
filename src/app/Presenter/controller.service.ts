@@ -8,6 +8,7 @@ import { MacroParserService } from '../Model/macro-parser.service';
 import { DirectorService } from './director.service';
 import { BehaviorSubject } from 'rxjs';
 import { MainMemoryService } from '../Model/Emulator/main-memory.service';
+import { PresentationControllerService } from './presentation-controller.service';
 
 
 const code1: string = `.main
@@ -315,6 +316,8 @@ export class ControllerService {
   public macroCode$ = this._macroCode.asObservable();
   private _microCode = new BehaviorSubject({ microCode: ""});
   public microCode$ = this._microCode.asObservable();
+  private _switchOnTutorMode = new BehaviorSubject({ files: [] });
+  public switchOnTutorMode$ = this._switchOnTutorMode.asObservable();
 
   constructor(
     private macroProvider: MacroProviderService,
@@ -324,6 +327,7 @@ export class ControllerService {
     private macroParser: MacroParserService,
     private director: DirectorService,
     private mainMemory: MainMemoryService,
+    private presentationController: PresentationControllerService
   ) {
     const codeMac = localStorage.getItem("macroCode");
     const codeMic = localStorage.getItem("microCode");
@@ -384,38 +388,51 @@ export class ControllerService {
     this.microProvider.isLoaded();
   }
 
-  // takes imported files and imports them to the app depending on how many files were selected
+  // takes array of files and imports them to a list in the tutor mode component. There they can be imported to the editors manually by the user
   importFiles(files:any[]){
-    if(files.length < 1){ 
-      alert("There are no files selected")
+    for(let i = 0; i < files.length; i++){
+      if(files[i].type !== "application/json"){
+        alert("wrong type on file: " + files[i].name)
+        return
+      }
     }
-    else if(files.length == 1){
-      if(files[0].type === "application/json"){
-        this.importToEditors(files[0])
-        // this.importMicroToEditor(files[0])
-      }else{alert("Wrong type on file: " + files[0].name)}
-    }
-    else{
-      alert("more than 1 file, should enable tutor mode and load files there")
+
+    if(files.length > 1){
+      this.presentationController.enableTutModeWithFiles(files);
+    }else{
+      this.importFile(files[0])
     }
   }
 
-  importToEditors(file: File){
+  importFile(file:any, target?:string){
+    if(file.type === "application/json"){
+      if(target === "macro"){
+        this.importToEditor(file, "macro");
+      }
+      else if(target === "micro"){
+        this.importToEditor(file, "micro");
+      }
+      else{
+        this.importToEditor(file);
+      }
+    }else{alert("Wrong type on file: " + file.name)}
+  }
+
+  importToEditor(file: File, target?:string){
     let fileReader = new FileReader();
     fileReader.readAsText(file);
 
     fileReader.onload = (e) => {
-      if(JSON.parse(fileReader.result.toString()).macro !== '<DO NOT IMPORT>'){
+      if(JSON.parse(fileReader.result.toString()).macro !== '<DO NOT IMPORT>' && target !== "micro"){
         this.macroProvider.setMacro(JSON.parse(fileReader.result.toString()).macro);
         this._macroCode.next({ macroCode: JSON.parse(fileReader.result.toString()).macro});
       }
 
-      if(JSON.parse(fileReader.result.toString()).micro !== '<DO NOT IMPORT>'){
+      if(JSON.parse(fileReader.result.toString()).micro !== '<DO NOT IMPORT>' && target !== "macro"){
         this.microProvider.setMicro(JSON.parse(fileReader.result.toString()).micro);
         this._microCode.next({ microCode: JSON.parse(fileReader.result.toString()).micro});
       }
-    } 
-
+    }
   }
 
   // //reads the imported file and sets it in the macroassembler editor

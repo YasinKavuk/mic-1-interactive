@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { ControllerService } from 'src/app/Presenter/controller.service';
+import { PresentationControllerService } from 'src/app/Presenter/presentation-controller.service';
 
 @Component({
   selector: 'app-tutor-mode',
@@ -9,10 +11,17 @@ export class TutorModeComponent implements OnInit {
   files:File[] = [];
   hideDropzone = false;
 
-  constructor() { 
-  }
+  constructor(
+    private presentationController: PresentationControllerService,
+    private controller: ControllerService,
+  ) {}
 
   ngOnInit(): void {
+    this.presentationController.loadFilesToTutMode$.subscribe(
+      content => {
+        this.files.push(...content.files)
+      }
+    )
   }
 
   
@@ -34,8 +43,16 @@ export class TutorModeComponent implements OnInit {
     //this.dialogRef.close();
   }
 
+  importToBothEditors(fileIndex: number){
+    this.controller.importFile(this.files[fileIndex])
+  }
 
+  importToMicroEditor(fileIndex: number){
+    this.controller.importFile(this.files[fileIndex], "micro")
+  }
 
-
+  importToMacroEditor(fileIndex: number){
+    this.controller.importFile(this.files[fileIndex], "macro")
+  }
 
 }
