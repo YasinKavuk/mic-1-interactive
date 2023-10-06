@@ -2,7 +2,7 @@
     <h2>Import</h2>
     <hr><br>
     <mat-dialog-content class="mat-typography">
-        <ngx-dropzone (change)="onSelect($event)" style="width: 366px; height: 200px;">
+        <ngx-dropzone accept="application/json" (change)="onSelect($event)" style="width: 366px; height: 200px;">
             <ngx-dropzone-label>Drag and Drop Files or click here</ngx-dropzone-label>
             <ngx-dropzone-preview *ngFor="let f of files" [removable]="true" (removed)="onRemove(f)">
                 <ngx-dropzone-label>

@@ -3,7 +3,7 @@
 
 
 <div class="dropZone" *ngIf="files.length < 1">
-    <ngx-dropzone *ngIf="!hideDropzone" (change)="onSelect($event)" style="width: 95%; height: 200px; background-color: #ccc5b9;">
+    <ngx-dropzone accept="application/json" *ngIf="!hideDropzone" (change)="onSelect($event)" style="width: 95%; height: 200px; background-color: #ccc5b9;">
         <ngx-dropzone-label>There are no files yet. Drag and Drop Files or click here. You can also use the import button on the toolbar.</ngx-dropzone-label>
         <ngx-dropzone-preview *ngFor="let f of files" [removable]="true" (removed)="onRemove(f)">
             <ngx-dropzone-label>
