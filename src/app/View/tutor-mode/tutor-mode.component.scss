@@ -1,0 +1,42 @@
+.file{
+    color: var(--text-color);
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    width: 100%;
+    align-items: center;
+}
+
+.file-component{
+    font-size: larger;
+    padding-left: 2%;
+
+}
+
+.file-name{
+    width: 70%;
+}
+
+
+.file-container{
+    width: 90%
+}
+
+
+
+.dropZone{
+    animation: fadeIn;
+    animation-duration: 0.5s;
+}
+
+
+@keyframes fadeIn {
+    from{
+        opacity: 0%;
+    }
+    to{
+       opacity: 100%;
+    }
+}
+
+
