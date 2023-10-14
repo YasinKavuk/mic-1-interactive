@@ -64,6 +64,7 @@ export class PresentationControllerService {
 
   // activates the tutor mode and also sends the files that can be imported to the tutor mode component
   enableTutModeWithFiles(files:any[]){
+    this.tutorMode = true;
     this._tutorMode.next({tutorMode: true})
     this._loadFilesToTutMode.next({files})
   }
@@ -114,6 +115,10 @@ export class PresentationControllerService {
 
   getRegisterValue(reg: string) {
     return this.regProvider.getRegister(reg).getValue();
+  }
+
+  isTutorModeActive(){
+    return this.tutorMode;
   }
 
 }

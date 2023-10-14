@@ -397,7 +397,7 @@ export class ControllerService {
       }
     }
 
-    if(files.length > 1){
+    if(files.length > 1 || this.presentationController.isTutorModeActive()){
       this.presentationController.enableTutModeWithFiles(files);
     }else{
       this.importFile(files[0])
