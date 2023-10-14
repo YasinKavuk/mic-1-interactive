@@ -74,6 +74,7 @@ export class ToolBarComponent implements OnInit {
   }
 
   public switchEditors(event: MatSlideToggleChange){
+    this.controllerService.reset()
     this.presentationController.switchEditors();
   }
 
