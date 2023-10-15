@@ -22,6 +22,12 @@ export class TutorModeComponent implements OnInit {
         this.files.push(...content.files)
       }
     )
+
+    this.presentationController.removeFileFromList$.subscribe(
+      content => {
+        this.files.splice(content.fileIndex, 1)
+      }
+    )
   }
 
   
@@ -53,6 +59,10 @@ export class TutorModeComponent implements OnInit {
 
   importToMacroEditor(fileIndex: number){
     this.controller.importFile(this.files[fileIndex], "macro")
+  }
+
+  removeFile(fileIndex: number){
+    this.presentationController.removeFile(fileIndex)
   }
 
 }

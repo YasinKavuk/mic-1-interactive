@@ -33,6 +33,9 @@ export class PresentationControllerService {
   private _loadFilesToTutMode = new BehaviorSubject({ files: [] });
   public loadFilesToTutMode$ = this._loadFilesToTutMode.asObservable();
 
+  private _removeFileFromList = new BehaviorSubject({ fileIndex: 0 });
+  public removeFileFromList$ = this._removeFileFromList.asObservable();
+
 
   constructor(
     private macroProvider: MacroProviderService,
@@ -119,6 +122,10 @@ export class PresentationControllerService {
 
   isTutorModeActive(){
     return this.tutorMode;
+  }
+
+  removeFile(fileIndex: number){
+    this._removeFileFromList.next({fileIndex: fileIndex})
   }
 
 }
