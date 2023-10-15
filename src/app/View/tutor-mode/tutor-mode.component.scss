@@ -19,7 +19,7 @@
 
 
 .file-container{
-    width: 60%
+    width: 67%;
 }
 
 
@@ -27,6 +27,10 @@
 .dropZone{
     animation: fadeIn;
     animation-duration: 0.5s;
+}
+
+.mat-icon{
+    transform: scale(0.75);
 }
 
 
