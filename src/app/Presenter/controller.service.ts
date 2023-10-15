@@ -390,13 +390,6 @@ export class ControllerService {
 
   // takes array of files and imports them to a list in the tutor mode component. There they can be imported to the editors manually by the user
   importFiles(files:any[]){
-    for(let i = 0; i < files.length; i++){
-      if(files[i].type !== "application/json"){
-        alert("wrong type on file: " + files[i].name)
-        return
-      }
-    }
-
     if(files.length > 1 || this.presentationController.isTutorModeActive()){
       this.presentationController.enableTutModeWithFiles(files);
     }else{
@@ -405,17 +398,15 @@ export class ControllerService {
   }
 
   importFile(file:any, target?:string){
-    if(file.type === "application/json"){
-      if(target === "macro"){
-        this.importToEditor(file, "macro");
-      }
-      else if(target === "micro"){
-        this.importToEditor(file, "micro");
-      }
-      else{
-        this.importToEditor(file);
-      }
-    }else{alert("Wrong type on file: " + file.name)}
+    if(target === "macro"){
+      this.importToEditor(file, "macro");
+    }
+    else if(target === "micro"){
+      this.importToEditor(file, "micro");
+    }
+    else{
+      this.importToEditor(file);
+    }
   }
 
   importToEditor(file: File, target?:string){
