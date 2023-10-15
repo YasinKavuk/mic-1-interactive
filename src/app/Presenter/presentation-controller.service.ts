@@ -33,7 +33,7 @@ export class PresentationControllerService {
   private _loadFilesToTutMode = new BehaviorSubject({ files: [] });
   public loadFilesToTutMode$ = this._loadFilesToTutMode.asObservable();
 
-  private _removeFileFromList = new BehaviorSubject({ fileIndex: 0 });
+  private _removeFileFromList = new BehaviorSubject({ fileIndex: undefined });
   public removeFileFromList$ = this._removeFileFromList.asObservable();
 
 

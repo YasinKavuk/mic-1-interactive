@@ -16,16 +16,20 @@ export class TutorModeComponent implements OnInit {
     private controller: ControllerService,
   ) {}
 
-  ngOnInit(): void {
+  ngOnInit(): void {    
     this.presentationController.loadFilesToTutMode$.subscribe(
       content => {
-        this.files.push(...content.files)
+        if(content.files[0] !== undefined){
+          this.files.push(...content.files)
+        }
       }
     )
 
     this.presentationController.removeFileFromList$.subscribe(
       content => {
-        this.files.splice(content.fileIndex, 1)
+        if(content.fileIndex !== undefined){
+          this.files.splice(content.fileIndex,1)
+        }
       }
     )
   }
