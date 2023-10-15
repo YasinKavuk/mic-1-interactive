@@ -435,29 +435,6 @@ export class ControllerService {
     }
   }
 
-  // //reads the imported file and sets it in the macroassembler editor
-  // importMacroToEditor(file: File){
-  //   let fileReader = new FileReader();
-  //   fileReader.readAsText(file);
-
-  //   fileReader.onload = (e) => {
-  //     this.macroProvider.setMacro(JSON.parse(fileReader.result.toString()).macro);
-  //     this._macroCode.next({ macroCode: JSON.parse(fileReader.result.toString()).macro});
-  //   } 
-  // }
-
-  // //reads the imported file and sets it in the microprograms editor
-  // importMicroToEditor(file: File){
-  //   let fileReader = new FileReader();
-  //   console.log(file)
-  //   fileReader.readAsText(file);
-
-  //   fileReader.onload = (e) => {
-  //     this.microProvider.setMicro(JSON.parse(fileReader.result.toString()).micro);
-  //     this._microCode.next({ microCode: JSON.parse(fileReader.result.toString()).micro});
-  //   }
-  // }
-
   //downloads a json file with the macrocode and microcode as content
   export(name: string, macroBool: boolean, microBool: boolean, comment: string){
     var textMac: string = ''
