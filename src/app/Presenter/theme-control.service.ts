@@ -8,6 +8,12 @@ export class ThemeControlService {
 
   constructor() {
     let darkMode = localStorage.getItem("mode");
+
+    if(darkMode === null){
+      darkMode = "false";
+    }
+
+
     if (darkMode === "false") {
       this.darkMode = false;
     } else {
@@ -21,7 +27,7 @@ export class ThemeControlService {
   private _toggleThemeNotifier = new BehaviorSubject(false);
   public toggleThemeNotifier$ = this._toggleThemeNotifier.asObservable();
 
-  public darkMode = false;
+  public darkMode = true;
 
 
   public toggleTheme() {
