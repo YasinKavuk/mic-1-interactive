@@ -413,8 +413,10 @@ export class ControllerService {
     let fileReader = new FileReader();
     fileReader.readAsText(file);
 
+
     fileReader.onload = (e) => {
       if(JSON.parse(fileReader.result.toString()).macro !== '<DO NOT IMPORT>' && target !== "micro"){
+        console.log(JSON.parse(fileReader.result.toString()));
         this.macroProvider.setMacro(JSON.parse(fileReader.result.toString()).macro);
         this._macroCode.next({ macroCode: JSON.parse(fileReader.result.toString()).macro});
       }

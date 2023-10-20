@@ -8,18 +8,18 @@ import { PresentationControllerService } from 'src/app/Presenter/presentation-co
   styleUrls: ['./tutor-mode.component.scss']
 })
 export class TutorModeComponent implements OnInit {
-  files:File[] = [];
+  files: File[] = [];
   hideDropzone = false;
 
   constructor(
     private presentationController: PresentationControllerService,
     private controller: ControllerService,
-  ) {}
+  ) { }
 
-  ngOnInit(): void {    
+  ngOnInit(): void {
     this.presentationController.loadFilesToTutMode$.subscribe(
       content => {
-        if(content.files[0] !== undefined){
+        if (content.files[0] !== undefined) {
           this.files.push(...content.files)
         }
       }
@@ -27,45 +27,66 @@ export class TutorModeComponent implements OnInit {
 
     this.presentationController.removeFileFromList$.subscribe(
       content => {
-        if(content.fileIndex !== undefined){
-          this.files.splice(content.fileIndex,1)
+        if (content.fileIndex !== undefined) {
+          this.files.splice(content.fileIndex, 1)
         }
       }
     )
   }
 
-  
-  onSelect(event: any){
-    this.files.push(...event.addedFiles)
+
+  onSelect(event: any) {
+    if (event.rejectedFiles.length > 0) {
+      console.warn("rejected File: '" + event.rejectedFiles[0].name + "'\ntype '" + event.rejectedFiles[0].type + "' is not supported")
+    }
+
+    let files = event.addedFiles.filter((file: File) => file.type === "application/json")
+    let zipFiles = event.addedFiles.filter((file: File) => file.type !== "application/json")
+
+    // extract files from zip 
+    if (zipFiles.length > 0) {
+      const jsZip = require("jszip");
+
+      jsZip.loadAsync(zipFiles[0]).then(
+        (zip: any) => Object.keys(zip.files).forEach(
+          (filename) => zip.files[filename].async("string").then(
+            (fileData: string) => { this.files.push(new File([fileData], filename, { type: "application/json" })), console.log(JSON.parse(fileData)) }
+          )
+        )
+      )
+    }
+
+
+    this.files.push(...files)
+
     console.log(this.files)
-    console.log("onSelect")
   }
 
-  onRemove(event: any){
-    this.files.splice(this.files.indexOf(event),1)
+  onRemove(event: any) {
+    this.files.splice(this.files.indexOf(event), 1)
     console.log("onRemove")
   }
 
-  onAddFiles(){
+  onAddFiles() {
     console.log("onAddFiles")
     this.hideDropzone = true;
     //this.controller.importFiles(this.files);
     //this.dialogRef.close();
   }
 
-  importToBothEditors(fileIndex: number){
+  importToBothEditors(fileIndex: number) {
     this.controller.importFile(this.files[fileIndex])
   }
 
-  importToMicroEditor(fileIndex: number){
+  importToMicroEditor(fileIndex: number) {
     this.controller.importFile(this.files[fileIndex], "micro")
   }
 
-  importToMacroEditor(fileIndex: number){
+  importToMacroEditor(fileIndex: number) {
     this.controller.importFile(this.files[fileIndex], "macro")
   }
 
-  removeFile(fileIndex: number){
+  removeFile(fileIndex: number) {
     this.presentationController.removeFile(fileIndex)
   }
 
