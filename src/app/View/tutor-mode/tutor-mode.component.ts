@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { file } from 'jszip';
 import { ControllerService } from 'src/app/Presenter/controller.service';
 import { PresentationControllerService } from 'src/app/Presenter/presentation-controller.service';
 
@@ -70,8 +71,6 @@ export class TutorModeComponent implements OnInit {
   onAddFiles() {
     console.log("onAddFiles")
     this.hideDropzone = true;
-    //this.controller.importFiles(this.files);
-    //this.dialogRef.close();
   }
 
   importToBothEditors(fileIndex: number) {
@@ -88,6 +87,11 @@ export class TutorModeComponent implements OnInit {
 
   removeFile(fileIndex: number) {
     this.presentationController.removeFile(fileIndex)
+  }
+
+  // just does a console log. Should show the comment to the user when it is decided where we want to show the comment
+  showComment(fileIndex: number){
+    console.log(this.files[fileIndex])
   }
 
 }

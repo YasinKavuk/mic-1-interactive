@@ -20,18 +20,24 @@
     <div *ngFor="let file of files; let i = index" class="file">
         <div class="file-component"><mat-icon> insert_drive_file</mat-icon></div>
         <div class="file-component file-name">{{file.name}}</div>
+
+        <div class="file-component" style="max-width: 25px;">
+            <button (click)="showComment(i)" mat-icon-button color="accent">
+                <mat-icon>comment</mat-icon>
+            </button>
+        </div>
         <div class="file-component" style="max-width: 25px;">
             <button (click)="importToBothEditors(i)" mat-icon-button color="primary">
                 <mat-icon>play_arrow</mat-icon>
             </button>
         </div>
         <div class="file-component" style="max-width: 25px;">
-            <button (click)="importToMicroEditor(i)" mat-icon-button color="accent">
+            <button (click)="importToMicroEditor(i)" mat-icon-button color="primary">
                 <mat-icon>play_circle_filled</mat-icon>
             </button>
         </div>
         <div class="file-component" style="max-width: 25px;">
-            <button (click)="importToMacroEditor(i)" mat-icon-button color="warn">
+            <button (click)="importToMacroEditor(i)" mat-icon-button color="primary">
                 <mat-icon>play_circle_outline</mat-icon>
             </button>
         </div>

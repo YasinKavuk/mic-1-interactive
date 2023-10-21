@@ -90,6 +90,10 @@ export class PresentationControllerService {
     this._memoryUpdate.next({ address: address, value: value })
   }
 
+  removeFile(fileIndex: number){
+    this._removeFileFromList.next({fileIndex: fileIndex})
+  }
+
   memoryViewRefresher(bool: boolean) {
     let methodEntries: { name: string, address: number }[] = [];
     let constantEntries: { name: string, address: number }[] = [];
@@ -122,10 +126,6 @@ export class PresentationControllerService {
 
   isTutorModeActive(){
     return this.tutorMode;
-  }
-
-  removeFile(fileIndex: number){
-    this._removeFileFromList.next({fileIndex: fileIndex})
   }
 
 }
