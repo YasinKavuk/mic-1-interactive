@@ -36,6 +36,9 @@ export class PresentationControllerService {
   private _removeFileFromList = new BehaviorSubject({ fileIndex: undefined });
   public removeFileFromList$ = this._removeFileFromList.asObservable();
 
+  private _BatchTestResultToConsole = new BehaviorSubject({ result: [] });
+  public BatchTestResultToConsole$ = this._BatchTestResultToConsole.asObservable();
+
 
   constructor(
     private macroProvider: MacroProviderService,
@@ -93,6 +96,11 @@ export class PresentationControllerService {
   removeFile(fileIndex: number){
     this._removeFileFromList.next({fileIndex: fileIndex})
   }
+
+  batchTestRestultToConsole(errorList: string[]){
+    this._BatchTestResultToConsole.next({ result: errorList })
+  }
+  
 
   memoryViewRefresher(bool: boolean) {
     let methodEntries: { name: string, address: number }[] = [];

@@ -9,6 +9,7 @@ import { DirectorService } from './director.service';
 import { BehaviorSubject } from 'rxjs';
 import { MainMemoryService } from '../Model/Emulator/main-memory.service';
 import { PresentationControllerService } from './presentation-controller.service';
+import { error } from 'cypress/types/jquery';
 
 
 const code1: string = `.main
@@ -386,6 +387,38 @@ export class ControllerService {
 
     this.macroProvider.isLoaded();
     this.microProvider.isLoaded();
+  }
+
+  batchTest(files: File[]){
+    console.log("-- Batch test start --");
+
+    let errorList: string[] = [];
+
+    for(let i = 0; i < files.length; i++){
+      let fileReader = new FileReader();
+      fileReader.readAsText(files[i]);
+      
+      fileReader.onload = (e) => {
+        try{
+          this.microProvider.setMicro(JSON.parse(fileReader.result.toString()).micro);
+          this.controlStore.loadMicro();
+          this.macroTokenizer.initWithFile(JSON.parse(fileReader.result.toString()).macro);
+          this.macroParser.parse();
+          this.director.run(); // this.run() would load program from editor, so we use this.director.run() this just runs the already manually loaded program
+        } catch (error) {
+          errorList.push("Error on file " + (i+1) + ": " + JSON.parse(fileReader.result.toString()).name);
+        }
+
+        if(i === files.length-1){
+          this.presentationController.batchTestRestultToConsole(errorList);
+          console.log("-- Batch test end --");
+        }
+      }
+    }
+    // having this code here resulted in this beeing executed first instead of last. 
+    // this.presentationController.batchTestRestultToConsole(errorList);
+    // console.log("-- Batch test end --");
+
   }
 
   // takes array of files and imports them to a list in the tutor mode component. There they can be imported to the editors manually by the user

@@ -73,6 +73,22 @@ export class MacroTokenizerService {
     this.resetTokenizer();
   }
 
+  // initialized the tokenizer and also tokenizes. It isn't using the program in the editors, it uses macrocode that is passed to this method
+  initWithFile(macro: string){
+    this.tokens = [];
+    this.string = macro;
+
+    while(true){
+      this.token = this.getNextToken();
+      if(this.token == null){
+        break;
+      }
+      console.log(this.token);
+      this.tokens.push(this.token);
+    }
+    this.resetTokenizer();
+  }
+
   private hasMoreTokens(): Boolean {
     return this.curser < this.string.length;
   }

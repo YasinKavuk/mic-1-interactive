@@ -94,4 +94,8 @@ export class TutorModeComponent implements OnInit {
     console.log(this.files[fileIndex])
   }
 
+  batchTest(){
+    this.controller.batchTest(this.files)
+  }
+
 }
