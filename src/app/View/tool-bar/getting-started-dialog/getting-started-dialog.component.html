@@ -6,16 +6,20 @@
             <h2>Simulation</h2>
             The buttons are in order from left to right: Micro-Step, Run, Macro-Step, Load. 
             The program has to be loaded everytime it changes, wether it is by manual changes, imports or loaded examples. 
-            The execution has three variations. Micro-Step executes a single line of the micro program, macro step is doing the same for the macro program. Run will execute the program until it terminates succesfully or runs into a fault state. 
+            The execution has three variations. Micro-Step executes a single line of the micro program, macro step is doing the same for the macro program. Run will execute the program until it terminates succesfully or runs into a fault state. If there is a never-ending loop than the the program is forced to terminate after a certain amount of steps. 
             The animation speed can be adjusted to showcase the execution of a program in the visualization but will impact execution speed heavily. 
         </li><br><br>
         <li>
             <h2>Import/Export</h2>
-            Programs can be exported to and imported from line-separated text files (.txt). Make sure to reload the program after importing prior to execution. 
+            Programs can be exported to and imported from json-files with the right schema. Make sure to reload the program after importing prior to execution. The tutormode is automatically activated by importing more than one program at the same time or importing a zip file with more than one program. 
+        </li><br><br>
+        <li>
+            <h2>Tutormode</h2>
+            When this mode is activated the Register-View disappears and it is possible to import many programs at once. You can batch-test all programs and you can load them without always importing single files. This creates a better overview on different programs. Activates automatically when more than one file is imported at once. Can also be activated or deactivated manually on the menu on the upper right. 
         </li><br><br>
         <li>
             <h2>Preferences</h2>
-            For readability the presentation mode will scale up the font sizes. Do not use browser scaling as it will also scale buttons and other elements. 
+            For readability the presentation mode will scale up the font sizes. Do not use browser scaling as it will also scale buttons and other elements. The light mode changes the presentation of the user interface to a brighter colors. You can also switch the position of the micro and macro editors. All these options can be changed with the menu on the upper right side. 
         </li><br><br>
         <li>
             <h2>Getting Started</h2>
