@@ -8,13 +8,13 @@ describe('complete workflow test without animation', () => {
   });
 
   it('Tests whether the About Dialog is opening', ()=> {
-    cy.get('body > app-root > app-tool-bar > mat-toolbar > button:nth-child(7)')
+    cy.get('body > app-root > app-tool-bar > mat-toolbar > button:nth-child(6)')
       .click(); 
     cy.get('#mat-dialog-0 > app-about-dialog > h1').should('include.text', 'About');
   });
 
   it('Tests whether the "Getting Started" Dialog is opening', ()=> {
-    cy.get('body > app-root > app-tool-bar > mat-toolbar > button:nth-child(6)')
+    cy.get('body > app-root > app-tool-bar > mat-toolbar > button:nth-child(5)')
       .click();
     cy.get('#mat-dialog-0 > app-getting-started-dialog > h2').should('include.text', 'Getting Started');
   });
