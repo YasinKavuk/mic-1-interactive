@@ -28,26 +28,26 @@ describe('complete workflow test without animation', () => {
   });
 
   it('Load demo code from "Getting Started" Dialog', ()=> {
-    cy.get('body > app-root > app-tool-bar > mat-toolbar > button:nth-child(6)')
+    cy.get('body > app-root > app-tool-bar > mat-toolbar > button:nth-child(5)')
       .click();
-    cy.get('#mat-dialog-0 > app-getting-started-dialog > mat-dialog-content > ul > li:nth-child(13) > mat-dialog-actions > button:nth-child(1)')
+    cy.get('#mat-dialog-0 > app-getting-started-dialog > mat-dialog-content > ul > li:nth-child(16) > mat-dialog-actions > button:nth-child(1)')
       .click();
-    cy.get('body > app-root > app-grid-view > mat-grid-list > div > mat-grid-tile:nth-child(3) > div > div > app-editor > div')
+    cy.get('body > app-root > app-grid-view > mat-grid-list > div > mat-grid-tile:nth-child(3) > div > div > app-editor > ngx-dropzone > div')
       .should('contain.text', '.method add(p1, p2)');
   });
 
   it('tests whether the macro- and micro-code is persistant when the site is reloaded. Also tests if the editors are editable', () => {
     cy.emptyEditors();
-    cy.get('body > app-root > app-grid-view > mat-grid-list > div > mat-grid-tile:nth-child(2) > div > div > app-micro-editor > div')
+    cy.get('body > app-root > app-grid-view > mat-grid-list > div > mat-grid-tile:nth-child(2) > div > div > app-micro-editor > ngx-dropzone > div')
       .type('testMicro7457034950', {delay: 1})
       .should('include.text', 'testMicro7457034950');
-    cy.get('body > app-root > app-grid-view > mat-grid-list > div > mat-grid-tile:nth-child(3) > div > div > app-editor > div')
+    cy.get('body > app-root > app-grid-view > mat-grid-list > div > mat-grid-tile:nth-child(3) > div > div > app-editor > ngx-dropzone > div')
       .type('testMacro9349856039', {delay: 1})
       .should('include.text', 'testMacro9349856039');
     cy.visit('/');
-    cy.get('body > app-root > app-grid-view > mat-grid-list > div > mat-grid-tile:nth-child(2) > div > div > app-micro-editor > div')
+    cy.get('body > app-root > app-grid-view > mat-grid-list > div > mat-grid-tile:nth-child(2) > div > div > app-micro-editor > ngx-dropzone > div')
       .should('include.text', 'testMicro7457034950');
-    cy.get('body > app-root > app-grid-view > mat-grid-list > div > mat-grid-tile:nth-child(3) > div > div > app-editor > div')
+    cy.get('body > app-root > app-grid-view > mat-grid-list > div > mat-grid-tile:nth-child(3) > div > div > app-editor > ngx-dropzone > div')
       .should('include.text', 'testMacro9349856039');
   });
 
@@ -121,16 +121,16 @@ describe('complete workflow test without animation', () => {
     cy.get('#mat-tab-content-0-1 > div > app-debug-console > div > p').should('include.text', 'Macrocode loaded successfully!')
 
     // test console after inserting an error to the macrocode and loading
-    cy.get('body > app-root > app-grid-view > mat-grid-list > div > mat-grid-tile:nth-child(3) > div > div > app-editor > div')
+    cy.get('body > app-root > app-grid-view > mat-grid-list > div > mat-grid-tile:nth-child(3) > div > div > app-editor > ngx-dropzone > div')
       .type('!', {delay: 1})
     cy.pushResetButton();
     cy.get('#mat-tab-label-0-1').click();
     cy.get('#mat-tab-content-0-1 > div > app-debug-console > div > p').should('include.text', 'Unexpected')
 
     // test console after inserting an error to the microcode and loading
-    cy.get('body > app-root > app-grid-view > mat-grid-list > div > mat-grid-tile:nth-child(3) > div > div > app-editor > div')
+    cy.get('body > app-root > app-grid-view > mat-grid-list > div > mat-grid-tile:nth-child(3) > div > div > app-editor > ngx-dropzone > div')
       .type('{backspace}', {delay: 1})
-    cy.get('body > app-root > app-grid-view > mat-grid-list > div > mat-grid-tile:nth-child(2) > div > div > app-micro-editor > div')
+    cy.get('body > app-root > app-grid-view > mat-grid-list > div > mat-grid-tile:nth-child(2) > div > div > app-micro-editor > ngx-dropzone > div')
       .type('{upArrow}{upArrow}{rightarrow}{rightarrow}{rightarrow}{rightarrow}{rightarrow}1', {delay: 1})
     cy.pushResetButton();
     cy.get('#mat-checkbox-1-input').uncheck({force: true});
@@ -221,12 +221,12 @@ describe('complete workflow test without animation', () => {
 
   it('tests presentation mode', () => {
     cy.getDemoCode1();
-    cy.get('body > app-root > app-grid-view > mat-grid-list > div > mat-grid-tile:nth-child(3) > div > div > app-editor > div > div.ace_scroller > div')
+    cy.get('body > app-root > app-grid-view > mat-grid-list > div > mat-grid-tile:nth-child(3) > div > div > app-editor > ngx-dropzone > div > div.ace_scroller > div')
       .should('has.css', 'font-size', '14px')
     cy.get('body > app-root > app-tool-bar > mat-toolbar > button.mat-focus-indicator.mat-menu-trigger.mat-icon-button.mat-button-base')
       .click(); // clicks on 3 dot menu button
     cy.get('#mat-slide-toggle-3').click()
-    cy.get('body > app-root > app-grid-view > mat-grid-list > div > mat-grid-tile:nth-child(3) > div > div > app-editor > div > div.ace_scroller > div')
+    cy.get('body > app-root > app-grid-view > mat-grid-list > div > mat-grid-tile:nth-child(3) > div > div > app-editor > ngx-dropzone > div > div.ace_scroller > div')
       .should('has.css', 'font-size', '26px')
     cy.get('#MBR > foreignObject > div').should('have.css', 'font-size', '18px')
   });
@@ -236,27 +236,27 @@ describe('complete workflow test without animation', () => {
     cy.pushResetButton();
     cy.get('#mat-checkbox-1-input').uncheck({force: true});
     cy.pushPlayButton();
-    cy.get('#mat-tab-content-0-0 > div > div > app-stack > div > div:nth-child(3) > div.stack-value.ng-tns-c100-2')
+    cy.get('#mat-tab-content-0-0 > div > div > app-stack > div > div:nth-child(3) > div.stack-value.ng-tns-c106-2')
       .should('have.text', ' 15 ');
   });
 
-  it('Test demo code 2(uses custom microprograms), the result has to be 15 ', {defaultCommandTimeout: 10000}, () => {
+  it('Test demo code 2(uses custom microprograms), the result has to be 15 ', () => {
     cy.getDemoCode2();
     cy.pushResetButton();
     cy.get('#mat-checkbox-1-input').uncheck({force: true});
     cy.pushPlayButton();
-    cy.get('#mat-tab-content-0-0 > div > div > app-stack > div > div:nth-child(3) > div.stack-value.ng-tns-c100-2')
+    cy.get('#mat-tab-content-0-0 > div > div > app-stack > div > div:nth-child(3) > div.stack-value.ng-tns-c106-2')
       .should('have.text', ' 15 ');
   });
 
-  it('Test demo code 3(uses jumps), the 8 and 9 in the stack need to switch position for the result to be right', {defaultCommandTimeout: 10000}, () => {
+  it('Test demo code 3(uses jumps), the 8 and 9 in the stack need to switch position for the result to be right', () => {
     cy.getDemoCode3();
     cy.pushResetButton();
     cy.get('#mat-checkbox-1-input').uncheck({force: true});
     cy.pushPlayButton();
-    cy.get('#mat-tab-content-0-0 > div > div > app-stack > div > div:nth-child(8) > div.stack-value.ng-tns-c100-2')
+    cy.get('#mat-tab-content-0-0 > div > div > app-stack > div > div:nth-child(8) > div.stack-value.ng-tns-c106-2')
       .should('have.text', ' 9 ');
-    cy.get('#mat-tab-content-0-0 > div > div > app-stack > div > div:nth-child(9) > div.stack-value.ng-tns-c100-2')
+    cy.get('#mat-tab-content-0-0 > div > div > app-stack > div > div:nth-child(9) > div.stack-value.ng-tns-c106-2')
       .should('have.text', ' 8 ');
   });
 
