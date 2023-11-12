@@ -338,6 +338,7 @@ export class MacroParserService {
             this.parsedTokenNumber += 1;
 
             if(instructionToken.length === 1){
+              this.currentLine += 1;
               this.lineToLastUsedAddress[this.currentLine] = this.parsedTokenNumber+3;
               console.log("currentLine: " + this.currentLine);
             }
@@ -565,6 +566,7 @@ export class MacroParserService {
       this.parsedCode.push(view.getUint8(1));
       this.parsedTokenNumber += 2;
     }
+    
     this.lineToLastUsedAddress[this.currentLine] = this.parsedTokenNumber+3;
     this.currentLine += 1;
     console.log("currentLine: " + this.currentLine);
@@ -618,6 +620,7 @@ export class MacroParserService {
             this.parsedTokenNumber += 1;
 
             if(instructionToken.length === 1){
+              this.currentLine += 1;
               this.lineToLastUsedAddress[this.currentLine] = this.parsedTokenNumber+3;
               console.log("currentLine: " + this.currentLine);
             }
