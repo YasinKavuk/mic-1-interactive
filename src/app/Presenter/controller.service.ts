@@ -9,7 +9,6 @@ import { DirectorService } from './director.service';
 import { BehaviorSubject } from 'rxjs';
 import { MainMemoryService } from '../Model/Emulator/main-memory.service';
 import { PresentationControllerService } from './presentation-controller.service';
-import { error } from 'cypress/types/jquery';
 
 
 const code1: string = `.main

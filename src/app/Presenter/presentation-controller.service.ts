@@ -39,6 +39,9 @@ export class PresentationControllerService {
   private _BatchTestResultToConsole = new BehaviorSubject({ result: [] });
   public BatchTestResultToConsole$ = this._BatchTestResultToConsole.asObservable();
 
+  private _showComment = new BehaviorSubject({ comment: "" });
+  public showComment$ = this._showComment.asObservable();
+
 
   constructor(
     private macroProvider: MacroProviderService,
@@ -93,12 +96,16 @@ export class PresentationControllerService {
     this._memoryUpdate.next({ address: address, value: value })
   }
 
-  removeFile(fileIndex: number){
-    this._removeFileFromList.next({fileIndex: fileIndex})
-  }
-
   batchTestRestultToConsole(errorList: string[]){
     this._BatchTestResultToConsole.next({ result: errorList })
+  }
+
+  showComment(file: File){
+    let fileReader = new FileReader();
+    fileReader.readAsText(file);
+    fileReader.onload = (e) => {
+      this._showComment.next(JSON.parse(fileReader.result.toString()).comment);
+    }
   }
   
 

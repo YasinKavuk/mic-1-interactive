@@ -25,14 +25,6 @@ export class TutorModeComponent implements OnInit {
         }
       }
     )
-
-    this.presentationController.removeFileFromList$.subscribe(
-      content => {
-        if (content.fileIndex !== undefined) {
-          this.files.splice(content.fileIndex, 1)
-        }
-      }
-    )
   }
 
 
@@ -75,6 +67,7 @@ export class TutorModeComponent implements OnInit {
 
   importToBothEditors(fileIndex: number) {
     this.controller.importFile(this.files[fileIndex])
+    this.showComment(fileIndex)
   }
 
   importToMicroEditor(fileIndex: number) {
@@ -83,15 +76,16 @@ export class TutorModeComponent implements OnInit {
 
   importToMacroEditor(fileIndex: number) {
     this.controller.importFile(this.files[fileIndex], "macro")
+    this.showComment(fileIndex)
   }
 
   removeFile(fileIndex: number) {
-    this.presentationController.removeFile(fileIndex)
+    this.files.splice(fileIndex, 1)
   }
 
   // just does a console log. Should show the comment to the user when it is decided where we want to show the comment
   showComment(fileIndex: number){
-    console.log(this.files[fileIndex])
+    this.presentationController.showComment(this.files[fileIndex])
   }
 
   batchTest(){
