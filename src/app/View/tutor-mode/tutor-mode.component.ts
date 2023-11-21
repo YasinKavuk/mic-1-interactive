@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { file } from 'jszip';
 import { ControllerService } from 'src/app/Presenter/controller.service';
 import { PresentationControllerService } from 'src/app/Presenter/presentation-controller.service';
 
@@ -21,14 +22,6 @@ export class TutorModeComponent implements OnInit {
       content => {
         if (content.files[0] !== undefined) {
           this.files.push(...content.files)
-        }
-      }
-    )
-
-    this.presentationController.removeFileFromList$.subscribe(
-      content => {
-        if (content.fileIndex !== undefined) {
-          this.files.splice(content.fileIndex, 1)
         }
       }
     )
@@ -70,12 +63,11 @@ export class TutorModeComponent implements OnInit {
   onAddFiles() {
     console.log("onAddFiles")
     this.hideDropzone = true;
-    //this.controller.importFiles(this.files);
-    //this.dialogRef.close();
   }
 
   importToBothEditors(fileIndex: number) {
     this.controller.importFile(this.files[fileIndex])
+    this.showComment(fileIndex)
   }
 
   importToMicroEditor(fileIndex: number) {
@@ -84,10 +76,20 @@ export class TutorModeComponent implements OnInit {
 
   importToMacroEditor(fileIndex: number) {
     this.controller.importFile(this.files[fileIndex], "macro")
+    this.showComment(fileIndex)
   }
 
   removeFile(fileIndex: number) {
-    this.presentationController.removeFile(fileIndex)
+    this.files.splice(fileIndex, 1)
+  }
+
+  // just does a console log. Should show the comment to the user when it is decided where we want to show the comment
+  showComment(fileIndex: number){
+    this.presentationController.showComment(this.files[fileIndex])
+  }
+
+  batchTest(){
+    this.controller.batchTest(this.files)
   }
 
 }

@@ -24,10 +24,14 @@
 
     <mat-grid-tile rowspan="20" colspan="1">
         <div *ngIf="areEditorsSwapped === false">
+            <p *ngIf="tutorMode === true">Comment</p>
+            <app-comment-view></app-comment-view>
             <p>Macroassembler</p>
             <app-editor></app-editor>
         </div>
         <div *ngIf="areEditorsSwapped === true">
+            <p *ngIf="tutorMode === true">Comment</p>
+            <app-comment-view></app-comment-view>
             <p>Microprograms</p>
             <app-micro-editor></app-micro-editor>
         </div>

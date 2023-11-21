@@ -338,6 +338,7 @@ export class MacroParserService {
             this.parsedTokenNumber += 1;
 
             if(instructionToken.length === 1){
+              this.currentLine += 1;
               this.lineToLastUsedAddress[this.currentLine] = this.parsedTokenNumber+3;
               console.log("currentLine: " + this.currentLine);
             }
@@ -352,11 +353,10 @@ export class MacroParserService {
             }
             // Throws Error because unknown token
             else{
-              // Comment in when microcode is fully available. And comment out the log
-              // throw new Error("Unexpected Token: " + instructionToken[0]);
-              console.error("Address of " + instructionToken[0] + " is: " + instructionAddress);
               this.presentationController.flashErrorInMacro(this.currentLine, "Address of " + instructionToken[0] + " is: " + instructionAddress)
               hasError = true;
+              throw new Error("Address of " + instructionToken[0] + " is: " + instructionAddress);
+              // console.error("Address of " + instructionToken[0] + " is: " + instructionAddress);
             }
           }
         }
@@ -566,6 +566,7 @@ export class MacroParserService {
       this.parsedCode.push(view.getUint8(1));
       this.parsedTokenNumber += 2;
     }
+    
     this.lineToLastUsedAddress[this.currentLine] = this.parsedTokenNumber+3;
     this.currentLine += 1;
     console.log("currentLine: " + this.currentLine);
@@ -619,6 +620,7 @@ export class MacroParserService {
             this.parsedTokenNumber += 1;
 
             if(instructionToken.length === 1){
+              this.currentLine += 1;
               this.lineToLastUsedAddress[this.currentLine] = this.parsedTokenNumber+3;
               console.log("currentLine: " + this.currentLine);
             }

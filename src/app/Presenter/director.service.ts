@@ -397,6 +397,7 @@ export class DirectorService {
   }
 
 
+  // resets the director and also loads the program that is currently on the micro and macro editor
   public reset() {
     this.isRunning = false;
     this.currentAddress = 1;

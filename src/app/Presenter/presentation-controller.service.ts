@@ -36,6 +36,12 @@ export class PresentationControllerService {
   private _removeFileFromList = new BehaviorSubject({ fileIndex: undefined });
   public removeFileFromList$ = this._removeFileFromList.asObservable();
 
+  private _BatchTestResultToConsole = new BehaviorSubject({ result: [] });
+  public BatchTestResultToConsole$ = this._BatchTestResultToConsole.asObservable();
+
+  private _showComment = new BehaviorSubject({ comment: "" });
+  public showComment$ = this._showComment.asObservable();
+
 
   constructor(
     private macroProvider: MacroProviderService,
@@ -90,6 +96,19 @@ export class PresentationControllerService {
     this._memoryUpdate.next({ address: address, value: value })
   }
 
+  batchTestRestultToConsole(errorList: string[]){
+    this._BatchTestResultToConsole.next({ result: errorList })
+  }
+
+  showComment(file: File){
+    let fileReader = new FileReader();
+    fileReader.readAsText(file);
+    fileReader.onload = (e) => {
+      this._showComment.next(JSON.parse(fileReader.result.toString()).comment);
+    }
+  }
+  
+
   memoryViewRefresher(bool: boolean) {
     let methodEntries: { name: string, address: number }[] = [];
     let constantEntries: { name: string, address: number }[] = [];
@@ -122,10 +141,6 @@ export class PresentationControllerService {
 
   isTutorModeActive(){
     return this.tutorMode;
-  }
-
-  removeFile(fileIndex: number){
-    this._removeFileFromList.next({fileIndex: fileIndex})
   }
 
 }

@@ -20,7 +20,7 @@ export class DebugConsoleComponent implements OnInit, AfterViewChecked {
 
   constructor(
     private director: DirectorService,
-    private presentationController: PresentationControllerService,
+    private presentationController: PresentationControllerService
   ) { }
 
   ngOnInit(): void {
@@ -65,6 +65,15 @@ export class DebugConsoleComponent implements OnInit, AfterViewChecked {
       }
     )
 
+    // logs the error list of BatchTest
+    this.presentationController.BatchTestResultToConsole$.subscribe(
+      content => {
+        if(content.result.length === 0){ return };
+        for(let i = 0; i < content.result.length; i++){
+          this.content.push({ type: "info", content: content.result[i] })
+        }
+      }
+    )
 
   }
 
