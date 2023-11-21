@@ -3,13 +3,20 @@ import { file } from 'jszip';
 import { ControllerService } from 'src/app/Presenter/controller.service';
 import { PresentationControllerService } from 'src/app/Presenter/presentation-controller.service';
 
+
+interface TestFile {
+  status: string;
+  error?: string;
+  file: File;
+}
+
 @Component({
   selector: 'app-tutor-mode',
   templateUrl: './tutor-mode.component.html',
   styleUrls: ['./tutor-mode.component.scss']
 })
 export class TutorModeComponent implements OnInit {
-  files: File[] = [];
+  files: TestFile[] = [];
   hideDropzone = false;
 
   constructor(
@@ -22,6 +29,19 @@ export class TutorModeComponent implements OnInit {
       content => {
         if (content.files[0] !== undefined) {
           this.files.push(...content.files)
+        }
+      }
+    )
+
+    this.controller.testStatus.subscribe(
+      content => {
+
+        console.log(content)
+        if (content.fileIndex === -1 || content.status === "") { return }
+
+        this.files[content.fileIndex].status = content.status;
+        if (content.status === "failed"){
+          this.files[content.fileIndex].error = content.error;
         }
       }
     )
@@ -43,14 +63,17 @@ export class TutorModeComponent implements OnInit {
       jsZip.loadAsync(zipFiles[0]).then(
         (zip: any) => Object.keys(zip.files).forEach(
           (filename) => zip.files[filename].async("string").then(
-            (fileData: string) => this.files.push(new File([fileData], filename, { type: "application/json" }))
+            (fileData: string) => this.files.push({ file: new File([fileData], filename, { type: "application/json" }), status: "" })
           )
         )
       )
     }
 
 
-    this.files.push(...files)
+    files.forEach((file: File) => {
+      this.files.push({ file: file, status: "" })
+    });
+
 
     console.log(this.files)
   }
@@ -84,12 +107,12 @@ export class TutorModeComponent implements OnInit {
   }
 
   // just does a console log. Should show the comment to the user when it is decided where we want to show the comment
-  showComment(fileIndex: number){
-    this.presentationController.showComment(this.files[fileIndex])
+  showComment(fileIndex: number) {
+    this.presentationController.showComment(this.files[fileIndex].file)
   }
 
-  batchTest(){
-    this.controller.batchTest(this.files)
+  batchTest() {
+    this.controller.batchTest(this.files.map((testFile) => testFile.file))
   }
 
 }

@@ -1,3 +1,5 @@
+@import '~@angular/material/theming';
+
 .file{
     color: var(--text-color);
     display: flex;
@@ -19,9 +21,8 @@
 
 
 .file-container{
-    width: 67%;
+    width: 90%;
 }
-
 
 
 .dropZone{
@@ -30,7 +31,7 @@
 }
 
 .mat-icon{
-    transform: scale(0.75);
+    transform: scale(0.7);
 }
 
 
@@ -42,5 +43,14 @@
        opacity: 100%;
     }
 }
+
+
+.status {
+    animation: fadeIn;
+    animation-duration: 0.2s;
+}
+
+
+
 
 

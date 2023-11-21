@@ -43,6 +43,8 @@ import { NgxDropzoneModule } from 'ngx-dropzone';
 import { MatInputModule } from '@angular/material/input';
 import { TutorModeComponent } from './View/tutor-mode/tutor-mode.component';
 import { CommentViewComponent } from './View/comment-view/comment-view.component';
+import {MatTooltipModule} from '@angular/material/tooltip';
+
 
 
 
@@ -94,7 +96,8 @@ import { CommentViewComponent } from './View/comment-view/comment-view.component
     MatMenuModule,
     NgxDropzoneModule,
     MatInputModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    MatTooltipModule,
   ],
 
   providers: [],

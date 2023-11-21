@@ -635,11 +635,9 @@ export class MacroParserService {
             }
             // Throws Error because unknown token
             else{
-              // Comment in when microcode is fully available. And comment out the log
-              // throw new Error("Unexpected Token: " + instructionToken[0]);
-              console.error("Address of " + instructionToken[0] + " is: " + instructionAddress);
               this.presentationController.flashErrorInMacro(this.currentLine, "Address of " + instructionToken[0] + " is: " + instructionAddress)
               hasError = true;
+              throw new Error("Unexpected Token: " + instructionToken[0]);
             }
           }
         }

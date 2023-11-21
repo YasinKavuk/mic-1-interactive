@@ -312,12 +312,14 @@ MDR=TOS; wr; goto Main1`;
 })
 export class ControllerService {
 
-  private _macroCode = new BehaviorSubject({ macroCode: ""});
+  private _macroCode = new BehaviorSubject({ macroCode: "" });
   public macroCode$ = this._macroCode.asObservable();
-  private _microCode = new BehaviorSubject({ microCode: ""});
+  private _microCode = new BehaviorSubject({ microCode: "" });
   public microCode$ = this._microCode.asObservable();
   private _switchOnTutorMode = new BehaviorSubject({ files: [] });
   public switchOnTutorMode$ = this._switchOnTutorMode.asObservable();
+  private _testStatus = new BehaviorSubject({ fileIndex: -1, status: "", error: "" })
+  public testStatus = this._testStatus.asObservable();
 
   constructor(
     private macroProvider: MacroProviderService,
@@ -331,14 +333,14 @@ export class ControllerService {
   ) {
     const codeMac = localStorage.getItem("macroCode");
     const codeMic = localStorage.getItem("microCode");
-    if (codeMac && codeMic){
+    if (codeMac && codeMic) {
       this.setCodeInView(codeMac, codeMic);
     }
   }
 
 
-  step(){
-    if(this.macroProvider.getMacroGotChanged() || this.microProvider.getMicroGotChanged()){
+  step() {
+    if (this.macroProvider.getMacroGotChanged() || this.microProvider.getMicroGotChanged()) {
       this.controlStore.loadMicro();
       this.macroTokenizer.init();
       this.macroParser.parse();
@@ -352,8 +354,8 @@ export class ControllerService {
     this.microProvider.isLoaded();
   }
 
-  stepMacro(){
-    if(this.macroProvider.getMacroGotChanged() || this.microProvider.getMicroGotChanged()){
+  stepMacro() {
+    if (this.macroProvider.getMacroGotChanged() || this.microProvider.getMicroGotChanged()) {
       this.controlStore.loadMicro();
       this.macroTokenizer.init();
       this.macroParser.parse();
@@ -367,15 +369,15 @@ export class ControllerService {
     this.microProvider.isLoaded();
   }
 
-  reset(){
+  reset() {
     this.director.reset();
 
     // step through INVOKEVIRUAL for main method
     this.stepMacro();
   }
 
-  run(){
-    if(this.macroProvider.getMacroGotChanged() || this.microProvider.getMicroGotChanged()){
+  run() {
+    if (this.macroProvider.getMacroGotChanged() || this.microProvider.getMicroGotChanged()) {
       this.controlStore.loadMicro();
       this.macroTokenizer.init();
       this.macroParser.parse();
@@ -388,27 +390,38 @@ export class ControllerService {
     this.microProvider.isLoaded();
   }
 
-  batchTest(files: File[]){
+  batchTest(files: File[]) {
     console.log("-- Batch test start --");
 
     let errorList: string[] = [];
+    let numberOfErrors = errorList.length
 
-    for(let i = 0; i < files.length; i++){
+    for (let i = 0; i < files.length; i++) {
       let fileReader = new FileReader();
       fileReader.readAsText(files[i]);
+
       
+
       fileReader.onload = (e) => {
-        try{
+        numberOfErrors = errorList.length
+        try {
           this.microProvider.setMicro(JSON.parse(fileReader.result.toString()).micro);
           this.controlStore.loadMicro();
           this.macroTokenizer.initWithFile(JSON.parse(fileReader.result.toString()).macro);
           this.macroParser.parse();
-          this.director.run(); // this.run() would load program from editor, so we use this.director.run() this just runs the already manually loaded program
+          this.director.run(); // this.run() would load program from editor, so we use this.director.run() this just runs the already manually loaded program    
         } catch (error) {
-          errorList.push("Error on file " + (i+1) + ": " + JSON.parse(fileReader.result.toString()).name);
+          errorList.push("Error on file " + (i + 1) + ": " + JSON.parse(fileReader.result.toString()).name);
+          if (error instanceof Error) {
+            this._testStatus.next({ fileIndex: i, status: "failed", error: error.message })
+          }
         }
 
-        if(i === files.length-1){
+        if (numberOfErrors === errorList.length) {
+          this._testStatus.next({ fileIndex: i, status: "passed", error: "" });
+        }
+
+        if (i === files.length - 1) {
           this.presentationController.batchTestRestultToConsole(errorList);
           console.log("-- Batch test end --");
         }
@@ -421,54 +434,54 @@ export class ControllerService {
   }
 
   // takes array of files and imports them to a list in the tutor mode component. There they can be imported to the editors manually by the user
-  importFiles(files:any[]){
-    if(files.length > 1 || this.presentationController.isTutorModeActive()){
+  importFiles(files: any[]) {
+    if (files.length > 1 || this.presentationController.isTutorModeActive()) {
       this.presentationController.enableTutModeWithFiles(files);
-    }else{
+    } else {
       this.importFile(files[0])
     }
   }
 
-  importFile(file:any, target?:string){
-    if(target === "macro"){
+  importFile(file: any, target?: string) {
+    if (target === "macro") {
       this.importToEditor(file, "macro");
     }
-    else if(target === "micro"){
+    else if (target === "micro") {
       this.importToEditor(file, "micro");
     }
-    else{
+    else {
       this.importToEditor(file);
     }
   }
 
-  importToEditor(file: File, target?:string){
+  importToEditor(file: File, target?: string) {
     let fileReader = new FileReader();
     fileReader.readAsText(file);
 
 
     fileReader.onload = (e) => {
-      if(JSON.parse(fileReader.result.toString()).macro !== '<DO NOT IMPORT>' && target !== "micro"){
+      if (JSON.parse(fileReader.result.toString()).macro !== '<DO NOT IMPORT>' && target !== "micro") {
         this.macroProvider.setMacro(JSON.parse(fileReader.result.toString()).macro);
-        this._macroCode.next({ macroCode: JSON.parse(fileReader.result.toString()).macro});
+        this._macroCode.next({ macroCode: JSON.parse(fileReader.result.toString()).macro });
       }
 
-      if(JSON.parse(fileReader.result.toString()).micro !== '<DO NOT IMPORT>' && target !== "macro"){
+      if (JSON.parse(fileReader.result.toString()).micro !== '<DO NOT IMPORT>' && target !== "macro") {
         this.microProvider.setMicro(JSON.parse(fileReader.result.toString()).micro);
-        this._microCode.next({ microCode: JSON.parse(fileReader.result.toString()).micro});
+        this._microCode.next({ microCode: JSON.parse(fileReader.result.toString()).micro });
       }
     }
   }
 
   //downloads a json file with the macrocode and microcode as content
-  export(name: string, macroBool: boolean, microBool: boolean, comment: string){
+  export(name: string, macroBool: boolean, microBool: boolean, comment: string) {
     var textMac: string = ''
     var textMic: string = ''
-    if(macroBool){
+    if (macroBool) {
       textMac = this.macroProvider.getMacro();
-    }else{textMac = '<DO NOT IMPORT>'}
-    if(microBool){
+    } else { textMac = '<DO NOT IMPORT>' }
+    if (microBool) {
       textMic = this.microProvider.getMicro();
-    }else{textMic = '<DO NOT IMPORT>'}
+    } else { textMic = '<DO NOT IMPORT>' }
 
     const json: JSON = <JSON><unknown>{
       "name": name,
@@ -476,53 +489,53 @@ export class ControllerService {
       "micro": textMic,
       "comment": comment
     }
-    const dataJson = new Blob([JSON.stringify(json)], {type: 'application/json'})
+    const dataJson = new Blob([JSON.stringify(json)], { type: 'application/json' })
     FileSaver.saveAs(dataJson, name + ".json")
   }
 
-  setMacroInModel(macro: string){
+  setMacroInModel(macro: string) {
     this.macroProvider.setMacro(macro);
   }
 
-  setMicroInModel(micro: string){
+  setMicroInModel(micro: string) {
     this.microProvider.setMicro(micro);
   }
 
-  setCodeInView(macro: string, micro: string){
+  setCodeInView(macro: string, micro: string) {
     this._macroCode.next({ macroCode: macro });
     this._microCode.next({ microCode: micro });
   }
 
-  setDemoCode(demoCodeOption: string){
-    if(demoCodeOption === "demo1"){
+  setDemoCode(demoCodeOption: string) {
+    if (demoCodeOption === "demo1") {
       this.microProvider.setMicro(microCode);
       this.macroProvider.setMacro(code1);
-      this._macroCode.next({ macroCode: code1});
-      this._microCode.next({ microCode: microCode});
+      this._macroCode.next({ macroCode: code1 });
+      this._microCode.next({ microCode: microCode });
     }
-    if(demoCodeOption === "demo2"){
+    if (demoCodeOption === "demo2") {
       this.microProvider.setMicro(customMicroCode);
       this.macroProvider.setMacro(code2);
-      this._macroCode.next({ macroCode: code2});
-      this._microCode.next({ microCode: customMicroCode});
+      this._macroCode.next({ macroCode: code2 });
+      this._microCode.next({ microCode: customMicroCode });
     }
-    if(demoCodeOption === "demo3"){
+    if (demoCodeOption === "demo3") {
       this.microProvider.setMicro(microCode);
       this.macroProvider.setMacro(code3);
-      this._macroCode.next({ macroCode: code3});
-      this._microCode.next({ microCode: microCode});
+      this._macroCode.next({ macroCode: code3 });
+      this._microCode.next({ microCode: microCode });
     }
   }
 
-  getEditorLineWithoutEmptyRows(line: number){
+  getEditorLineWithoutEmptyRows(line: number) {
     return this.macroProvider.getEditorLineWithoutEmptyRows(line);
   }
 
-  getEditorLineWithParserLine(parserLine: number){
+  getEditorLineWithParserLine(parserLine: number) {
     return this.macroProvider.getEditorLineWithParserLine(parserLine);
   }
 
-  dec2hex(dec: number){
+  dec2hex(dec: number) {
     return this.mainMemory.dec2hex(dec);
   }
 
