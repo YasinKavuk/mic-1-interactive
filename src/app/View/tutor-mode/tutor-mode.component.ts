@@ -50,7 +50,7 @@ export class TutorModeComponent implements OnInit {
       jsZip.loadAsync(zipFiles[0]).then(
         (zip: any) => Object.keys(zip.files).forEach(
           (filename) => zip.files[filename].async("string").then(
-            (fileData: string) => { this.files.push(new File([fileData], filename, { type: "application/json" })), console.log(JSON.parse(fileData)) }
+            (fileData: string) => this.files.push(new File([fileData], filename, { type: "application/json" }))
           )
         )
       )
