@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { file } from 'jszip';
 import { ControllerService } from 'src/app/Presenter/controller.service';
 import { PresentationControllerService } from 'src/app/Presenter/presentation-controller.service';
 
@@ -28,7 +27,7 @@ export class TutorModeComponent implements OnInit {
     this.presentationController.loadFilesToTutMode$.subscribe(
       content => {
         if (content.files[0] !== undefined) {
-          this.files.push(...content.files)
+          content.files.forEach((file: File) => this.files.push({ status: "", file: file }))
         }
       }
     )
@@ -40,7 +39,7 @@ export class TutorModeComponent implements OnInit {
         if (content.fileIndex === -1 || content.status === "") { return }
 
         this.files[content.fileIndex].status = content.status;
-        if (content.status === "failed"){
+        if (content.status === "failed") {
           this.files[content.fileIndex].error = content.error;
         }
       }
@@ -74,8 +73,6 @@ export class TutorModeComponent implements OnInit {
       this.files.push({ file: file, status: "" })
     });
 
-
-    console.log(this.files)
   }
 
   onRemove(event: any) {
