@@ -11,6 +11,7 @@ export class PresentationControllerService {
   private presentationMode: boolean = false;
   private areEditorsSwapped: boolean = false;
   private tutorMode: boolean = false;
+  private graphicsFunctionality: boolean = false;
 
   private _presentationMode = new BehaviorSubject({ presentationMode: false });
   public presentationMode$ = this._presentationMode.asObservable();
@@ -30,6 +31,9 @@ export class PresentationControllerService {
   private _tutorMode = new BehaviorSubject({ tutorMode: false });
   public tutorMode$ = this._tutorMode.asObservable();
 
+  private _graphicsFunctionality = new BehaviorSubject({ graphicsFunctionality: false });
+  public graphicsFunctionality$ = this._graphicsFunctionality.asObservable();
+
   private _loadFilesToTutMode = new BehaviorSubject({ files: [] });
   public loadFilesToTutMode$ = this._loadFilesToTutMode.asObservable();
 
@@ -48,7 +52,7 @@ export class PresentationControllerService {
     private mainMemory: MainMemoryService,
     private regProvider: RegProviderService,
   ) {
-    this.mainMemory.updateMemoryView$.subscribe(content => {
+    this.mainMemory.updateMemory$.subscribe(content => {
       this.updateMemoryView(content.address, content.value);
     })
   }
@@ -66,16 +70,25 @@ export class PresentationControllerService {
     }
   }
 
-  public setTutorMode(tutorMode:boolean){
+  public setTutorMode(tutorMode: boolean) {
     this.tutorMode = tutorMode;
-    this._tutorMode.next({tutorMode: this.tutorMode});
+    this._tutorMode.next({ tutorMode: this.tutorMode });
+  }
+
+  public setGraphicsFunctionality(enabled: boolean) {
+    this.graphicsFunctionality = enabled;
+    this._graphicsFunctionality.next({ graphicsFunctionality: this.graphicsFunctionality });
+  }
+
+  public getGraphicsFunctionalityEnabled(): boolean {
+    return this.graphicsFunctionality;
   }
 
   // activates the tutor mode and also sends the files that can be imported to the tutor mode component
-  enableTutModeWithFiles(files:any[]){
+  enableTutModeWithFiles(files: any[]) {
     this.tutorMode = true;
-    this._tutorMode.next({tutorMode: true})
-    this._loadFilesToTutMode.next({files})
+    this._tutorMode.next({ tutorMode: true })
+    this._loadFilesToTutMode.next({ files })
   }
 
   getPresentationMode() {
@@ -96,18 +109,18 @@ export class PresentationControllerService {
     this._memoryUpdate.next({ address: address, value: value })
   }
 
-  batchTestRestultToConsole(errorList: string[]){
+  batchTestRestultToConsole(errorList: string[]) {
     this._BatchTestResultToConsole.next({ result: errorList })
   }
 
-  showComment(file: File){
+  showComment(file: File) {
     let fileReader = new FileReader();
     fileReader.readAsText(file);
     fileReader.onload = (e) => {
       this._showComment.next(JSON.parse(fileReader.result.toString()).comment);
     }
   }
-  
+
 
   memoryViewRefresher(bool: boolean) {
     let methodEntries: { name: string, address: number }[] = [];
@@ -139,7 +152,7 @@ export class PresentationControllerService {
     return this.regProvider.getRegister(reg).getValue();
   }
 
-  isTutorModeActive(){
+  isTutorModeActive() {
     return this.tutorMode;
   }
 

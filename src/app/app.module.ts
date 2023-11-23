@@ -44,6 +44,7 @@ import { MatInputModule } from '@angular/material/input';
 import { TutorModeComponent } from './View/tutor-mode/tutor-mode.component';
 import { CommentViewComponent } from './View/comment-view/comment-view.component';
 import {MatTooltipModule} from '@angular/material/tooltip';
+import { ScreenComponent } from './View/screen/screen.component';
 
 
 
@@ -72,6 +73,7 @@ import {MatTooltipModule} from '@angular/material/tooltip';
     ExportDialogComponent,
     TutorModeComponent,
     CommentViewComponent,
+    ScreenComponent,
   ],
   imports: [
     BrowserModule,

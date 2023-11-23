@@ -13,6 +13,8 @@ import { MacroParserService } from '../Model/macro-parser.service';
 import { MacroTokenizerService } from '../Model/macro-tokenizer.service';
 import { MacroProviderService } from '../Model/macro-provider.service';
 import { MicroProviderService } from '../Model/micro-provider.service';
+import { VideoControllerService } from '../Model/GraphicsAdapter/video-controller.service';
+import { PresentationControllerService } from './presentation-controller.service';
 
 
 @Injectable({
@@ -34,6 +36,8 @@ export class DirectorService {
     private macroTokenizer: MacroTokenizerService,
     private macroProvider: MacroProviderService,
     private microProvider: MicroProviderService,
+    private videoController: VideoControllerService,
+    private presentationController: PresentationControllerService,
   ) {
     // load AnimationEnabled from LocalStorage
     let enableAnim = localStorage.getItem("animationEnabled");
@@ -172,6 +176,12 @@ export class DirectorService {
       this._finishedRun.next(false); // disableButtons
       return;
     }
+
+
+    // if we find opcode of NOP wait for 0ms -> otherwise the screen does not render
+    if (this.presentationController.getGraphicsFunctionalityEnabled() || this.currentAddress === 0){
+      await  new Promise(resolve => setTimeout(resolve, 0));
+    }    
 
 
     let line = this.controlStore.getMicro()[this.currentAddress];
@@ -448,6 +458,8 @@ export class DirectorService {
 
     //enable buttons
     this._finishedRun.next(true);
+
+    this.videoController.wipeScreen();
 
     // set Breakpoints Addresses for Macrocode
     for (let i = 0; i < this.macroBreakpoints.length; i++) {

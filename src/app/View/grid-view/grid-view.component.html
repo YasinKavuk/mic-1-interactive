@@ -4,7 +4,7 @@
             <app-tool-bar-mic-view></app-tool-bar-mic-view>
             <hr color="black">
 
-            <app-mic-visualization [@flyIn]="tutorMode? 'hidden' : 'visible'" ></app-mic-visualization>
+            <app-mic-visualization [@flyIn]="tutorMode? 'hidden' : 'visible'"></app-mic-visualization>
             <app-tutor-mode style="position: absolute; width: 100%;" *ngIf="tutorMode"></app-tutor-mode>
 
             
@@ -38,7 +38,7 @@
     </mat-grid-tile>
 
     <mat-grid-tile rowspan="10" colspan="1">
-        <div >
+        <div>
             <mat-tab-group dynamicHeight animationDuration="0ms" style="height: 100%;">
                 <mat-tab>
                     <ng-template mat-tab-label>
@@ -54,6 +54,12 @@
                     </ng-template>
                     <app-debug-console></app-debug-console>
                 </mat-tab>
+                <mat-tab *ngIf="graphicsFunctionality">
+                    <ng-template mat-tab-label>
+                        <span class="tab">Screen</span>
+                    </ng-template>
+                    <app-screen></app-screen>
+                </mat-tab>
                 <mat-tab>
                     <ng-template mat-tab-label>
                         <span class="tab">Memory</span>
@@ -61,7 +67,7 @@
                     <app-memory-view></app-memory-view>
                 </mat-tab>
             </mat-tab-group>
-            
+
         </div>
     </mat-grid-tile>
 </mat-grid-list>

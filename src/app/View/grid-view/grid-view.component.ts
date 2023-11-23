@@ -29,6 +29,7 @@ import { PresentationControllerService } from 'src/app/Presenter/presentation-co
 export class GridViewComponent implements OnInit {
   areEditorsSwapped: boolean = false;
   tutorMode: boolean = false;
+  graphicsFunctionality = false;
 
   constructor(
     private presentationController: PresentationControllerService,
@@ -53,6 +54,12 @@ export class GridViewComponent implements OnInit {
       }
     )
 
+
+    this.presentationController.graphicsFunctionality$.subscribe(
+      content => {
+        this.graphicsFunctionality = content.graphicsFunctionality;
+      }
+    )
   }
 
 }

@@ -34,8 +34,6 @@ export class TutorModeComponent implements OnInit {
 
     this.controller.testStatus.subscribe(
       content => {
-
-        console.log(content)
         if (content.fileIndex === -1 || content.status === "") { return }
 
         this.files[content.fileIndex].status = content.status;
