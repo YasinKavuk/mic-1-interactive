@@ -45,6 +45,7 @@ import { TutorModeComponent } from './View/tutor-mode/tutor-mode.component';
 import { CommentViewComponent } from './View/comment-view/comment-view.component';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import { ScreenComponent } from './View/screen/screen.component';
+import { BatchSettingsDialogComponent } from './View/tutor-mode/batch-settings-dialog/batch-settings-dialog.component';
 
 
 
@@ -74,6 +75,7 @@ import { ScreenComponent } from './View/screen/screen.component';
     TutorModeComponent,
     CommentViewComponent,
     ScreenComponent,
+    BatchSettingsDialogComponent,
   ],
   imports: [
     BrowserModule,

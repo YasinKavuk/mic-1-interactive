@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { ControllerService } from 'src/app/Presenter/controller.service';
 import { PresentationControllerService } from 'src/app/Presenter/presentation-controller.service';
+import { BatchSettingsDialogComponent } from './batch-settings-dialog/batch-settings-dialog.component';
 
 
 interface TestFile {
@@ -21,6 +23,7 @@ export class TutorModeComponent implements OnInit {
   constructor(
     private presentationController: PresentationControllerService,
     private controller: ControllerService,
+    private dialog: MatDialog,
   ) { }
 
   ngOnInit(): void {
@@ -108,6 +111,14 @@ export class TutorModeComponent implements OnInit {
 
   batchTest() {
     this.controller.batchTest(this.files.map((testFile) => testFile.file))
+  }
+
+  openTestSettingsDialog() {
+    const dialogRef = this.dialog.open(BatchSettingsDialogComponent, { enterAnimationDuration: "0.25s", width: "25%", minWidth:"400px"});
+
+    dialogRef.afterClosed().subscribe(result => {
+      console.log(result)
+    })
   }
 
 }

@@ -9,6 +9,7 @@ import { DirectorService } from './director.service';
 import { BehaviorSubject } from 'rxjs';
 import { MainMemoryService } from '../Model/Emulator/main-memory.service';
 import { PresentationControllerService } from './presentation-controller.service';
+import { StackPosition } from '../View/tutor-mode/batch-settings-dialog/batch-settings-dialog.component';
 
 
 const code1: string = `.main
@@ -320,6 +321,13 @@ export class ControllerService {
   public switchOnTutorMode$ = this._switchOnTutorMode.asObservable();
   private _testStatus = new BehaviorSubject({ fileIndex: -1, status: "", error: "" })
   public testStatus = this._testStatus.asObservable();
+
+  private testSettings = {
+    testTos: false,
+    tosValue: 0,
+    testStack: false,
+
+  }
 
   constructor(
     private macroProvider: MacroProviderService,

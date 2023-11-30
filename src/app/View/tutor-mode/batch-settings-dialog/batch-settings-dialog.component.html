@@ -1,0 +1,65 @@
+<h1 mat-dialog-title>Batch-Test Settings</h1>
+<hr><br>
+<mat-dialog-content class="mat-typography" style="height: 90vh;">
+    <div class="checkbox"><mat-checkbox matTooltip="Use in Test"></mat-checkbox></div>
+    <h3> Test the Value in TOS after the program is finished:</h3>
+
+
+    <div class="register">
+        <svg fill="none" xmlns="http://www.w3.org/2000/svg" [currentScale]="1" class="svg">
+            <g id="TOS">
+                <title>Top of Stack</title>
+                <g id="Rectangle 1_15">
+                    <rect id="Rectangle 1_16" x="5" y="5" width="160" height="36" fill="#D9D9D9" stroke="black"
+                        stroke-width="2" />
+                    <line id="Line 10_8" x1="57" y1="5" x2="57" y2="40" stroke="black" />
+                    <foreignObject x="58" y="5" width="103" height="38">
+                        <input type="number" class="center-SVG " placeholder="value...">
+                        0
+                    </foreignObject>
+                </g>
+                <foreignObject x="5" y="5" width="52" height="38">
+                    <div class="center-SVG" style="color: black;">
+                        TOS
+                    </div>
+                </foreignObject>
+            </g>
+        </svg>
+    </div>
+
+
+
+    <div class="checkbox"><mat-checkbox matTooltip="Use in Test"></mat-checkbox></div>
+    <h3>Test last values on stack:</h3>
+
+    <div class="stack-entry">
+        <div class="stack-index first">0x00</div>
+        <div class="stack-value first">
+            <input type="number" class="input-stack-value" placeholder="test value"
+                (input)="onFirstStackValueChange($event)">
+        </div>
+    </div>
+    <div *ngFor="let stackPosition of stackPositions, index as i">
+        <div class="stack-entry">
+            <div class="stack-index">{{ stackPosition.index }}</div>
+            <div class="stack-value">
+                <input type="number" class="input-stack-value" value="{{ stackPosition.value }}"
+                    placeholder="test value" (input)="onStackValueChange(i, $event)">
+            </div>
+        </div>
+    </div>
+
+
+    <div class="center" style="margin: 10%;">
+        <mat-icon [ngStyle]="{'color':'lightGray'}" class="addRegisterIcon" (click)="addStackPosition()"
+            matTooltip="Add a Position on the Stack">add_circle</mat-icon>
+    </div>
+
+
+</mat-dialog-content>
+
+
+<div mat-dialog-actions class="dialog-buttons-container">
+    <button mat-button (click)="onExit()">Exit</button>
+    <button mat-button (click)="onSave()" cdkFocusInitial>Save</button>
+</div>

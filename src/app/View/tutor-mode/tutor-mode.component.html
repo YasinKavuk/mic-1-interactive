@@ -16,9 +16,13 @@
 
 
 <div *ngIf="files.length >= 1">
-    <button mat-raised-button (click)="batchTest()" color="primary" style="width: 95%;">
+    <button mat-raised-button (click)="batchTest()" color="primary" style="width: 80%;">
         Batch-Test
     </button>
+    <span style="margin-left: 3%;">
+        <mat-icon [ngStyle]="{'color':'#ccc5b9'}" class="settings-Icon"
+            matTooltip="Batch-Test Settings" [matTooltipPosition]="'right'" (click)="openTestSettingsDialog()">settings</mat-icon>
+    </span>
 </div>
 
 
