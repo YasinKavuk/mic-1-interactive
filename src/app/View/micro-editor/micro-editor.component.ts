@@ -246,4 +246,8 @@ export class MicroEditorComponent implements AfterViewInit {
     }
   }
 
+  onSelect(event: any){
+    this.controller.importFile(event.addedFiles[0], "micro");
+  }
+
 }

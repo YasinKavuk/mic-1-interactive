@@ -1,0 +1,76 @@
+<!-- Dropzone  -->
+
+
+<div class="dropZone" *ngIf="files.length < 1">
+    <ngx-dropzone accept="application/json, application/zip, application/x-zip-compressed " *ngIf="!hideDropzone"
+        (change)="onSelect($event)" style="width: 95%; height: 200px; background-color: #ccc5b9;">
+        <ngx-dropzone-label>There are no files yet. Drag and Drop Files or click here. You can also use the import
+            button on the toolbar.</ngx-dropzone-label>
+        <ngx-dropzone-preview *ngFor="let f of files" [removable]="true" (removed)="onRemove(f)">
+            <ngx-dropzone-label>
+                {{f.file.name}} {{f.file.type}}
+            </ngx-dropzone-label>>
+        </ngx-dropzone-preview>
+    </ngx-dropzone>
+</div>
+
+
+<div *ngIf="files.length >= 1">
+    <button mat-raised-button (click)="batchTest()" color="primary" style="width: 80%;">
+        Batch-Test
+    </button>
+    <span style="margin-left: 3%;">
+        <mat-icon [ngStyle]="{'color':'#ccc5b9'}" class="settings-Icon"
+            matTooltip="Batch-Test Settings" [matTooltipPosition]="'right'" (click)="openTestSettingsDialog()">settings</mat-icon>
+    </span>
+</div>
+
+
+<!-- File View -->
+<div class="file-container">
+    <div *ngFor="let f of files; let i = index" class="file">
+        <div class="file-component"><mat-icon> insert_drive_file</mat-icon></div>
+        <div class="file-component file-name">
+            {{f.file.name}}
+
+
+        </div>
+
+        <div class="file-component">
+            <mat-icon *ngIf="f.status == 'passed'" [ngStyle]="{'color':'#7ac142'}" class="status"
+                matTooltip="All Test passed" [matTooltipPosition]="'left'">check
+            </mat-icon>
+            <mat-icon *ngIf="f.status == 'failed'" color="warn" class="status" matTooltip="{{f.error}}"
+                [matTooltipPosition]="'left'">
+                error_outline
+            </mat-icon>
+        </div>
+
+
+        <div class="file-component" style="max-width: 25px;">
+            <button (click)="showComment(i)" mat-icon-button color="accent">
+                <mat-icon>comment</mat-icon>
+            </button>
+        </div>
+        <div class="file-component" style="max-width: 25px;">
+            <button (click)="importToBothEditors(i)" mat-icon-button color="primary">
+                <mat-icon>play_arrow</mat-icon>
+            </button>
+        </div>
+        <div class="file-component" style="max-width: 25px;">
+            <button (click)="importToMicroEditor(i)" mat-icon-button color="primary">
+                <mat-icon>play_circle_filled</mat-icon>
+            </button>
+        </div>
+        <div class="file-component" style="max-width: 25px;">
+            <button (click)="importToMacroEditor(i)" mat-icon-button color="primary">
+                <mat-icon>play_circle_outline</mat-icon>
+            </button>
+        </div>
+        <div class="file-component" style="max-width: 25px;">
+            <button (click)="removeFile(i)" mat-icon-button color="warn">
+                <mat-icon>remove</mat-icon>
+            </button>
+        </div>
+    </div>
+</div>

@@ -38,6 +38,7 @@ const editorOptionsPresentation: Partial<ace.Ace.EditorOptions> = {
 
 export class EditorComponent implements AfterViewInit {
   presentationMode: boolean = false;
+  tutorMode: boolean = false;
 
   @ViewChild("editor") private editor: ElementRef<HTMLElement>;
   content: string = "";
@@ -52,6 +53,11 @@ export class EditorComponent implements AfterViewInit {
   ) { }
 
   ngOnInit(): void {
+    this.presentationController.tutorMode$.subscribe(
+      content => {
+        this.tutorMode = content.tutorMode;
+      }
+    )
   }
 
   ngAfterViewInit(): void {
@@ -214,6 +220,10 @@ export class EditorComponent implements AfterViewInit {
     else{
       return editorOptionsPresentation
     }
+  }
+
+  onSelect(event: any){
+    this.controller.importFile(event.addedFiles[0], "macro");
   }
 
 }

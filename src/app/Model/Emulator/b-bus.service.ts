@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { RegProviderService } from '../reg-provider.service';
+import { RegProviderService } from '../../Model/reg-provider.service';
 
 export interface BBusResult{
   register: string;
@@ -14,6 +14,7 @@ export interface BBusResult{
 export class BBusService {
   private readonly registers: Array<string> = ["MDR", "PC", "MBR", "MBRU", "SP", "LV", "CPP", "TOS", "OPC"];
   private value: number;
+  private regName: string;
 
   private messageSource = new BehaviorSubject([]);
   public activation = this.messageSource.asObservable();
@@ -32,11 +33,11 @@ export class BBusService {
     }
 
     // Decode instruction to equivalent register
-    let register = this.registers[parseInt(reg.join(""), 2)];
+    this.regName = this.registers[parseInt(reg.join(""), 2)];
 
-    if (register !== "MBRU") {
+    if (this.regName !== "MBRU") {
       // get register value
-      this.value = this.regProviderService.getRegister(register).getValue();
+      this.value = this.regProviderService.getRegister(this.regName).getValue();
     } else {
       const buffer = new ArrayBuffer(1);
       const view = new DataView(buffer, 0);
@@ -49,17 +50,23 @@ export class BBusService {
 
 
     // print on Console
-    console.log(`B-Bus Operation: ${reg.join("")}
-    |  reading from:  ${register},
-    |  value:         ${this.value}
-    `);
+    /**
+     console.log(`B-Bus Operation: ${reg.join("")}
+     |  reading from:  ${register},
+     |  value:         ${this.value}
+     `);
+     */
 
-    this.messageSource.next([register, this.value]);
-    return {register: register, value: this.value}
+    this.messageSource.next([this.regName, this.value]);
+    return {register: this.regName, value: this.value}
   }
 
   getValue(): number {
     return this.value;
+  }
+
+  getRegName():string{
+    return this.regName;
   }
 
 }

@@ -1,4 +1,8 @@
-<section class="center" style="margin-top: 3%;">
+
+
+
+
+<section  class="center" style="margin-top: 3%;">
     <button mat-raised-button (click)="step()" [disabled]="disableStepButton">
         <mat-icon>navigate_next</mat-icon>
     </button>
@@ -12,6 +16,11 @@
         <mat-icon>settings_backup_restore</mat-icon>
     </button>
 </section>
+
+
+
+
+
 
 <div class="center">
     <mat-checkbox [(ngModel)]="animate" (change)="toggleAnimVisibility()">animate</mat-checkbox>

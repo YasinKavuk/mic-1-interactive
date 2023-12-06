@@ -14,7 +14,7 @@ import { ToolBarMicViewComponent } from './View/tool-bar-mic-view/tool-bar-mic-v
 import { EditorComponent } from './View/editor/editor.component';
 import { TextFieldModule } from '@angular/cdk/text-field';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { StackComponent } from './View/stack/stack.component';
 import { MicroEditorComponent } from './View/micro-editor/micro-editor.component';
@@ -36,6 +36,18 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { AluFlagArrowsComponent } from './View/SVG/alu-flag-arrows/alu-flag-arrows.component';
 import { MemoryViewComponent } from './View/memory-view/memory-view.component';
 import {MatTreeModule} from '@angular/material/tree';
+import {MatMenuModule} from '@angular/material/menu';
+import { ImportDialogComponent } from './View/tool-bar/import-dialog/import-dialog.component';
+import { ExportDialogComponent } from './View/tool-bar/export-dialog/export-dialog.component';
+import { NgxDropzoneModule } from 'ngx-dropzone';
+import { MatInputModule } from '@angular/material/input';
+import { TutorModeComponent } from './View/tutor-mode/tutor-mode.component';
+import { CommentViewComponent } from './View/comment-view/comment-view.component';
+import {MatTooltipModule} from '@angular/material/tooltip';
+import { ScreenComponent } from './View/screen/screen.component';
+import { BatchSettingsDialogComponent } from './View/tutor-mode/batch-settings-dialog/batch-settings-dialog.component';
+
+
 
 
 @NgModule({
@@ -58,6 +70,12 @@ import {MatTreeModule} from '@angular/material/tree';
     DebugConsoleComponent,
     AluFlagArrowsComponent,
     MemoryViewComponent,
+    ImportDialogComponent,
+    ExportDialogComponent,
+    TutorModeComponent,
+    CommentViewComponent,
+    ScreenComponent,
+    BatchSettingsDialogComponent,
   ],
   imports: [
     BrowserModule,
@@ -79,6 +97,11 @@ import {MatTreeModule} from '@angular/material/tree';
     MatTabsModule,
     MatSlideToggleModule,
     MatTreeModule,
+    MatMenuModule,
+    NgxDropzoneModule,
+    MatInputModule,
+    ReactiveFormsModule,
+    MatTooltipModule,
   ],
 
   providers: [],

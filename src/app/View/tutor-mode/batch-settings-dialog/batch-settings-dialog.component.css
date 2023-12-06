@@ -1,0 +1,96 @@
+.addRegisterIcon {
+    transform: scale(2);
+    text-align: center;
+    cursor: pointer;
+}
+
+.center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+.register {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    flex-direction: row;
+}
+
+.svg {
+    width: 50%;
+}
+
+
+.stack-entry {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    justify-content: center;
+}
+
+.stack-index {
+    width: 30%;
+    text-align: center;
+    border: solid gray;
+    border-right: 0;
+    border-top: 0;
+}
+
+.stack-value {
+    width: 30%;
+    text-align: center;
+    border: solid gray;
+    border-top: 0;
+}
+
+.first {
+    border-top: solid gray;
+}
+
+
+.checkbox {
+    margin-top: 3px;
+    width: 5%;
+    float: left;
+}
+
+.center-SVG {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+}
+
+input,
+textarea {
+
+    background-color: transparent;
+    border: 0;
+    outline: 0;
+    text-align: center;
+}
+
+input:focus {
+    outline: none !important;
+    text-align: center;
+}
+
+.input-stack-value {
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -o-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+
+.dialog-buttons-container {
+    display: flex;
+    justify-content: space-around;
+}

@@ -15,3 +15,9 @@ button{
     margin-left: 2px;
     margin-right: 2px;
 }
+
+.mat-raised-button.mat-button-disabled.mat-button-disabled {    
+    color: rgba(0,0,0,.5);
+    background-color: rgba(0, 0, 0, 0.12)
+}
+

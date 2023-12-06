@@ -41,30 +41,30 @@ function pushMacStepButton(): void{
 }
 
 function getDemoCode1(): void {
-  cy.get('body > app-root > app-tool-bar > mat-toolbar > button:nth-child(8)')
+  cy.get('body > app-root > app-tool-bar > mat-toolbar > button:nth-child(5)')
     .click();
-    cy.get('#mat-dialog-0 > app-getting-started-dialog > mat-dialog-content > ul > li:nth-child(13) > mat-dialog-actions > button:nth-child(1)')
-    .click();
+  cy.get('#mat-dialog-0 > app-getting-started-dialog > mat-dialog-content > ul > li:nth-child(16) > mat-dialog-actions > button:nth-child(1)')
+    .scrollIntoView().click();
 }
 
 function getDemoCode2(): void {
-  cy.get('body > app-root > app-tool-bar > mat-toolbar > button:nth-child(8)')
+  cy.get('body > app-root > app-tool-bar > mat-toolbar > button:nth-child(5)')
     .click();
-  cy.get('#mat-dialog-0 > app-getting-started-dialog > mat-dialog-content > ul > li:nth-child(13) > mat-dialog-actions > button:nth-child(2)')
-    .click();
+  cy.get('#mat-dialog-0 > app-getting-started-dialog > mat-dialog-content > ul > li:nth-child(16) > mat-dialog-actions > button:nth-child(2)')
+    .scrollIntoView().click();
 }
 
 function getDemoCode3(): void {
-  cy.get('body > app-root > app-tool-bar > mat-toolbar > button:nth-child(8)')
+  cy.get('body > app-root > app-tool-bar > mat-toolbar > button:nth-child(5)')
     .click();
-  cy.get('#mat-dialog-0 > app-getting-started-dialog > mat-dialog-content > ul > li:nth-child(13) > mat-dialog-actions > button:nth-child(3)')
-    .click();
+  cy.get('#mat-dialog-0 > app-getting-started-dialog > mat-dialog-content > ul > li:nth-child(16) > mat-dialog-actions > button:nth-child(3)')
+    .scrollIntoView().click();
 }
 
 function emptyEditors(): void {
-  cy.get('body > app-root > app-grid-view > mat-grid-list > div > mat-grid-tile:nth-child(3) > div > div > app-editor > div')
+  cy.get('body > app-root > app-grid-view > mat-grid-list > div > mat-grid-tile:nth-child(3) > div > div > app-editor > ngx-dropzone > div')
     .type('{selectall}{selectall}{selectall}{backspace}');
-  cy.get('body > app-root > app-grid-view > mat-grid-list > div > mat-grid-tile:nth-child(2) > div > div > app-micro-editor > div')
+  cy.get('body > app-root > app-grid-view > mat-grid-list > div > mat-grid-tile:nth-child(2) > div > div > app-micro-editor > ngx-dropzone > div')
     .type('{selectall}{selectall}{selectall}{backspace}');
 }
 

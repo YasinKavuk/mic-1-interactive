@@ -8,8 +8,10 @@ import { RegProviderService } from '../Model/reg-provider.service';
   providedIn: 'root'
 })
 export class PresentationControllerService {
-  presentationMode: boolean = false;
-  areEditorsSwapped: boolean = false;
+  private presentationMode: boolean = false;
+  private areEditorsSwapped: boolean = false;
+  private tutorMode: boolean = false;
+  private graphicsFunctionality: boolean = false;
 
   private _presentationMode = new BehaviorSubject({ presentationMode: false });
   public presentationMode$ = this._presentationMode.asObservable();
@@ -26,13 +28,31 @@ export class PresentationControllerService {
   private _memoryViewRefresher = new BehaviorSubject({ bool: false, methodEntries: [{ name: "", address: 0 }], constantEntries: [{ name: "", address: 0 }], generalEntries: [{ name: "", address: 0 }] });
   public memoryViewRefresher$ = this._memoryViewRefresher.asObservable();
 
+  private _tutorMode = new BehaviorSubject({ tutorMode: false });
+  public tutorMode$ = this._tutorMode.asObservable();
+
+  private _graphicsFunctionality = new BehaviorSubject({ graphicsFunctionality: false });
+  public graphicsFunctionality$ = this._graphicsFunctionality.asObservable();
+
+  private _loadFilesToTutMode = new BehaviorSubject({ files: [] });
+  public loadFilesToTutMode$ = this._loadFilesToTutMode.asObservable();
+
+  private _removeFileFromList = new BehaviorSubject({ fileIndex: undefined });
+  public removeFileFromList$ = this._removeFileFromList.asObservable();
+
+  private _BatchTestResultToConsole = new BehaviorSubject({ result: [] });
+  public BatchTestResultToConsole$ = this._BatchTestResultToConsole.asObservable();
+
+  private _showComment = new BehaviorSubject({ comment: "" });
+  public showComment$ = this._showComment.asObservable();
+
 
   constructor(
     private macroProvider: MacroProviderService,
     private mainMemory: MainMemoryService,
     private regProvider: RegProviderService,
   ) {
-    this.mainMemory.updateMemoryView$.subscribe(content => {
+    this.mainMemory.updateMemory$.subscribe(content => {
       this.updateMemoryView(content.address, content.value);
     })
   }
@@ -48,6 +68,27 @@ export class PresentationControllerService {
       this.presentationMode = false;
       this._presentationMode.next({ presentationMode: false });
     }
+  }
+
+  public setTutorMode(tutorMode: boolean) {
+    this.tutorMode = tutorMode;
+    this._tutorMode.next({ tutorMode: this.tutorMode });
+  }
+
+  public setGraphicsFunctionality(enabled: boolean) {
+    this.graphicsFunctionality = enabled;
+    this._graphicsFunctionality.next({ graphicsFunctionality: this.graphicsFunctionality });
+  }
+
+  public getGraphicsFunctionalityEnabled(): boolean {
+    return this.graphicsFunctionality;
+  }
+
+  // activates the tutor mode and also sends the files that can be imported to the tutor mode component
+  enableTutModeWithFiles(files: any[]) {
+    this.tutorMode = true;
+    this._tutorMode.next({ tutorMode: true })
+    this._loadFilesToTutMode.next({ files })
   }
 
   getPresentationMode() {
@@ -67,6 +108,19 @@ export class PresentationControllerService {
   updateMemoryView(address: number, value: number) {
     this._memoryUpdate.next({ address: address, value: value })
   }
+
+  batchTestRestultToConsole(errorList: string[]) {
+    this._BatchTestResultToConsole.next({ result: errorList })
+  }
+
+  showComment(file: File) {
+    let fileReader = new FileReader();
+    fileReader.readAsText(file);
+    fileReader.onload = (e) => {
+      this._showComment.next(JSON.parse(fileReader.result.toString()).comment);
+    }
+  }
+
 
   memoryViewRefresher(bool: boolean) {
     let methodEntries: { name: string, address: number }[] = [];
@@ -96,6 +150,10 @@ export class PresentationControllerService {
 
   getRegisterValue(reg: string) {
     return this.regProvider.getRegister(reg).getValue();
+  }
+
+  isTutorModeActive() {
+    return this.tutorMode;
   }
 
 }

@@ -1,1 +1,3 @@
-<div class="app-ace-editor" #editor ></div>
+<ngx-dropzone [ngStyle]="{'height': tutorMode ? 'calc(85% - 95px)' : 'calc(100% - 50px)'}" [disableClick]="true" (change)="onSelect($event)" style="background-color: #403d39;">
+    <div class="app-ace-editor" #editor ></div>
+</ngx-dropzone>
