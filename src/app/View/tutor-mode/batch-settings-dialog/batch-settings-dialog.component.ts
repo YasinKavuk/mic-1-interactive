@@ -1,5 +1,6 @@
 import { Component, OnInit, QueryList, ViewChildren } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
+import { ControllerService } from 'src/app/Presenter/controller.service';
 
 
 export interface StackPosition {
@@ -16,11 +17,15 @@ export class BatchSettingsDialogComponent implements OnInit {
 
   public firstStackPosition = { index: "0x00", value: 0 };
   public stackPositions: StackPosition[] = [];
-  
+  public testTos = false;
+  public testStack = false;
+  private tosValue = 0;
+
 
 
   constructor(
-    public dialogRef: MatDialogRef<BatchSettingsDialogComponent>
+    public dialogRef: MatDialogRef<BatchSettingsDialogComponent>,
+    private controller: ControllerService,
   ) { }
 
 
@@ -36,8 +41,20 @@ export class BatchSettingsDialogComponent implements OnInit {
     this.stackPositions[index].value = event.target.value;
   }
 
-  onFirstStackValueChange(event: any){
+  onFirstStackValueChange(event: any) {
     this.firstStackPosition.value = event.target.value
+  }
+
+  onTosValueChange(event: any){
+    this.tosValue = event.target.value;
+  }
+
+  toggleTestTOS(testTos: boolean) {
+    this.testTos = testTos;
+  }
+
+  toggleTestStack(testStack: boolean) {
+    this.testStack = testStack;
   }
 
 
@@ -50,13 +67,13 @@ export class BatchSettingsDialogComponent implements OnInit {
     return prefix + num.toString(16).toUpperCase();
   }
 
-  onSave(){
-
+  onSave() {
+    this.controller.setTestSettings(this.testTos, this.tosValue, this.testStack, [0])
     this.dialogRef.close()
   }
 
 
-  onExit(){
+  onExit() {
     this.dialogRef.close();
   }
 

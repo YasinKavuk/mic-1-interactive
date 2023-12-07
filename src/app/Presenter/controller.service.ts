@@ -10,6 +10,7 @@ import { BehaviorSubject } from 'rxjs';
 import { MainMemoryService } from '../Model/Emulator/main-memory.service';
 import { PresentationControllerService } from './presentation-controller.service';
 import { StackPosition } from '../View/tutor-mode/batch-settings-dialog/batch-settings-dialog.component';
+import { BatchTestService } from '../Model/batch-test.service';
 
 
 const code1: string = `.main
@@ -307,6 +308,13 @@ MAR=SP
 LV=MDR
 MDR=TOS; wr; goto Main1`;
 
+export interface TestSettings{
+  testTos: boolean;
+  tosValue: number;
+  testStack: boolean;
+  stackPositions: number[];
+}
+
 
 @Injectable({
   providedIn: 'root'
@@ -326,7 +334,7 @@ export class ControllerService {
     testTos: false,
     tosValue: 0,
     testStack: false,
-
+    stackPositions: [0]
   }
 
   constructor(
@@ -337,7 +345,9 @@ export class ControllerService {
     private macroParser: MacroParserService,
     private director: DirectorService,
     private mainMemory: MainMemoryService,
-    private presentationController: PresentationControllerService
+    private presentationController: PresentationControllerService,
+    private batchTestService: BatchTestService,
+  
   ) {
     const codeMac = localStorage.getItem("macroCode");
     const codeMic = localStorage.getItem("microCode");
@@ -417,7 +427,8 @@ export class ControllerService {
           this.controlStore.loadMicro();
           this.macroTokenizer.initWithFile(JSON.parse(fileReader.result.toString()).macro);
           this.macroParser.parse();
-          this.director.run(); // this.run() would load program from editor, so we use this.director.run() this just runs the already manually loaded program    
+          this.director.run(); // this.run() would load program from editor, so we use this.director.run() this just runs the already manually loaded program
+          this.batchTestService.test(this.testSettings);
         } catch (error) {
           errorList.push("Error on file " + (i + 1) + ": " + JSON.parse(fileReader.result.toString()).name);
           if (error instanceof Error) {
@@ -435,10 +446,6 @@ export class ControllerService {
         }
       }
     }
-    // having this code here resulted in this beeing executed first instead of last. 
-    // this.presentationController.batchTestRestultToConsole(errorList);
-    // console.log("-- Batch test end --");
-
   }
 
   // takes array of files and imports them to a list in the tutor mode component. There they can be imported to the editors manually by the user
@@ -543,8 +550,19 @@ export class ControllerService {
     return this.macroProvider.getEditorLineWithParserLine(parserLine);
   }
 
+  getTestSettings(){
+    return this.testSettings;
+  }
+
+
+  setTestSettings(testTos: boolean, tosValue: number, testStack: boolean, stackPositions: number[]){
+    this.testSettings = {testTos: testTos, tosValue: tosValue, testStack: testStack, stackPositions: stackPositions}
+  }
+
   dec2hex(dec: number) {
     return this.mainMemory.dec2hex(dec);
   }
 
 }
+
+
