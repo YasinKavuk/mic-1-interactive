@@ -18,8 +18,10 @@ export class StackProviderService  {
   private _items: [number,number][] = [];
 
   public get items() : [number,number][]  {
-    return this._items;
+    return [...this._items];
   }
+
+
 
 
 

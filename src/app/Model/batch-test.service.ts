@@ -40,9 +40,15 @@ export class BatchTestService {
 
   private testStack() {
 
-    let valuesOnStack = this.stackProvider.items.map( x => x[1]);
-    console.log(this.stackProvider.items)
-    console.log(valuesOnStack)
+    let valuesOnStack = this.stackProvider.items.map(x => x[1]);
+
+    for (let i = this.testSettings.stackPositions.length - 1; i >= 0; i--) {
+      const realStackValue = valuesOnStack.pop();
+      if (this.testSettings.stackPositions[i] !== realStackValue) {
+        throw new Error(`Stack value did not match - Stack-Value: ${realStackValue}, Test-Value: ${this.testSettings.stackPositions[i]}`)
+      }
+    }
+
   }
 
 

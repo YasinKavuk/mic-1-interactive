@@ -50,11 +50,11 @@ export class BatchSettingsDialogComponent implements OnInit {
   }
 
   onStackValueChange(index: number, event: any) {
-    this.stackPositions[index].value = event.target.value;
+    this.stackPositions[index].value = parseInt(event.target.value);
   }
 
   onFirstStackValueChange(event: any) {
-    this.firstStackPosition.value = event.target.value
+    this.firstStackPosition.value = parseInt(event.target.value);
   }
 
   onTosValueChange(event: any) {
