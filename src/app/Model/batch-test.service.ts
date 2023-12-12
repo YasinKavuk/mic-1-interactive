@@ -17,7 +17,6 @@ export class BatchTestService {
 
 
   test(testSettings: TestSettings) {
-    console.log(testSettings)
     this.testSettings = testSettings;
     if (testSettings.testTos) {
       this.testTos()
@@ -31,7 +30,6 @@ export class BatchTestService {
 
 
   private testTos() {
-
     const tosValue = this.regProvider.getRegister("TOS").getValue();
     if (tosValue !== this.testSettings.tosValue) {
       console.error(`TOS value did not match - TOS-Value: ${tosValue}, Test-Value: ${this.testSettings.tosValue}`);
@@ -40,8 +38,10 @@ export class BatchTestService {
 
   }
 
-  testStack() {
-    throw new Error('Method not implemented.');
+  private testStack() {
+    this.stackProvider.update();
+    let valuesOnStack = this.stackProvider.items;
+    console.log(valuesOnStack)
   }
 
 

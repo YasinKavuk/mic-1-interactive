@@ -1,4 +1,4 @@
-import { Component, OnInit, QueryList, ViewChildren } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { ControllerService } from 'src/app/Presenter/controller.service';
 
@@ -15,11 +15,11 @@ export interface StackPosition {
 })
 export class BatchSettingsDialogComponent implements OnInit {
 
-  public firstStackPosition = { index: "0x00", value: 0 };
+  public firstStackPosition: StackPosition = { index: "0x00", value: 0 };
   public stackPositions: StackPosition[] = [];
   public testTos = false;
   public testStack = false;
-  private tosValue = 0;
+  public tosValue = "0";
 
 
 
@@ -30,6 +30,18 @@ export class BatchSettingsDialogComponent implements OnInit {
 
 
   ngOnInit(): void {
+    const settings = this.controller.getTestSettings();
+    
+    this.firstStackPosition = { index: "0x00", value: settings.stackPositions[0] };
+    this.testTos = settings.testTos;
+    this.testStack = settings.testStack;
+    this.tosValue = settings.tosValue.toString();
+
+    for (let i = 1; i < settings.stackPositions.length; i++){
+      this.stackPositions.push( {index: this.dec2hex(i*4), value: settings.stackPositions[i] });
+    }
+
+
   }
 
   addStackPosition() {
@@ -45,20 +57,20 @@ export class BatchSettingsDialogComponent implements OnInit {
     this.firstStackPosition.value = event.target.value
   }
 
-  onTosValueChange(event: any){
+  onTosValueChange(event: any) {
     this.tosValue = event.target.value;
   }
 
   toggleTestTOS(testTos: boolean) {
-    this.testTos = testTos;
+    this.testTos = !testTos;
   }
 
   toggleTestStack(testStack: boolean) {
-    this.testStack = testStack;
+    this.testStack = !testStack;
   }
 
 
-  dec2hex(number: number) {
+  dec2hex(number: number): string {
     let num = number;
     let prefix = "0x";
     if (num < 16) {
@@ -68,7 +80,9 @@ export class BatchSettingsDialogComponent implements OnInit {
   }
 
   onSave() {
-    this.controller.setTestSettings(this.testTos, this.tosValue, this.testStack, [0])
+    let stackValues = [this.firstStackPosition].concat(this.stackPositions).map( x => x.value);
+
+    this.controller.setTestSettings(this.testTos, parseInt(this.tosValue), this.testStack, stackValues);
     this.dialogRef.close()
   }
 

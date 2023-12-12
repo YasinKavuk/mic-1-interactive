@@ -556,7 +556,7 @@ export class ControllerService {
 
 
   setTestSettings(testTos: boolean, tosValue: number, testStack: boolean, stackPositions: number[]){
-    this.testSettings = {testTos: testTos, tosValue: tosValue, testStack: testStack, stackPositions: stackPositions}
+    this.testSettings = {testTos: testTos, tosValue: tosValue, testStack: testStack, stackPositions: stackPositions};
   }
 
   dec2hex(dec: number) {
