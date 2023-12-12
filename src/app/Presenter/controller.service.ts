@@ -427,6 +427,7 @@ export class ControllerService {
           this.controlStore.loadMicro();
           this.macroTokenizer.initWithFile(JSON.parse(fileReader.result.toString()).macro);
           this.macroParser.parse();
+          this.director.endOfProgram = false;
           this.director.run(); // this.run() would load program from editor, so we use this.director.run() this just runs the already manually loaded program
           this.batchTestService.test(this.testSettings);
         } catch (error) {
