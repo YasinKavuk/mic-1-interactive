@@ -87,16 +87,16 @@ export class TutorModeComponent implements OnInit {
   }
 
   importToBothEditors(fileIndex: number) {
-    this.controller.importFile(this.files[fileIndex])
+    this.controller.importFile(this.files[fileIndex].file)
     this.showComment(fileIndex)
   }
 
   importToMicroEditor(fileIndex: number) {
-    this.controller.importFile(this.files[fileIndex], "micro")
+    this.controller.importFile(this.files[fileIndex].file, "micro")
   }
 
   importToMacroEditor(fileIndex: number) {
-    this.controller.importFile(this.files[fileIndex], "macro")
+    this.controller.importFile(this.files[fileIndex].file, "macro")
     this.showComment(fileIndex)
   }
 

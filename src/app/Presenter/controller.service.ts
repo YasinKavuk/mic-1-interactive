@@ -457,7 +457,7 @@ export class ControllerService {
     }
   }
 
-  importFile(file: any, target?: string) {
+  importFile(file: File, target?: string) {
     if (target === "macro") {
       this.importToEditor(file, "macro");
     }

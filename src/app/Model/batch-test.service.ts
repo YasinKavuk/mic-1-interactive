@@ -39,8 +39,9 @@ export class BatchTestService {
   }
 
   private testStack() {
-    this.stackProvider.update();
-    let valuesOnStack = this.stackProvider.items;
+
+    let valuesOnStack = this.stackProvider.items.map( x => x[1]);
+    console.log(this.stackProvider.items)
     console.log(valuesOnStack)
   }
 
