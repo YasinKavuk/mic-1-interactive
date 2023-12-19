@@ -11,28 +11,28 @@ import { PresentationControllerService } from '../Presenter/presentation-control
 export class MacroParserService {
   tokens: Token[] = null;
 
-  private constantOffsetToCPP: {[name: string]: number} = {};
-  private variableOffsetToLV: {[name: string]: number} = {};
-  private labels: {[name: string]: number} = {};
-  private methods: {[name: string]: number} = {}; // gives a number that is a offset to a const. The value of this const is the startingpoint of this method
-  private methodsParameterNumber: {[name: string]: number} = {}; // gives the number of parameters for a method
-  private lineToLastUsedAddress: {[line: number]: number} = {};
-  private addrToOffset: {[addr: number]: number} = {};
+  public constantOffsetToCPP: {[name: string]: number} = {};
+  public variableOffsetToLV: {[name: string]: number} = {};
+  public labels: {[name: string]: number} = {};
+  public methods: {[name: string]: number} = {}; // gives a number that is a offset to a const. The value of this const is the startingpoint of this method
+  public methodsParameterNumber: {[name: string]: number} = {}; // gives the number of parameters for a method
+  public lineToLastUsedAddress: {[line: number]: number} = {};
+  public addrToOffset: {[addr: number]: number} = {};
 
   // Returns the addres of an method addr that has a placeholder offset.
   // Needs the offset to CPP of this methods constant
-  private methodToAddr: {[offsetCPP: number]: number} = {};
+  public methodToAddr: {[offsetCPP: number]: number} = {};
 
-  private parsedCode: number[] = [];
-  private constants: number[] = [];
-  private variables: number[] = [];
+  public parsedCode: number[] = [];
+  public constants: number[] = [];
+  public variables: number[] = [];
 
-  private varNumber: number = 0;
-  private constNumber: number = 0;
-  private parsedTokenNumber: number = 0;
-  private methodNumber: number = 0;
-  private currentLocalVarCount: number = 0; // temporary saves the number of current local variables when setVariable() is invoked
-  private currentLine: number = 1;
+  public varNumber: number = 0;
+  public constNumber: number = 0;
+  public parsedTokenNumber: number = 0;
+  public methodNumber: number = 0;
+  public currentLocalVarCount: number = 0; // temporary saves the number of current local variables when setVariable() is invoked
+  public currentLine: number = 1;
 
   
   constructor(
