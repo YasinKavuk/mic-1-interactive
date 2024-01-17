@@ -5,7 +5,7 @@ import { PresentationControllerService } from 'src/app/Presenter/presentation-co
 import { BatchSettingsDialogComponent } from './batch-settings-dialog/batch-settings-dialog.component';
 
 
-interface TestFile {
+export interface TestFile {
   status: string;
   error?: string;
   file: File;
@@ -27,10 +27,13 @@ export class TutorModeComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    this.files = this.controller.testFiles;
+
     this.presentationController.loadFilesToTutMode$.subscribe(
       content => {
         if (content.files[0] !== undefined) {
           content.files.forEach((file: File) => this.files.push({ status: "", file: file }))
+          this.controller.testFiles = this.files;
         }
       }
     )
@@ -73,6 +76,8 @@ export class TutorModeComponent implements OnInit {
     files.forEach((file: File) => {
       this.files.push({ file: file, status: "" })
     });
+    this.controller.testFiles = this.files;
+
 
   }
 

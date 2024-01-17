@@ -11,6 +11,7 @@ import { MainMemoryService } from '../Model/Emulator/main-memory.service';
 import { PresentationControllerService } from './presentation-controller.service';
 import { StackPosition } from '../View/tutor-mode/batch-settings-dialog/batch-settings-dialog.component';
 import { BatchTestService } from '../Model/batch-test.service';
+import { TestFile } from '../View/tutor-mode/tutor-mode.component';
 
 
 const code1: string = `.main
@@ -336,6 +337,8 @@ export class ControllerService {
     testStack: false,
     stackPositions: [0]
   }
+
+  public testFiles: TestFile[] = [];
 
   constructor(
     private macroProvider: MacroProviderService,

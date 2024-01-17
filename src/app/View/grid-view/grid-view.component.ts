@@ -30,6 +30,7 @@ export class GridViewComponent implements OnInit {
   areEditorsSwapped: boolean = false;
   tutorMode: boolean = false;
   graphicsFunctionality = false;
+  registerView = false;
 
   constructor(
     private presentationController: PresentationControllerService,
@@ -51,6 +52,7 @@ export class GridViewComponent implements OnInit {
     this.presentationController.tutorMode$.subscribe(
       content => {
         this.tutorMode = content.tutorMode;
+        if( !this.tutorMode ) { this.registerView = false;}
       }
     )
 
@@ -60,6 +62,11 @@ export class GridViewComponent implements OnInit {
         this.graphicsFunctionality = content.graphicsFunctionality;
       }
     )
+  }
+
+  public toggleRegisterVis(){
+    this.tutorMode = !this.tutorMode;
+    this.registerView = !this.registerView;
   }
 
 }
