@@ -226,7 +226,7 @@ export class DirectorService {
       console.log("%cHit Breakpoint in the memory address: " + (this.currentMacroAddr), "color: #248c46");
       this.hitBreakpoint = true;
       this._finishedRun.next(true)
-      this._breakpointFlasherMacro.next({ line: this.macroParser.getLineOfAddress(this.currentMacroAddr) });
+      // this._breakpointFlasherMacro.next({ line: this.macroParser.getLineOfAddress(this.currentMacroAddr) });
     }
 
     // set MBR
@@ -234,11 +234,11 @@ export class DirectorService {
       let addr = this.MBRMemoryQueue.shift();
       let MBR = this.regProvider.getRegister("MBR");
 
-      if (this.macroParser.getOffsetOnAddress(this.currentMacroAddr) !== undefined) {
-        let offset = this.macroParser.getOffsetOnAddress(this.currentMacroAddr) - 1;
-        this.currentMacroAddr = offset;
-        console.log("%cHit Jump-Instruction offset. Jump to memory address: " + (this.currentMacroAddr + 1), "color: #248c46");
-      }
+      // if (this.macroParser.getOffsetOnAddress(this.currentMacroAddr) !== undefined) {
+      //   let offset = this.macroParser.getOffsetOnAddress(this.currentMacroAddr) - 1;
+      //   this.currentMacroAddr = offset;
+      //   console.log("%cHit Jump-Instruction offset. Jump to memory address: " + (this.currentMacroAddr + 1), "color: #248c46");
+      // }
       this.currentMacroAddr += 1;
 
 
@@ -429,16 +429,15 @@ export class DirectorService {
     this.mainMemory.emptyMemory();
     try {
       this.controlStore.loadMicro();
-      this.macroTokenizer.init();
+      this.macroParser.parse(this.macroTokenizer.tokenize());
     } catch (error) {
       if (error instanceof Error) {
         this._errorFlasher.next({ line: 1, error: error.message });
       }
       return;
     }
-
     try {
-      if (this.macroParser.parse()) { return; }
+      // if (this.macroParser.parse()) { return; }
     } catch (error) {
       if (error instanceof Error) {
         this._errorFlasher.next({ line: 1000, error: error.message });
@@ -462,9 +461,9 @@ export class DirectorService {
     this.videoController.wipeScreen();
 
     // set Breakpoints Addresses for Macrocode
-    for (let i = 0; i < this.macroBreakpoints.length; i++) {
-      this.macroBreakpointsAddr[i] = this.macroParser.getAddressOfLine(this.macroBreakpoints[i]);
-    }
+    // for (let i = 0; i < this.macroBreakpoints.length; i++) {
+    //   this.macroBreakpointsAddr[i] = this.macroParser.getAddressOfLine(this.macroBreakpoints[i]);
+    // }
 
     this.macroProvider.isLoaded();
     this.microProvider.isLoaded();

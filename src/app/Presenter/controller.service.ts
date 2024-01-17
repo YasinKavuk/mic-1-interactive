@@ -363,8 +363,7 @@ export class ControllerService {
   step() {
     if (this.macroProvider.getMacroGotChanged() || this.microProvider.getMicroGotChanged()) {
       this.controlStore.loadMicro();
-      this.macroTokenizer.init();
-      this.macroParser.parse();
+      this.macroParser.parse(this.macroTokenizer.tokenize());
       this.director.reset();
     }
 
@@ -378,8 +377,7 @@ export class ControllerService {
   stepMacro() {
     if (this.macroProvider.getMacroGotChanged() || this.microProvider.getMicroGotChanged()) {
       this.controlStore.loadMicro();
-      this.macroTokenizer.init();
-      this.macroParser.parse();
+      this.macroParser.parse(this.macroTokenizer.tokenize());
       this.director.reset();
     }
 
@@ -400,8 +398,7 @@ export class ControllerService {
   run() {
     if (this.macroProvider.getMacroGotChanged() || this.microProvider.getMicroGotChanged()) {
       this.controlStore.loadMicro();
-      this.macroTokenizer.init();
-      this.macroParser.parse();
+      this.macroParser.parse(this.macroTokenizer.tokenize());
       this.director.reset();
     }
 
@@ -428,8 +425,7 @@ export class ControllerService {
         try {
           this.microProvider.setMicro(JSON.parse(fileReader.result.toString()).micro);
           this.controlStore.loadMicro();
-          this.macroTokenizer.initWithFile(JSON.parse(fileReader.result.toString()).macro);
-          this.macroParser.parse();
+          this.macroParser.parse(this.macroTokenizer.tokenizeWithFile(JSON.parse(fileReader.result.toString()).macro));
           this.director.endOfProgram = false;
           this.director.run(); // this.run() would load program from editor, so we use this.director.run() this just runs the already manually loaded program
           this.batchTestService.test(this.testSettings);

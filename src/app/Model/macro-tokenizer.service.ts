@@ -66,7 +66,8 @@ export class MacroTokenizerService {
   ) { }
 
 
-  init(){
+  // Is a Lexer that tokenizes the input string from the editor and creates tokens. This tokens also have some context like "number" or "opcode" attached. The tokens also include the line number from the input string for each token generated.
+  tokenize(){
     this.tokens = [];
     this.string = this.macroProvider.getMacro();
     while(true){
@@ -78,13 +79,13 @@ export class MacroTokenizerService {
       this.tokens.push(this.token);
     }
     this.resetTokenizer();
-    console.log("---------------------------")
     console.table(this.tokens)
-    console.log("---------------------------")
+    
+    return this.tokens
   }
 
   // initialized the tokenizer and also tokenizes. It isn't using the program in the editors, it uses macrocode that is passed to this method
-  initWithFile(macro: string){
+  tokenizeWithFile(macro: string){
     this.tokens = [];
     this.string = macro;
 
@@ -97,6 +98,8 @@ export class MacroTokenizerService {
       this.tokens.push(this.token);
     }
     this.resetTokenizer();
+
+    return this.tokens;
   }
 
   private hasMoreTokens(): Boolean {
