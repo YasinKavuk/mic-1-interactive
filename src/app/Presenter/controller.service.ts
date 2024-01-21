@@ -4,14 +4,14 @@ import { MacroProviderService } from '../Model/macro-provider.service';
 import { MicroProviderService } from '../Model/micro-provider.service';
 import { ControlStoreService } from '../Model/Emulator/control-store.service';
 import { MacroTokenizerService } from '../Model/macro-tokenizer.service';
-import { MacroParserService } from '../Model/macro-parser.service';
 import { DirectorService } from './director.service';
 import { BehaviorSubject } from 'rxjs';
 import { MainMemoryService } from '../Model/Emulator/main-memory.service';
 import { PresentationControllerService } from './presentation-controller.service';
-import { StackPosition } from '../View/tutor-mode/batch-settings-dialog/batch-settings-dialog.component';
 import { BatchTestService } from '../Model/batch-test.service';
 import { TestFile } from '../View/tutor-mode/tutor-mode.component';
+import { MacroParserService } from '../Model/macro-parser.service';
+
 
 
 const code1: string = `.main
@@ -309,11 +309,18 @@ MAR=SP
 LV=MDR
 MDR=TOS; wr; goto Main1`;
 
-export interface TestSettings{
+export interface TestSettings {
   testTos: boolean;
   tosValue: number;
   testStack: boolean;
   stackPositions: number[];
+}
+
+interface Submission {
+  name: string;
+  macro: string;
+  micro: string;
+  comment: string;
 }
 
 
@@ -350,7 +357,7 @@ export class ControllerService {
     private mainMemory: MainMemoryService,
     private presentationController: PresentationControllerService,
     private batchTestService: BatchTestService,
-  
+
   ) {
     const codeMac = localStorage.getItem("macroCode");
     const codeMic = localStorage.getItem("microCode");
@@ -411,45 +418,75 @@ export class ControllerService {
     this.microProvider.isLoaded();
   }
 
-  batchTest(files: File[]) {
-    console.log("-- Batch test start --");
 
-    let errorList: string[] = [];
-    let numberOfErrors = errorList.length
+
+  private readFile(inputFile: File) {
+
+    const fileReader = new FileReader();
+
+    return new Promise((resolve, reject) => {
+      fileReader.onerror = () => {
+        fileReader.abort();
+        reject(new DOMException("Problem parsing input file."));
+      };
+
+      fileReader.onload = () => {
+        resolve(fileReader.result.toString());
+      };
+
+      fileReader.readAsText(inputFile);
+    });
+  }
+
+  private async readAllFiles(files: File[]): Promise<Submission[]> {
+    let testFiles: Submission[] = [];
 
     for (let i = 0; i < files.length; i++) {
-      let fileReader = new FileReader();
-      fileReader.readAsText(files[i]);
-
-      
-
-      fileReader.onload = (e) => {
-        numberOfErrors = errorList.length
-        try {
-          this.microProvider.setMicro(JSON.parse(fileReader.result.toString()).micro);
-          this.controlStore.loadMicro();
-          this.macroTokenizer.initWithFile(JSON.parse(fileReader.result.toString()).macro);
-          this.macroParser.parse();
-          this.director.endOfProgram = false;
-          this.director.run(); // this.run() would load program from editor, so we use this.director.run() this just runs the already manually loaded program
-          this.batchTestService.test(this.testSettings);
-        } catch (error) {
-          errorList.push("Error on file " + (i + 1) + ": " + JSON.parse(fileReader.result.toString()).name);
-          if (error instanceof Error) {
-            this._testStatus.next({ fileIndex: i, status: "failed", error: error.message })
-          }
+      try {
+        const fileContent: any = await this.readFile(files[0]);
+        if (typeof fileContent === "string") {
+          testFiles.push(JSON.parse(fileContent));
         }
-
-        if (numberOfErrors === errorList.length) {
-          this._testStatus.next({ fileIndex: i, status: "passed", error: "" });
-        }
-
-        if (i === files.length - 1) {
-          this.presentationController.batchTestRestultToConsole(errorList);
-          console.log("-- Batch test end --");
-        }
+      } catch (error: any) {
+        console.warn(error.message)
       }
     }
+
+    return testFiles;
+  }
+
+
+  async batchTest(files: File[]) {
+    console.log("-- Batch test start --");
+
+    const submissions: Submission[] = await this.readAllFiles(files);
+    let errorList: string[] = [];
+
+    for (let i = 0; i < submissions.length; i++) {
+      let hasError = false;
+
+      try {
+        this.microProvider.setMicro(submissions[i].micro);
+        this.controlStore.loadMicro();
+        this.macroTokenizer.initWithFile(submissions[i].macro);
+        this.macroParser.parse();
+        this.director.endOfProgram = false;
+        await this.director.run();
+        this.batchTestService.test(this.testSettings);
+      } catch (error) {
+        hasError = true;
+        errorList.push("Error on file " + (i + 1) + ": " + submissions[i].name);
+        if (error instanceof Error) {
+          this._testStatus.next({ fileIndex: i, status: "failed", error: error.message })
+        }
+      }
+      if (!hasError) {
+        this._testStatus.next({ fileIndex: i, status: "passed", error: "" });
+      }
+    }
+
+    this.presentationController.batchTestResultToConsole(errorList);
+    console.log("-- Batch test end --");
   }
 
   // takes array of files and imports them to a list in the tutor mode component. There they can be imported to the editors manually by the user
@@ -554,13 +591,13 @@ export class ControllerService {
     return this.macroProvider.getEditorLineWithParserLine(parserLine);
   }
 
-  getTestSettings(){
+  getTestSettings() {
     return this.testSettings;
   }
 
 
-  setTestSettings(testTos: boolean, tosValue: number, testStack: boolean, stackPositions: number[]){
-    this.testSettings = {testTos: testTos, tosValue: tosValue, testStack: testStack, stackPositions: stackPositions};
+  setTestSettings(testTos: boolean, tosValue: number, testStack: boolean, stackPositions: number[]) {
+    this.testSettings = { testTos: testTos, tosValue: tosValue, testStack: testStack, stackPositions: stackPositions };
   }
 
   dec2hex(dec: number) {

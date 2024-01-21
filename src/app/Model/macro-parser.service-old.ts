@@ -1,14 +1,14 @@
 import { Injectable } from '@angular/core';
 import { ControlStoreService } from './Emulator/control-store.service';
 import { MainMemoryService } from './Emulator/main-memory.service';
-import { MacroTokenizerService } from './macro-tokenizer.service';
 import { Token } from './micro-tokenizer.service';
 import { PresentationControllerService } from '../Presenter/presentation-controller.service';
+import { MacroTokenizerServiceOld } from './macro-tokenizer.service-old';
 
 @Injectable({
   providedIn: 'root'
 })
-export class MacroParserService {
+export class MacroParserServiceOld {
   tokens: Token[] = null;
 
   public constantOffsetToCPP: {[name: string]: number} = {};
@@ -36,7 +36,7 @@ export class MacroParserService {
 
   
   constructor(
-    private macroTokenizer: MacroTokenizerService,
+    private macroTokenizer: MacroTokenizerServiceOld,
     private memory: MainMemoryService,
     private controlStore: ControlStoreService,
     private presentationController: PresentationControllerService,

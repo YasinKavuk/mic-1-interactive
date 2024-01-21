@@ -109,7 +109,7 @@ export class PresentationControllerService {
     this._memoryUpdate.next({ address: address, value: value })
   }
 
-  batchTestRestultToConsole(errorList: string[]) {
+  batchTestResultToConsole(errorList: string[]) {
     this._BatchTestResultToConsole.next({ result: errorList })
   }
 
