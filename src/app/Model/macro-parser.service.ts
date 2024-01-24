@@ -2,37 +2,33 @@ import { Injectable } from '@angular/core';
 import { ControlStoreService } from './Emulator/control-store.service';
 import { MainMemoryService } from './Emulator/main-memory.service';
 import { MacroTokenizerService } from './macro-tokenizer.service';
-import { Token } from './micro-tokenizer.service';
+import { Token } from './macro-tokenizer.service';
 import { PresentationControllerService } from '../Presenter/presentation-controller.service';
 
 
-enum ASTNodeType{
-  Value, 
-  Identifier, 
-  Constants, 
-  Constant, 
-  Variables, 
-  Variable, 
-  MainField, 
-  MethodField, 
-  OPCodes, 
-  OPCode, 
-  Paraneters, 
-  Byte, 
-  Offset, 
-  Const, 
-  Varnum, 
-  Index, 
-  Disp,
-  Labels, 
-  Label, 
+interface ASTNode{
+  type: string,
+  value?: string | number,
+  editorLine?: number, // for highlighting the right line in the editor for different purposes like highlighting an error.
+  children?: ASTNode[]
 }
 
-interface ASTNode{
-  type: ASTNodeType,
-  value?: string | number,
-  editorLine: number, // for highlighting the right line in the editor for different purposes like highlighting an error.
-  children?: ASTNode[]
+const tokenToASTType: {[key: string]: string} = {
+  'NEW_LABEL': 'label',
+  'OPCODE': 'opCode', 
+  'HEXNUMBER': 'varnum', 
+  'NUMBER': 'varnum', 
+  'IDENTIFIER': 'identifier', 
+  'FIELD_CONST': 'constants', 
+  'FIELD_MAIN': 'mainField', 
+  'FIELD_VAR': 'variables', 
+  'FIELD_METH': 'methodField', 
+  'FIELDEND_CONST': 'constants', 
+  'FIELDEND_MAIN': 'mainFieldEnd', 
+  'FIELDEND_VAR': 'variablesEnd', 
+  'FIELDEND_METH': 'methodFieldEnd', 
+  'NEW_CONSTANT': 'constant', 
+  'NEW_VARIABLE': 'variable', 
 }
 
 @Injectable({
@@ -59,9 +55,42 @@ export class MacroParserService {
 
   // Generates am Anstract Syntax Tree (AST). The AST also includes and therefore keeps the information about the line number of the token.
   generateAST(tokens: Token[]){
-    for(let i = 0; i >= tokens.length; i++){
+    const root: ASTNode = {type: "root", children:[{type: "constants"}, {type: "variables"}, {type: "methods"}]}
+    let currentNode: ASTNode = root;
+    let nextNode: ASTNode = undefined;
+    let currentField: string = undefined;
 
+    let nextNodeType: string = undefined;
+    let nextNodeValue: string | number = undefined;
+    let nextNodeEditorLine: number = undefined;
+    let nextNodeChildren: ASTNode = undefined;
+
+    let currentMod: string = undefined;
+
+    for(let token of tokens){
+      if(token.type != 'BREAK'){
+        nextNodeType = tokenToASTType[token.type]
+        nextNodeValue = token.value
+        nextNodeEditorLine = token.line
+
+        if(nextNodeType == 'constants'){
+          currentMod = nextNodeType
+        }
+        else if(nextNodeType == 'variables'){
+          currentMod = nextNodeType
+        }
+        else if(nextNodeType == 'mainField'){
+          currentMod = nextNodeType
+        }
+        else if(nextNodeType == 'methodField'){
+          currentMod = nextNodeType
+        }
+      }
+      else{
+        continue;
+      }
     }
+    console.log(JSON.stringify(root, null, 2))
   }
 
 

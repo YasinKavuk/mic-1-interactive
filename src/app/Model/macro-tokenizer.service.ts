@@ -136,9 +136,11 @@ export class MacroTokenizerService {
       }
       else if(tokenType == "BREAK"){
         this.line++;
-        return this.getNextToken();
       }
       else if(tokenType == "SPACE"){
+        return this.getNextToken();
+      }
+      else if(tokenType == "COMMENT"){
         return this.getNextToken();
       }
 
