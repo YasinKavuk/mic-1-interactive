@@ -28,10 +28,6 @@ const spec: any = [
   [/^.end-var/, "FIELDEND_VAR"],
   [/^.end-method/, "FIELDEND_METH"],
 
-  //Constant & Variable
-  [/^[a-z]([a-zA-Z0-9]+)? (-)?\d+/, "NEW_CONSTANT"],
-  [/^[a-z]([a-zA-Z0-9]+)?/, "NEW_VARIABLE"],
-
   [/^\n/, "BREAK"],
   [/^\s/, "SPACE"]
 ];
@@ -136,6 +132,7 @@ export class MacroTokenizerService {
       }
       else if(tokenType == "BREAK"){
         this.line++;
+        return this.getNextToken();
       }
       else if(tokenType == "SPACE"){
         return this.getNextToken();
