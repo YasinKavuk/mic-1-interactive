@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Token } from './macro-tokenizer.service';
+import { AstTransformer } from '@angular/compiler';
 
 
 interface ASTNode{
@@ -74,18 +75,80 @@ export class MacroParserService {
     let currentLine: number = -1
     for(let i = 1; i < varArray.length-1; i++){
       if(currentLine != varArray[i].line){
-        this.addNode(variablesNode, this.createNode("constant", undefined, undefined, [{type: "identifier", value: varArray[i].value}]))
+        this.addNode(variablesNode, this.createNode("variable", undefined, undefined, [{type: "identifier", value: varArray[i].value}]))
         currentLine = varArray[i].line
       }
       else{
-        const constNode: ASTNode = variablesNode.children[variablesNode.children.length-1]
-        this.addNode(constNode, this.createNode("value", varArray[i].value))
+        const varNode: ASTNode = variablesNode.children[variablesNode.children.length-1]
+        this.addNode(varNode, this.createNode("value", varArray[i].value))
       }
     }
   }
 
   addMethods(methodsArray: Token[][]){
+    const variablesNode: ASTNode = this.root.children[2].children[1]
+    const methodsNode: ASTNode = this.root.children[2]
+    let currentLine: number = -1
+
+    for(let i = 0; i < methodsArray.length; i++){
+      this.addMethod(methodsArray[i], methodsNode)
+    }
+  }
+
+  addMethod(methodArray: Token[], methodsNode: ASTNode){
+    let methodName: string = undefined
+    let methodParameters: ASTNode[] = []
+    let varField: boolean = false
+    let currentLine = -1
+    let methodNode: ASTNode = undefined
+    let opCodesNode: ASTNode = undefined
+    let variablesNode: ASTNode = undefined
+
+    if(methodArray[0].type == "FIELD_MAIN"){
+      methodName = "main"
+    }
+    else{
+      methodName = methodArray[0].value.slice(8, methodArray[0].value.indexOf("("))
+      methodParameters = this.extractParameters(methodArray[0].value)
+    }
     
+    this.addNode(methodsNode, this.createNode("method", methodName, undefined, [{type: "opCodes", children: []}, {type: "variables", children: []}, {type: "labels", children: []}, {type: "methodParameters", children: methodParameters}]))
+    methodNode = methodsNode.children[methodsNode.children.length-1]
+
+    for(let i = 1; i < methodArray.length-1; i++){
+      if(currentLine != methodArray[i].line){
+        if(methodArray[i].type == "FIELD_VAR"){
+          varField = true
+        }
+        else if(methodArray[i].type == "FIELDEND_VAR"){
+          varField = false
+        }
+        else if(methodArray[i].type == "NEW_LABEL"){
+          this.addNode(methodNode.children[2], this.createNode("label", methodArray[i].value, methodArray[i].line))
+          continue
+        }
+        else{
+          if(varField == false){
+            opCodesNode = methodNode.children[0]
+            this.addNode(opCodesNode, this.createNode("opCode", undefined, undefined, [{type: "identifier", value: methodArray[i].value}, {type: "parameters", children: []}, {type: "line", value: methodArray[i].line}]))
+          }
+          else{
+            variablesNode = methodNode.children[1]
+            this.addNode(variablesNode, this.createNode("variable", undefined, undefined, [{type: "identifier", value: methodArray[i].value}]))
+          }
+        }
+      }
+      else{
+        if(varField == false){
+          this.addNode(opCodesNode.children[opCodesNode.children.length-1].children[1], this.createNode("parameter", methodArray[i].value))
+        }
+        else{
+          this.addNode(variablesNode.children[variablesNode.children.length-1].children[1], this.createNode("value", methodArray[i].value))
+        }
+      }
+
+      currentLine = methodArray[i].line
+    }
   }
 
   getConstArray(): Token[]{
@@ -117,17 +180,26 @@ export class MacroParserService {
       return !(element.line >= startLine && element.line <= endLine)
     })
     this.tokens = filteredArray
-
+    
     return constArray
   }
 
-  getVarArray(): Token[]{
+  getVarArray(methodArray?: Token[]): Token[]{
     let varArray: Token[] = []
     let varField: boolean = false
     let startLine: number = undefined
     let endLine: number = undefined
 
-    for(let token of this.tokens){
+    let tokens: Token[] = undefined
+
+    if(methodArray != undefined){
+      tokens = methodArray
+    }
+    else{
+      tokens = this.tokens
+    }
+
+    for(let token of tokens){
       if(token.type == "FIELD_VAR"){
         varArray.push(token)
         varField = true;
@@ -218,7 +290,6 @@ export class MacroParserService {
       this.tokens = filteredArray;
     }
 
-    console.table(this.tokens)
     return methodArrays
   }
 
