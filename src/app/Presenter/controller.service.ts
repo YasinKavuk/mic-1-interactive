@@ -438,7 +438,7 @@ export class ControllerService {
     });
   }
 
-  private async readAllFiles(files: File[]): Promise<Submission[]> {
+  private async readAllSubmissionFiles(files: File[]): Promise<Submission[]> {
     let testFiles: Submission[] = [];
 
     for (let i = 0; i < files.length; i++) {
@@ -459,7 +459,7 @@ export class ControllerService {
   async batchTest(files: File[]) {
     console.log("-- Batch test start --");
 
-    const submissions: Submission[] = await this.readAllFiles(files);
+    const submissions: Submission[] = await this.readAllSubmissionFiles(files);
     let errorList: string[] = [];
 
     for (let i = 0; i < submissions.length; i++) {
