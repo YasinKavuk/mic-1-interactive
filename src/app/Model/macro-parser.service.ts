@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Token } from './macro-tokenizer.service';
 import { AstTransformer } from '@angular/compiler';
+import { create } from 'cypress/types/lodash';
 
 
 interface ASTNode{
@@ -37,6 +38,9 @@ export class MacroParserService {
     this.tokens = undefined
     this.methods = undefined
     this.methodParameters = undefined
+    this.tokens = undefined
+    this.methods = {}
+    this.methodParameters = {}
   }
 
   // Generates am Anstract Syntax Tree (AST). The AST also includes and therefore keeps the information about the line number of the token.
@@ -51,6 +55,7 @@ export class MacroParserService {
     this.addConsts(constArray)
     this.addVars(varArray)
     this.addMethods(methodArrays)
+    this.addRest()
 
     console.log(JSON.stringify(this.root, (key, value) => (key === 'parent' ? undefined : value), 2))
   }
@@ -148,6 +153,12 @@ export class MacroParserService {
       }
 
       currentLine = methodArray[i].line
+    }
+  }
+
+  addRest(){
+    for(let token of this.tokens){
+      this.addNode(this.root, this.createNode(token.type, token.value, token.line))
     }
   }
 
