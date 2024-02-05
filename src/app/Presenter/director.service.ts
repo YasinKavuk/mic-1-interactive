@@ -15,6 +15,7 @@ import { MacroProviderService } from '../Model/macro-provider.service';
 import { MicroProviderService } from '../Model/micro-provider.service';
 import { VideoControllerService } from '../Model/GraphicsAdapter/video-controller.service';
 import { PresentationControllerService } from './presentation-controller.service';
+import { SemanticCheckerService } from '../Model/semantic-checker.service';
 
 
 @Injectable({
@@ -36,6 +37,7 @@ export class DirectorService {
     private macroTokenizer: MacroTokenizerService,
     private macroProvider: MacroProviderService,
     private microProvider: MicroProviderService,
+    private semanticChecker: SemanticCheckerService,
     private videoController: VideoControllerService,
     private presentationController: PresentationControllerService,
   ) {
@@ -429,7 +431,9 @@ export class DirectorService {
     this.mainMemory.emptyMemory();
     try {
       this.controlStore.loadMicro();
-      this.macroParser.parse(this.macroTokenizer.tokenize());
+      let opcodes = this.controlStore.getMicroAddr()
+      let ast = this.macroParser.parse(this.macroTokenizer.tokenize());
+      this.semanticChecker.checkSemantic(opcodes, ast)
     } catch (error) {
       if (error instanceof Error) {
         this._errorFlasher.next({ line: 1, error: error.message });

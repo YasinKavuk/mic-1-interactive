@@ -3,7 +3,7 @@ import { Token } from './macro-tokenizer.service';
 import { AstTransformer } from '@angular/compiler';
 
 
-interface ASTNode{
+export interface ASTNode{
   type: string,
   value?: string | number,
   editorLine?: number, // for highlighting the right line in the editor for different purposes like highlighting an error.
@@ -28,9 +28,10 @@ export class MacroParserService {
   ){}
 
 
-  parse(tokens: Token[]){
-    this.generateAST(tokens)
-    this.resetParser()
+  parse(tokens: Token[]): ASTNode{
+    this.generateAST(tokens);
+    this.resetParser();
+    return this.root;
   }
 
   resetParser(){
