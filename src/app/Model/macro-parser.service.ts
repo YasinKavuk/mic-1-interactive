@@ -36,6 +36,7 @@ export class MacroParserService {
   }
 
   resetParser(){
+    this.root = this.createNode("root", undefined, undefined, [{type: "constants", children: []}, {type: "variables", children: []}, {type: "methods", children: []}])
     this.tokens = undefined
     this.methods = undefined
     this.methodParameters = undefined
@@ -270,12 +271,12 @@ export class MacroParserService {
         methodField = true
         methodsStartEnd[methodName] = [token.line, undefined]
       }
-      else if(token.type == "FIELDEND_MAIN"){
+      else if(token.type == "FIELDEND_MAIN" && methodField == false && mainField == true){
         methodArrays[this.methods["main"]].push(token)
         mainField = false;
         methodsStartEnd["main"] = [methodsStartEnd["main"][0], token.line]
       }
-      else if(token.type == "FIELDEND_METH"){
+      else if(token.type == "FIELDEND_METH" && methodField == true && mainField == false){
         methodArrays[this.methods[tmpMethodName]].push(token)
         methodField = false;
         methodsStartEnd[tmpMethodName] = [methodsStartEnd[tmpMethodName][0], token.line]
