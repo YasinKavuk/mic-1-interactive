@@ -19,9 +19,10 @@ export class SemanticCheckerService {
     this.ast = ast;
     this.hasMainMethod();
     this.checkConstants();
+    console.log("keine Fehler!");
   }
 
-  hasMainMethod() {
+  private hasMainMethod() {
     const methodNode = this.ast.children[2]
 
     if (methodNode.children.length === 0) {
@@ -37,14 +38,14 @@ export class SemanticCheckerService {
     throw new Error("noEntryPointError - The program has no main method. Add a main method by using 'main' ... '.end-main'");
   }
 
-  checkConstants() {
+  private checkConstants() {
+    this.constantNames = [];
     const constants = this.ast.children[0];
 
     for (let constant of constants.children) {
 
-      // currently numbers are parsed as identifiers with string values -> this if does nothing
-      if (constant.children[0].type !== "identifier" && typeof constant.children[0].value === "string") {
-        throw new Error(`syntaxError - Constants need an identifier and a value. E.g.: "const 10"`)
+      if (!this.isValidConstantIdentifier(constant.children[0])) {
+        throw new Error(`syntaxError - A constant needs an identifier and a value. E.g.: "const 10"`)
       }
       if (constant.children.length !== 2) {
         throw new Error(`argumentError - A constant needs exactly one argument, but ${constant.children.length - 1} were given`);
@@ -60,9 +61,19 @@ export class SemanticCheckerService {
     }
   }
 
+  private isValidConstantIdentifier(node: ASTNode): boolean {
+    if (typeof node.value !== "string") {
+      return false
+    }
+    //Constants start with an alphabetic Character, followed by zero  or more alphanumeric characters
+    const matched = /^([a-zA-Z]([a-zA-Z0-9]*))/.exec(node.value);
+    console.log(matched)
+    return matched !== null;
+  }
 
 
-  checkIfValidOpcode(opcode: ASTNode) {
+
+  private checkIfValidOpcode(opcode: ASTNode) {
 
     if (typeof opcode.value !== "string") {
       throw new Error(`typeError - Expected string, but ${typeof opcode.value} was given`);

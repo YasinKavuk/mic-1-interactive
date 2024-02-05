@@ -31,8 +31,9 @@ export class MacroParserService {
 
   parse(tokens: Token[]): ASTNode{
     this.generateAST(tokens);
+    let returnRoot = this.root
     this.resetParser();
-    return this.root;
+    return returnRoot;
   }
 
   resetParser(){
