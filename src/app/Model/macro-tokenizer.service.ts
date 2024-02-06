@@ -14,13 +14,13 @@ const spec: any = [
   [/^[A-Z]+(_[A-Z]+)*/, "OPCODE"],
   [/^(0x[a-fA-F0-9]+)/, "HEXNUMBER"],
   [/^((-)?\d+)/, "NUMBER"],
-  [/^([a-z]([a-zA-Z0-9]+))/, "IDENTIFIER"],
+  [/^([a-z]([a-zA-Z0-9]*))/, "IDENTIFIER"],
 
   //Fields
   [/^.constant/, "FIELD_CONST"],
   [/^.main/, "FIELD_MAIN"],
   [/^.var/, "FIELD_VAR"],
-  [/^.method [a-zA-Z]([a-zA-Z0-9]+)?\(([a-z]([a-zA-Z0-9]+)?(, )?)*\)/, "FIELD_METH"],
+  [/^.method [a-zA-Z]([a-zA-Z0-9]+)?\(([a-z]([a-zA-Z0-9]+)?(, )?(,)?)*\)/, "FIELD_METH"],
 
   //End Fields
   [/^.end-constant/, "FIELDEND_CONST"],
