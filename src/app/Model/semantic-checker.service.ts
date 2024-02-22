@@ -9,17 +9,24 @@ export class SemanticCheckerService {
   private validOpcodes: string[] = [];
   private ast: ASTNode;
   private constantNames: string[] = [];
+  private methodNames: string[] = [];
 
   constructor() { }
 
 
   checkSemantic(opcodes: { [opcode: string]: number }, ast: ASTNode) {
+    this.init();
     console.log(JSON.stringify(ast, (key, value) => (key === 'parent' ? undefined : value), 2))
     this.validOpcodes = Object.keys(opcodes);
     this.ast = ast;
     this.checkForMainMethod();
     this.checkConstants();
     this.checkMethods();
+  }
+
+  private init() {
+    this.constantNames = [];
+    this.methodNames = [];
   }
 
   private checkForMainMethod() {
@@ -39,7 +46,6 @@ export class SemanticCheckerService {
   }
 
   private checkConstants() {
-    this.constantNames = [];
     const constants = this.ast.children[0];
 
     for (let constant of constants.children) {
@@ -65,9 +71,8 @@ export class SemanticCheckerService {
     if (typeof node.value !== "string") {
       return false
     }
-    //Constants start with an alphabetic Character, followed by zero  or more alphanumeric characters
+    //Constants start with an alphabetic Character, followed by zero or more alphanumeric characters
     const matched = /^([a-zA-Z]([a-zA-Z0-9]*))/.exec(node.value);
-    console.log(matched)
     return matched !== null;
   }
 
@@ -83,14 +88,87 @@ export class SemanticCheckerService {
 
     const [opCodes, variables, labels, methodParameters] = methodNode.children;
 
-    for (let line of opCodes.children) {
-      this.checkIfValidMethodLine(line);
-    }
-
+    this.checkMethodName(methodNode.value)
     this.checkMethodVariables(variables);
     this.checkMethodParameters(methodParameters);
     this.checkMethodLabels(labels);
 
+    for (let line of opCodes.children) {
+      this.checkIfValidMethodLine(line);
+    }
+  }
+
+
+  private checkMethodName(name: string | number) {
+    if (typeof name !== "string") {
+      throw new Error(`typeError - Expected string, but ${typeof name} was given`);
+    }
+    if (this.methodNames.includes(name)) {
+      throw new Error(`redefinitionError - method "${name}" was already declared`);
+    }
+    if (/^([a-zA-Z]([a-zA-Z0-9]*))/.exec(name) === null) {
+      throw new Error(`syntaxError - "${name}" is not a valid method Identifier`);
+    }
+    this.methodNames.push(name);
+  }
+
+  private checkMethodVariables(variables: ASTNode) {
+    //console.log(JSON.stringify(variables, (key, value) => (key === 'parent' ? undefined : value), 2))
+    /* TODO: 
+      1. Identifier muss ein String sein
+      2. Identifier darf nicht mit Konstantennamen Kollidieren
+      3. Nach einem Identifier darf nichts weiteres kommen
+    */
+  }
+
+  private checkMethodParameters(parameters: ASTNode) {
+    let localParameterNames: string[] = [];
+    for (let parameter of parameters.children) {
+
+      if (typeof parameter.value !== "string") {
+        throw new Error(`typeError - Expected string, but ${typeof parameter.value} was given`);
+      }
+      if (/^([a-zA-Z]([a-zA-Z0-9]*))/.exec(parameter.value) === null) {
+        throw new Error(`syntaxError - "${parameter.value}" is not a valid identifier for a method parameter`);
+      }
+      if (this.constantNames.includes(parameter.value)) {
+        throw new Error(`redefinitionError - parameter name "${parameter.value}" collides with a constant identifier`);
+      }
+      if (localParameterNames.includes(parameter.value)) {
+        throw new Error(`redefinitionError - parameter name "${parameter.value}" was already declared in this scope`);
+      }
+
+      localParameterNames.push(parameter.value)
+    }
+  }
+
+  private checkMethodLabels(labels: ASTNode) {
+
+    let localLabelNames: string[] = [];
+
+    for (let label of labels.children){
+
+      if (typeof label.value !== "string") {
+        throw new Error(`typeError - Expected string, but ${typeof label.value} was given`);
+      }
+      if (/^.*:/.exec(label.value) === null){
+        throw new Error(`syntaxError - "${label.value}" is not a valid Label declaration`);
+      }
+
+      const labelName = label.value.slice(0,-1);
+
+      if (this.constantNames.includes(labelName)){
+        throw new Error(`redefinitionError - Label identifier "${labelName}" was already used as a constant identifier`);
+      }
+      if (this.validOpcodes.includes(labelName)){
+        throw new Error(`redefinitionError - Label  "${labelName}" overshadows an opcode in the Microprogram`);
+      }
+      if(localLabelNames.includes(labelName)){
+        throw new Error(`redefinitionError - Label "${labelName}" was already created in this scope`);
+      }
+
+      localLabelNames.push(labelName)
+    }
   }
 
   private checkIfValidMethodLine(line: ASTNode) {
@@ -100,30 +178,6 @@ export class SemanticCheckerService {
       2. Identifier muss in Opcode Liste sein
       3. Parameter müssen Zahlen sein
       4. Parameter müssen in ein Byte passen
-    */
-  }
-
-  private checkMethodVariables(variables: ASTNode) {
-    console.log(JSON.stringify(variables, (key, value) => (key === 'parent' ? undefined : value), 2))
-    /* TODO: 
-      1. Identifier muss ein String sein
-      2. Identifier darf nicht mit Konstantennamen Kollidieren
-      3. Nach einem Identifier darf nichts weiteres kommen
-    */
-  }
-
-  private checkMethodParameters(parameters: ASTNode) {
-    /* TODO: 
-      1. Parameter müssen ein String sein
-      2. Parametername muss wohlgeformt sein
-      3. Parametername darf nicht mit Konstantennammen Kollidieren 
-    */
-  }
-
-  private checkMethodLabels(labels: ASTNode){
-    /* TODO: 
-      1. Label müssen der Namenskonvention entsprechen
-      2. Label dürfen (innherhalb einer Methode) nicht mehrmals vorkommen
     */
   }
 
