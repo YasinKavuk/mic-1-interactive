@@ -79,8 +79,16 @@ export class SemanticCheckerService {
   private checkMethods() {
     const allMethods = this.ast.children[2].children;
 
+    this.createMethodNamesList(allMethods);
+
     for (let method of allMethods) {
       this.checkMethod(method);
+    }
+  }
+
+  private createMethodNamesList(allMethods: ASTNode[]) {
+    for (let method of allMethods) {
+      this.checkMethodName(method.value);
     }
   }
 
@@ -88,13 +96,12 @@ export class SemanticCheckerService {
 
     const [opCodes, variables, labels, methodParameters] = methodNode.children;
 
-    this.checkMethodName(methodNode.value)
-    this.checkMethodVariables(variables);
-    this.checkMethodParameters(methodParameters);
-    this.checkMethodLabels(labels);
+    const localVariables = this.checkMethodVariables(variables);
+    const localParameters = this.checkMethodParameters(methodParameters);
+    const localLabels = this.checkMethodLabels(labels);
 
     for (let line of opCodes.children) {
-      this.checkIfValidMethodLine(line);
+      this.checkIfValidMethodLine(line, localVariables, localParameters, localLabels);
     }
   }
 
@@ -112,16 +119,18 @@ export class SemanticCheckerService {
     this.methodNames.push(name);
   }
 
-  private checkMethodVariables(variables: ASTNode) {
+  private checkMethodVariables(variables: ASTNode): string[] {
     //console.log(JSON.stringify(variables, (key, value) => (key === 'parent' ? undefined : value), 2))
     /* TODO: 
       1. Identifier muss ein String sein
       2. Identifier darf nicht mit Konstantennamen Kollidieren
       3. Nach einem Identifier darf nichts weiteres kommen
     */
+
+    return [];
   }
 
-  private checkMethodParameters(parameters: ASTNode) {
+  private checkMethodParameters(parameters: ASTNode): string[] {
     let localParameterNames: string[] = [];
     for (let parameter of parameters.children) {
 
@@ -140,48 +149,57 @@ export class SemanticCheckerService {
 
       localParameterNames.push(parameter.value)
     }
+
+    return localParameterNames;
   }
 
-  private checkMethodLabels(labels: ASTNode) {
+  private checkMethodLabels(labels: ASTNode): string[] {
 
     let localLabelNames: string[] = [];
 
-    for (let label of labels.children){
+    for (let label of labels.children) {
 
       if (typeof label.value !== "string") {
         throw new Error(`typeError - Expected string, but ${typeof label.value} was given`);
       }
-      if (/^.*:/.exec(label.value) === null){
+      if (/^.*:/.exec(label.value) === null) {
         throw new Error(`syntaxError - "${label.value}" is not a valid Label declaration`);
       }
 
-      const labelName = label.value.slice(0,-1);
+      const labelName = label.value.slice(0, -1);
 
-      if (this.constantNames.includes(labelName)){
+      if (this.constantNames.includes(labelName)) {
         throw new Error(`redefinitionError - Label identifier "${labelName}" was already used as a constant identifier`);
       }
-      if (this.validOpcodes.includes(labelName)){
+      if (this.validOpcodes.includes(labelName)) {
         throw new Error(`redefinitionError - Label  "${labelName}" overshadows an opcode in the Microprogram`);
       }
-      if(localLabelNames.includes(labelName)){
+      if (localLabelNames.includes(labelName)) {
         throw new Error(`redefinitionError - Label "${labelName}" was already created in this scope`);
       }
 
       localLabelNames.push(labelName)
     }
+
+    return localLabelNames;
   }
 
-  private checkIfValidMethodLine(line: ASTNode) {
-    console.log(JSON.stringify(line, (key, value) => (key === 'parent' ? undefined : value), 2))
-    /* TODO: 
-      1. Line muss mit identifier anfangen, Identifier muss in Opcode liste sein
-      2. Identifier muss in Opcode Liste sein
-      3. Parameter müssen Zahlen sein
-      4. Parameter müssen in ein Byte passen
-    */
+  private checkIfValidMethodLine(lineNode: ASTNode, localVariables: string[], localParameters: string[], localLabels: string[]) {
+
+    const line = lineNode.children;
+
+    if (line[0] === undefined) {
+      throw new Error("emptyLineError");
+    }
+
+    this.checkIfValidOpcode(line[0]);
+
+    const parameters = line[1];
+    for (let parameter of parameters.children) {
+      this.checkIfValidOpcodeParameter(parameter, localVariables, localParameters, localLabels);
+    }
+
   }
-
-
 
   private checkIfValidOpcode(opcode: ASTNode) {
 
@@ -189,9 +207,46 @@ export class SemanticCheckerService {
       throw new Error(`typeError - Expected string, but ${typeof opcode.value} was given`);
     }
 
-    if (this.validOpcodes.includes(opcode.value)) { return true }
+    if (opcode.type !== "identifier") {
+      throw new Error("syntaxError - A line must begin with an Opcode");
+    }
+
+    if (this.validOpcodes.includes(opcode.value)) { return }
 
     throw new Error(`${opcode.value} is not a valid Opcode`);
+  }
+
+  private checkIfValidOpcodeParameter(parameter: ASTNode, localVariables: string[], localParameters: string[], localLabels: string[],) {
+
+    if (typeof parameter.value !== "string") {
+      throw new Error(`typeError - Expected string, but ${typeof parameter.value} was given`);
+    }
+
+    const parameterValue = parameter.value;
+
+    if (!isNaN(Number(parameterValue))) {
+      this.checkIfValidNumericParameter(Number(parameterValue));
+      return;
+    }
+    this.checkIfValidIdentifierParameter(parameterValue, localVariables, localParameters, localLabels)
+  }
+
+  private checkIfValidNumericParameter(number: number) {
+    if (number < -128 || number > 127) {
+      throw new Error(`syntaxError - number ${number} does not fit into a signed byte`)
+    }
+  }
+
+  private checkIfValidIdentifierParameter(parameterValue: string, localVariables: string[], localParameters: string[], localLabels: string[]) {
+    if (
+      this.constantNames.includes(parameterValue) ||
+      this.methodNames.includes(parameterValue) ||
+      localVariables.includes(parameterValue) ||
+      localParameters.includes(parameterValue) ||
+      localLabels.includes(parameterValue)
+    ) { return; }
+
+    throw new Error(`undeclaredIdentifierError - identifier "${parameterValue}" was not declared in this scope`);
   }
 
 
