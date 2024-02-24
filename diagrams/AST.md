@@ -44,6 +44,7 @@ graph TB
     VS1-- {0..n} -->V1
     V1-->I2
     V1-->VAL2
+    V1-->LN2
 
     MET-->OPC2
     OPC2-- {0..n} -->OP2
