@@ -363,8 +363,7 @@ export class ControllerService {
   step() {
     if (this.macroProvider.getMacroGotChanged() || this.microProvider.getMicroGotChanged()) {
       this.controlStore.loadMicro();
-      this.macroParser.parse(this.macroTokenizer.tokenize());
-      this.director.reset();
+      this.director.reset(); // also parses the macrocode
     }
 
     this.director.init();
@@ -377,8 +376,7 @@ export class ControllerService {
   stepMacro() {
     if (this.macroProvider.getMacroGotChanged() || this.microProvider.getMicroGotChanged()) {
       this.controlStore.loadMicro();
-      this.macroParser.parse(this.macroTokenizer.tokenize());
-      this.director.reset();
+      this.director.reset(); // also parses the macrocode
     }
 
     this.director.init();
@@ -398,8 +396,7 @@ export class ControllerService {
   run() {
     if (this.macroProvider.getMacroGotChanged() || this.microProvider.getMicroGotChanged()) {
       this.controlStore.loadMicro();
-      this.macroParser.parse(this.macroTokenizer.tokenize());
-      this.director.reset();
+      this.director.reset(); // also parses the macrocode
     }
 
     this.director.run();
