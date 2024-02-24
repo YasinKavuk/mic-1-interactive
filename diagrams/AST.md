@@ -9,7 +9,7 @@ graph TB
     I4[identifier]
     I6[identifier]
     C[constants]
-    C1[constants]
+    C1[constant]
     VS1[variables]
     VS3[variables]
     V1[variable]
@@ -24,7 +24,10 @@ graph TB
     P2[parameter]
     LS2[labels]
     L2[label]
+    LN1[line]
+    LN2[line]
     LN3[line]
+    LN4[line]
 
 
     R-->C
@@ -36,6 +39,7 @@ graph TB
     C-- {0..n} -->C1
     C1-->I1
     C1-->VAL1
+    C1-->LN1
 
     VS1-- {0..n} -->V1
     V1-->I2
@@ -52,6 +56,7 @@ graph TB
     V3-->VAL4
     MET-->LS2
     LS2-- {0..n} -->L2
+    L2-->LN4
     OP2-->LN3
     MET-->METPS
     METPS-- {0..n} -->METP

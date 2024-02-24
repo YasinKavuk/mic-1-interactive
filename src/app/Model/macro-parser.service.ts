@@ -51,8 +51,10 @@ export class MacroParserService {
     this.tokens = tokens
 
     let constArray: Token[] = this.getConstArray()
-    let varArray: Token[] = this.getVarArray()
+    let varArray: Token[] = this.getGlobalVarArray()
+    // console.table(varArray)
     let methodArrays: Token[][] = this.getMethodArrays()
+    console.log(methodArrays)
 
 
     this.addConsts(constArray)
@@ -68,7 +70,7 @@ export class MacroParserService {
     let currentLine: number = -1
     for(let i = 1; i < constArray.length-1; i++){
       if(currentLine != constArray[i].line){
-        this.addNode(constantsNode, this.createNode("constant", undefined, undefined, [{type: "identifier", value: constArray[i].value}]))
+        this.addNode(constantsNode, this.createNode("constant", undefined, constArray[i].line, [{type: "identifier", value: constArray[i].value}]))
         currentLine = constArray[i].line
       }
       else{
@@ -83,7 +85,7 @@ export class MacroParserService {
     let currentLine: number = -1
     for(let i = 1; i < varArray.length-1; i++){
       if(currentLine != varArray[i].line){
-        this.addNode(variablesNode, this.createNode("variable", undefined, undefined, [{type: "identifier", value: varArray[i].value}]))
+        this.addNode(variablesNode, this.createNode("variable", undefined, varArray[i].line, [{type: "identifier", value: varArray[i].value}]))
         currentLine = varArray[i].line
       }
       else{
@@ -159,6 +161,7 @@ export class MacroParserService {
     }
   }
 
+  // adds all tokens that are not in a Field as childnodes to root.
   addRest(){
     for(let token of this.tokens){
       this.addNode(this.root, this.createNode(token.type, token.value, token.line))
@@ -198,7 +201,7 @@ export class MacroParserService {
     return constArray
   }
 
-  getVarArray(methodArray?: Token[]): Token[]{
+  getGlobalVarArray(methodArray?: Token[]): Token[]{
     let varArray: Token[] = []
     let varField: boolean = false
     let startLine: number = undefined
@@ -224,6 +227,9 @@ export class MacroParserService {
         varField = false;
         endLine = token.line
         break
+      }
+      else if(token.type == "FIELD_MAIN" || token.type == "FIELD_METH"){
+        break;
       }
       else{
         if(varField == true){

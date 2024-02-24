@@ -16,7 +16,6 @@ export class SemanticCheckerService {
 
   checkSemantic(opcodes: { [opcode: string]: number }, ast: ASTNode) {
     this.init();
-    console.log(JSON.stringify(ast, (key, value) => (key === 'parent' ? undefined : value), 2))
     this.validOpcodes = Object.keys(opcodes);
     this.ast = ast;
     this.checkForMainMethod();
