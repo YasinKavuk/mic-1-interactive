@@ -1,7 +1,5 @@
 import { Injectable } from '@angular/core';
 import { Token } from './macro-tokenizer.service';
-import { AstTransformer } from '@angular/compiler';
-import { create } from 'cypress/types/lodash';
 
 
 export interface ASTNode{
@@ -18,7 +16,7 @@ export interface ASTNode{
 
 
 export class MacroParserService {
-  root: ASTNode = this.createNode("root", undefined, undefined, [{type: "constants", children: []}, {type: "variables", children: []}, {type: "methods", children: []}])
+  root: ASTNode = this.createNode("root", undefined, undefined, [{type: "constants", children: []}, {type: "methods", children: []}])
   tokens: Token[] = undefined
 
   methods: {[name: string]: number} = {}
@@ -37,7 +35,7 @@ export class MacroParserService {
   }
 
   resetParser(){
-    this.root = this.createNode("root", undefined, undefined, [{type: "constants", children: []}, {type: "variables", children: []}, {type: "methods", children: []}])
+    this.root = this.createNode("root", undefined, undefined, [{type: "constants", children: []}, {type: "methods", children: []}])
     this.tokens = undefined
     this.methods = undefined
     this.methodParameters = undefined
@@ -48,21 +46,22 @@ export class MacroParserService {
 
   // Generates am Anstract Syntax Tree (AST). The AST also includes and therefore keeps the information about the line number of the token.
   generateAST(tokens: Token[]){
+    console.log("1")
     this.tokens = tokens
-
+    console.log("2")
     let constArray: Token[] = this.getConstArray()
-    let varArray: Token[] = this.getGlobalVarArray()
-    // console.table(varArray)
+    console.log("3")
     let methodArrays: Token[][] = this.getMethodArrays()
-    console.log(methodArrays)
-
+    console.log("4")
 
     this.addConsts(constArray)
-    this.addVars(varArray)
+    console.log("5")
     this.addMethods(methodArrays)
+    console.log("6")
     this.addRest()
-
+    console.log("7")
     console.log(JSON.stringify(this.root, (key, value) => (key === 'parent' ? undefined : value), 2))
+    console.log("8")
   }
 
   addConsts(constArray: Token[]){
@@ -80,24 +79,9 @@ export class MacroParserService {
     }
   }
 
-  addVars(varArray: Token[]){
-    const variablesNode: ASTNode = this.root.children[1]
-    let currentLine: number = -1
-    for(let i = 1; i < varArray.length-1; i++){
-      if(currentLine != varArray[i].line){
-        this.addNode(variablesNode, this.createNode("variable", undefined, varArray[i].line, [{type: "identifier", value: varArray[i].value}]))
-        currentLine = varArray[i].line
-      }
-      else{
-        const varNode: ASTNode = variablesNode.children[variablesNode.children.length-1]
-        this.addNode(varNode, this.createNode("value", varArray[i].value))
-      }
-    }
-  }
-
   addMethods(methodsArray: Token[][]){
-    const variablesNode: ASTNode = this.root.children[2].children[1]
-    const methodsNode: ASTNode = this.root.children[2]
+    const variablesNode: ASTNode = this.root.children[1].children[1]
+    const methodsNode: ASTNode = this.root.children[1]
     let currentLine: number = -1
 
     for(let i = 0; i < methodsArray.length; i++){
@@ -199,51 +183,6 @@ export class MacroParserService {
     this.tokens = filteredArray
     
     return constArray
-  }
-
-  getGlobalVarArray(methodArray?: Token[]): Token[]{
-    let varArray: Token[] = []
-    let varField: boolean = false
-    let startLine: number = undefined
-    let endLine: number = undefined
-
-    let tokens: Token[] = undefined
-
-    if(methodArray != undefined){
-      tokens = methodArray
-    }
-    else{
-      tokens = this.tokens
-    }
-
-    for(let token of tokens){
-      if(token.type == "FIELD_VAR"){
-        varArray.push(token)
-        varField = true;
-        startLine = token.line
-      }
-      else if(token.type == "FIELDEND_VAR"){
-        varArray.push(token)
-        varField = false;
-        endLine = token.line
-        break
-      }
-      else if(token.type == "FIELD_MAIN" || token.type == "FIELD_METH"){
-        break;
-      }
-      else{
-        if(varField == true){
-          varArray.push(token)
-        }
-      }
-    }
-
-    const filteredArray = this.tokens.filter((element) =>{
-      return !(element.line >= startLine && element.line <= endLine)
-    })
-    this.tokens = filteredArray
-
-    return varArray
   }
 
   getMethodArrays(): Token[][]{
