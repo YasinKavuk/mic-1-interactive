@@ -22,7 +22,6 @@ graph TB
     L2[label]
     LN1[line]
     LN3[line]
-    LN4[line]
 
 
     R-->C
@@ -46,7 +45,6 @@ graph TB
     V3-->VAL4
     MET-->LS2
     LS2-- {0..n} -->L2
-    L2-->LN4
     OP2-->LN3
     MET-->METPS
     METPS-- {0..n} -->METP
