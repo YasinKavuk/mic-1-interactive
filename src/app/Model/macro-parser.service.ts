@@ -46,22 +46,15 @@ export class MacroParserService {
 
   // Generates am Anstract Syntax Tree (AST). The AST also includes and therefore keeps the information about the line number of the token.
   generateAST(tokens: Token[]){
-    console.log("1")
     this.tokens = tokens
-    console.log("2")
     let constArray: Token[] = this.getConstArray()
-    console.log("3")
     let methodArrays: Token[][] = this.getMethodArrays()
-    console.log("4")
 
     this.addConsts(constArray)
-    console.log("5")
     this.addMethods(methodArrays)
-    console.log("6")
     this.addRest()
-    console.log("7")
+    
     console.log(JSON.stringify(this.root, (key, value) => (key === 'parent' ? undefined : value), 2))
-    console.log("8")
   }
 
   addConsts(constArray: Token[]){
