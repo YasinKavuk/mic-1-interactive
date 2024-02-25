@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { MainMemoryService } from './Emulator/main-memory.service';
+import { PresentationControllerService } from '../Presenter/presentation-controller.service';
 
 
 export interface ASTNode{
@@ -36,7 +37,8 @@ export class CodeGeneratorService {
   variables: string[] = []
 
   constructor(
-    private memory: MainMemoryService
+    private memory: MainMemoryService, 
+    private presentationController: PresentationControllerService
   ) { }
 
   // generates a machine code that can be executed by the MIC1
@@ -47,6 +49,9 @@ export class CodeGeneratorService {
 
     let constNodes: ASTNode[] = ast.children[0].children
     let methNodes: ASTNode[] = ast.children[1].children
+
+
+    this.memory.emptyMemory()
 
     this.generateConstants(constNodes, methNodes)
     for(let methNode of methNodes){
@@ -83,6 +88,9 @@ export class CodeGeneratorService {
     this.memory.setCode(this.mcMethods)
     this.memory.setConstants(this.mcConstants)
     this.memory.createVariables(this.variables.length)
+
+    this.presentationController.memoryViewRefresher(true);
+    this.memory.printMemory()
 
     this.reset()
   }
@@ -293,5 +301,7 @@ export class CodeGeneratorService {
     this.labels = []
     this.constants = []
     this.variables = []
+
+    this.presentationController.memoryViewRefresher(false);
   }
 }
