@@ -35,13 +35,21 @@ export class SemanticCheckerService {
       throw new Error("noEntryPointError - The program has no main method. Add a main method by using 'main' ... '.end-main'");
     }
 
+    let hasMainMethod = false;
     for (let method of methodNode.children) {
       if (method.value === "main") {
-        return true;
+        hasMainMethod = true;
+        break;
       }
     }
 
-    throw new Error("noEntryPointError - The program has no main method. Add a main method by using 'main' ... '.end-main'");
+    if (!hasMainMethod){
+      throw new Error("noEntryPointError - The program has no main method. Add a main method by using '.main' ... '.end-main'");
+    }
+
+    if (methodNode.children[0].value !== "main" && hasMainMethod){
+      throw new Error("noEntryPointError - The first method of the program has to be the main method.");
+    }
   }
 
   private checkConstants() {
