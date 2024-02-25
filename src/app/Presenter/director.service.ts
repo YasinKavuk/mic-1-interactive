@@ -16,6 +16,7 @@ import { MicroProviderService } from '../Model/micro-provider.service';
 import { VideoControllerService } from '../Model/GraphicsAdapter/video-controller.service';
 import { PresentationControllerService } from './presentation-controller.service';
 import { SemanticCheckerService } from '../Model/semantic-checker.service';
+import { CodeGeneratorService } from '../Model/code-generator.service';
 
 
 @Injectable({
@@ -34,9 +35,10 @@ export class DirectorService {
     private macroParser: MacroParserService,
     private controlStore: ControlStoreService,
     private stackProvider: StackProviderService,
-    private macroTokenizer: MacroTokenizerService,
     private macroProvider: MacroProviderService,
     private microProvider: MicroProviderService,
+    private codeGenerator: CodeGeneratorService,
+    private macroTokenizer: MacroTokenizerService,
     private semanticChecker: SemanticCheckerService,
     private videoController: VideoControllerService,
     private presentationController: PresentationControllerService,
@@ -430,10 +432,14 @@ export class DirectorService {
     // reset memory
     this.mainMemory.emptyMemory();
     try {
+
       this.controlStore.loadMicro();
       let opcodes = this.controlStore.getMicroAddr()
-      let ast = this.macroParser.parse(this.macroTokenizer.tokenize());
+      let macroTokens = this.macroTokenizer.tokenize()
+      let ast = this.macroParser.parse(macroTokens)
       this.semanticChecker.checkSemantic(opcodes, ast)
+      this.codeGenerator.generate(ast, opcodes);
+
     } catch (error) {
       if (error instanceof Error) {
         this._errorFlasher.next({ line: 1, error: error.message });
@@ -441,7 +447,6 @@ export class DirectorService {
       return;
     }
     try {
-      // if (this.macroParser.parse()) { return; }
     } catch (error) {
       if (error instanceof Error) {
         this._errorFlasher.next({ line: 1000, error: error.message });
