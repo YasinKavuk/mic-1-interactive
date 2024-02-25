@@ -29,10 +29,10 @@ export class SemanticCheckerService {
   }
 
   private checkForMainMethod() {
-    const methodNode = this.ast.children[2]
+    const methodNode = this.ast.children[1]
 
     if (methodNode.children.length === 0) {
-      throw new Error("noEntryPointError - The program has no main method. Add a main method by using 'main' ... '.end-main'");
+      throw new Error("noEntryPointError - The program has no main method. Add a main method by using '.main' ... '.end-main'");
     }
 
     let hasMainMethod = false;
@@ -84,7 +84,7 @@ export class SemanticCheckerService {
   }
 
   private checkMethods() {
-    const allMethods = this.ast.children[2].children;
+    const allMethods = this.ast.children[1].children;
 
     this.createMethodNamesList(allMethods);
 
@@ -235,7 +235,7 @@ export class SemanticCheckerService {
       this.checkIfValidNumericParameter(Number(parameterValue));
       return;
     }
-    this.checkIfValidIdentifierParameter(parameterValue, localVariables, localParameters, localLabels)
+    // this.checkIfValidIdentifierParameter(parameterValue, localVariables, localParameters, localLabels)
   }
 
   private checkIfValidNumericParameter(number: number) {
