@@ -208,7 +208,7 @@ export class CodeGeneratorService {
           this.currentAddress += 2
         }
         else{
-          this.mcMethods.push(param.value as number)
+          this.mcMethods.push(parseInt(param.value as string))
           this.currentAddress++
         }
       }
@@ -253,9 +253,6 @@ export class CodeGeneratorService {
       for(let label of methNode.children[2].children){
         this.labels.push(label.value as string)
       }
-      // for(let variable of methNode.children[1].children){
-      //   this.variables.push(variable.children[0].value as string)
-      // }
     }
   }
 
