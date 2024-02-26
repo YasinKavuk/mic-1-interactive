@@ -43,11 +43,11 @@ export class SemanticCheckerService {
       }
     }
 
-    if (!hasMainMethod){
+    if (!hasMainMethod) {
       throw new Error("noEntryPointError - The program has no main method. Add a main method by using '.main' ... '.end-main'");
     }
 
-    if (methodNode.children[0].value !== "main" && hasMainMethod){
+    if (methodNode.children[0].value !== "main" && hasMainMethod) {
       throw new Error("noEntryPointError - The first method of the program has to be the main method.");
     }
   }
@@ -127,14 +127,33 @@ export class SemanticCheckerService {
   }
 
   private checkMethodVariables(variables: ASTNode): string[] {
-    //console.log(JSON.stringify(variables, (key, value) => (key === 'parent' ? undefined : value), 2))
-    /* TODO: 
-      1. Identifier muss ein String sein
-      2. Identifier darf nicht mit Konstantennamen Kollidieren
-      3. Nach einem Identifier darf nichts weiteres kommen
-    */
 
-    return [];
+    let localVariableNames: string[] = [];
+
+    for (const variable of variables.children) {
+
+      if (variable.children.length !== 1) {
+        throw new Error(`syntaxError - in the variable block you can only define variables but not assign values`);
+      }
+
+      if (typeof variable.children[0].value !== "string") {
+        throw new Error(`typeError - Expected string, but ${typeof variable.value} was given`);
+      }
+
+      const name = variable.children[0].value
+
+      if (localVariableNames.includes(name)) {
+        throw new Error(`redefinitionError - variable  "${name}" was already declared in this scope`);
+      }
+
+      if (this.constantNames.includes(name)) {
+        throw new Error(`redefinitionError - variable identifier "${name}" was already declared as a constant`);
+      }
+
+      localVariableNames.push(name);
+    }
+
+    return localVariableNames;
   }
 
   private checkMethodParameters(parameters: ASTNode): string[] {
@@ -235,7 +254,7 @@ export class SemanticCheckerService {
       this.checkIfValidNumericParameter(Number(parameterValue));
       return;
     }
-    // this.checkIfValidIdentifierParameter(parameterValue, localVariables, localParameters, localLabels)
+    this.checkIfValidIdentifierParameter(parameterValue, localVariables, localParameters, localLabels)
   }
 
   private checkIfValidNumericParameter(number: number) {
