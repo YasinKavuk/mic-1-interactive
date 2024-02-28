@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { ASTNode } from './macro-parser.service';
+import { ASTNode } from './macro-AST-Generator.service';
 
 @Injectable({
   providedIn: 'root'

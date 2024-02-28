@@ -15,7 +15,7 @@ export interface ASTNode{
 })
 
 
-export class MacroParserService {
+export class MacroASTGeneratorService {
   root: ASTNode = this.createNode("root", undefined, undefined, [{type: "constants", children: []}, {type: "methods", children: []}])
   tokens: Token[] = undefined
 

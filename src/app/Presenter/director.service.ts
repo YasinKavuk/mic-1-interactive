@@ -9,7 +9,7 @@ import { ShifterService } from '../Model/Emulator/shifter.service';
 import { RegProviderService } from '../Model/reg-provider.service';
 import { StackProviderService } from '../Model/stack-provider.service';
 import { BehaviorSubject, Subscription } from 'rxjs';
-import { MacroParserService } from '../Model/macro-parser.service';
+import { MacroASTGeneratorService } from '../Model/macro-AST-Generator.service';
 import { MacroTokenizerService } from '../Model/macro-tokenizer.service';
 import { MacroProviderService } from '../Model/macro-provider.service';
 import { MicroProviderService } from '../Model/micro-provider.service';
@@ -32,7 +32,6 @@ export class DirectorService {
     private shifter: ShifterService,
     private mainMemory: MainMemoryService,
     private regProvider: RegProviderService,
-    private macroParser: MacroParserService,
     private controlStore: ControlStoreService,
     private stackProvider: StackProviderService,
     private macroProvider: MacroProviderService,
@@ -41,6 +40,7 @@ export class DirectorService {
     private macroTokenizer: MacroTokenizerService,
     private semanticChecker: SemanticCheckerService,
     private videoController: VideoControllerService,
+    private macroASTGenerator: MacroASTGeneratorService, 
     private presentationController: PresentationControllerService,
   ) {
     // load AnimationEnabled from LocalStorage
@@ -436,7 +436,7 @@ export class DirectorService {
       this.controlStore.loadMicro();
       let opcodes = this.controlStore.getMicroAddr()
       let macroTokens = this.macroTokenizer.tokenize()
-      let ast = this.macroParser.parse(macroTokens)
+      let ast = this.macroASTGenerator.parse(macroTokens)
       this.semanticChecker.checkSemantic(opcodes, ast)
       this.codeGenerator.generate(ast, opcodes);
 

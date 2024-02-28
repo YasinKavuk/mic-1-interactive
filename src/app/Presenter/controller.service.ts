@@ -4,7 +4,7 @@ import { MacroProviderService } from '../Model/macro-provider.service';
 import { MicroProviderService } from '../Model/micro-provider.service';
 import { ControlStoreService } from '../Model/Emulator/control-store.service';
 import { MacroTokenizerService } from '../Model/macro-tokenizer.service';
-import { MacroParserService } from '../Model/macro-parser.service';
+import { MacroASTGeneratorService } from '../Model/macro-AST-Generator.service';
 import { DirectorService } from './director.service';
 import { BehaviorSubject } from 'rxjs';
 import { MainMemoryService } from '../Model/Emulator/main-memory.service';
@@ -345,7 +345,7 @@ export class ControllerService {
     private microProvider: MicroProviderService,
     private controlStore: ControlStoreService,
     private macroTokenizer: MacroTokenizerService,
-    private macroParser: MacroParserService,
+    private macroASTGenerator: MacroASTGeneratorService,
     private director: DirectorService,
     private mainMemory: MainMemoryService,
     private presentationController: PresentationControllerService,
@@ -422,7 +422,7 @@ export class ControllerService {
         try {
           this.microProvider.setMicro(JSON.parse(fileReader.result.toString()).micro);
           this.controlStore.loadMicro();
-          this.macroParser.parse(this.macroTokenizer.tokenizeWithFile(JSON.parse(fileReader.result.toString()).macro));
+          this.macroASTGenerator.parse(this.macroTokenizer.tokenizeWithFile(JSON.parse(fileReader.result.toString()).macro));
           this.director.endOfProgram = false;
           this.director.run(); // this.run() would load program from editor, so we use this.director.run() this just runs the already manually loaded program
           this.batchTestService.test(this.testSettings);
