@@ -73,9 +73,7 @@ export class MacroASTGeneratorService {
   }
 
   addMethods(methodsArray: Token[][]){
-    const variablesNode: ASTNode = this.root.children[1].children[1]
     const methodsNode: ASTNode = this.root.children[1]
-    let currentLine: number = -1
 
     for(let i = 0; i < methodsArray.length; i++){
       this.addMethod(methodsArray[i], methodsNode)
@@ -96,7 +94,7 @@ export class MacroASTGeneratorService {
     }
     else{
       methodName = methodArray[0].value.slice(8, methodArray[0].value.indexOf("("))
-      methodParameters = this.extractParameters(methodArray[0].value)
+      methodParameters = this.methodParameters[methodName]
     }
     
     this.addNode(methodsNode, this.createNode("method", methodName, undefined, [{type: "opCodes", children: []}, {type: "variables", children: []}, {type: "labels", children: []}, {type: "methodParameters", children: methodParameters}]))
@@ -192,6 +190,7 @@ export class MacroASTGeneratorService {
       if(token.type == "FIELD_MAIN"){
         methodCount++
         this.methods["main"] = methodCount;
+        methodArrays[this.methods["main"]] = methodArrays[this.methods["main"]] || []; // this ensures that methodArrays[1] or higher is initialized
         methodArrays[this.methods["main"]].push(token)
         mainField = true
         methodsStartEnd["main"] = [token.line, undefined]
