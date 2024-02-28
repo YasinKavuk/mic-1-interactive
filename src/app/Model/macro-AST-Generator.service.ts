@@ -130,7 +130,7 @@ export class MacroASTGeneratorService {
           this.addNode(opCodesNode.children[opCodesNode.children.length-1].children[1], this.createNode("parameter", methodArray[i].value))
         }
         else{
-          this.addNode(variablesNode.children[variablesNode.children.length-1].children[1], this.createNode("value", methodArray[i].value))
+          this.addNode(variablesNode.children[variablesNode.children.length-1], this.createNode("value", methodArray[i].value))
         }
       }
 
