@@ -5,7 +5,7 @@ import { BehaviorSubject } from 'rxjs';
 
 const spec: any = [
   // New Label: e.g Label1:
-  [/^.*:/ , "NEW_LABEL"],
+  [/^[a-z]+([0-9]*[a-zA-Z]*)*:/ , "NEW_LABEL"],
 
   // Comment
   [/^\/\/.*/, "COMMENT"],
@@ -14,7 +14,7 @@ const spec: any = [
   [/^[A-Z]+(_[A-Z]+)*/, "OPCODE"],
   [/^(0x[a-fA-F0-9]+)/, "HEXNUMBER"],
   [/^((-)?\d+)/, "NUMBER"],
-  [/^([a-z]([a-zA-Z0-9]*))/, "IDENTIFIER"],
+  [/^[a-z]+([0-9]*[a-zA-Z]*)*/, "IDENTIFIER"],
 
   //Fields
   [/^.constant/, "FIELD_CONST"],
@@ -29,7 +29,7 @@ const spec: any = [
   [/^.end-method/, "FIELDEND_METH"],
 
   [/^\n/, "BREAK"],
-  [/^\s/, "SPACE"]
+  [/^\s/, "SPACE"],
 ];
 
 export interface Token{
