@@ -17,6 +17,7 @@ import { VideoControllerService } from '../Model/GraphicsAdapter/video-controlle
 import { PresentationControllerService } from './presentation-controller.service';
 import { SemanticCheckerService } from '../Model/semantic-checker.service';
 import { CodeGeneratorService } from '../Model/code-generator.service';
+import { MacroError } from '../Model/MacroErrors';
 
 
 @Injectable({
@@ -182,7 +183,7 @@ export class DirectorService {
     }
 
 
-    // if we find opcode of NOP wait for 0ms -> otherwise the screen does not render
+    // if we find opcode of NOP wait for 0ms -> otherwise the screen does not render (since we only have one Thread)
     if (this.presentationController.getGraphicsFunctionalityEnabled() || this.currentAddress === 0){
       await  new Promise(resolve => setTimeout(resolve, 0));
     }    
@@ -441,17 +442,13 @@ export class DirectorService {
       this.codeGenerator.generate(ast, opcodes);
 
     } catch (error) {
-      if (error instanceof Error) {
+      if (error instanceof MacroError){
+        this.presentationController.flashErrorInMacro(error);
+      }
+      else if (error instanceof Error) {
         this._errorFlasher.next({ line: 1, error: error.message });
       }
       return;
-    }
-    try {
-    } catch (error) {
-      if (error instanceof Error) {
-        this._errorFlasher.next({ line: 1000, error: error.message });
-        return;
-      }
     }
 
 

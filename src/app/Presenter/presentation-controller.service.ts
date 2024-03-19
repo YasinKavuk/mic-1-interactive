@@ -3,6 +3,7 @@ import { BehaviorSubject } from 'rxjs';
 import { MacroProviderService } from '../Model/macro-provider.service';
 import { MainMemoryService } from '../Model/Emulator/main-memory.service';
 import { RegProviderService } from '../Model/reg-provider.service';
+import { MacroError } from '../Model/MacroErrors';
 
 @Injectable({
   providedIn: 'root'
@@ -16,7 +17,7 @@ export class PresentationControllerService {
   private _presentationMode = new BehaviorSubject({ presentationMode: false });
   public presentationMode$ = this._presentationMode.asObservable();
 
-  private _errorFlasher = new BehaviorSubject({ line: 0, error: "", content: "" });
+  private _errorFlasher = new BehaviorSubject({ name: "", message: "", line: 0 });
   public errorFlasher$ = this._errorFlasher.asObservable();
 
   private _switchEditors = new BehaviorSubject({ switchEditors: false });
@@ -95,9 +96,12 @@ export class PresentationControllerService {
     return this.presentationMode;
   }
 
-  flashErrorInMacro(line: number, error: string) {
-    let content = "macrocode:" + this.macroProvider.getEditorLineWithParserLine(line) + "\t->\t" + error;
-    this._errorFlasher.next({ line: line, error: error, content: content });
+  flashErrorInMacro(macroError: MacroError) {
+    this._errorFlasher.next({
+      name: macroError.name,
+      message: macroError.message,
+      line: macroError.line,
+    });
   }
 
   switchEditors() {

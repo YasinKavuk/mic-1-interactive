@@ -126,9 +126,9 @@ export class EditorComponent implements AfterViewInit {
 
     // flash an error message when an error occurs
     this.presentationController.errorFlasher$.subscribe(error => {
-      if (error.error) {
-        let editorErrorLine = this.controller.getEditorLineWithParserLine(error.line);
-        this.flashErrorMessage(error.error, editorErrorLine);
+      if (error.message) {
+        console.log(error.line);
+        this.flashErrorMessage(error.name + " - " + error.message, error.line);
       }
     });
 

@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ASTNode } from './macro-AST-Generator.service';
+import { MacroError } from './MacroErrors';
 
 @Injectable({
   providedIn: 'root'
@@ -32,7 +33,7 @@ export class SemanticCheckerService {
     const methodNode = this.ast.children[1]
 
     if (methodNode.children.length === 0) {
-      throw new Error("noEntryPointError - The program has no main method. Add a main method by using '.main' ... '.end-main'");
+      throw new MacroError({name:"noEntryPointError", message:"The program has no main method. Add a main method by using '.main' ... '.end-main'", line: 1});
     }
 
     let hasMainMethod = false;
@@ -44,7 +45,7 @@ export class SemanticCheckerService {
     }
 
     if (!hasMainMethod) {
-      throw new Error("noEntryPointError - The program has no main method. Add a main method by using '.main' ... '.end-main'");
+      throw new MacroError({name:"noEntryPointError", message:"The program has no main method. Add a main method by using '.main' ... '.end-main'", line: 1});
     }
 
     if (methodNode.children[0].value !== "main" && hasMainMethod) {
