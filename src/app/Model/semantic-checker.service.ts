@@ -58,9 +58,6 @@ export class SemanticCheckerService {
 
     for (let constant of constants.children) {
 
-      console.log(JSON.stringify(constant, (key, value) => (key === 'parent' ? undefined : value), 2))
-
-
       let editorLine = constant.editorLine;
       if (isNaN(Number(constant.editorLine))) {
         editorLine = 1;
@@ -68,10 +65,10 @@ export class SemanticCheckerService {
 
 
       if (!this.isValidConstantIdentifier(constant.children[0])) {
-        throw new MacroError({ 
-          name: "syntaxError", 
-          message: "A constant needs an identifier and a value. E.g.: 'const 10'", 
-          line: editorLine 
+        throw new MacroError({
+          name: "syntaxError",
+          message: "A constant needs an identifier and a value. E.g.: 'const 10'",
+          line: editorLine
         });
       }
 
@@ -242,57 +239,81 @@ export class SemanticCheckerService {
   private checkIfValidMethodLine(lineNode: ASTNode, localVariables: string[], localParameters: string[], localLabels: string[]) {
 
     const line = lineNode.children;
-
-    if (line[0] === undefined) {
-      throw new Error("emptyLineError");
+    let editorLine = 1;
+    if (line[line.length - 1].type === "line") {
+      editorLine = Number(line[line.length - 1].value);
     }
 
-    this.checkIfValidOpcode(line[0]);
+    if (line[0] === undefined) {
+      throw new MacroError({ name: "emptyLineError", message: "line is null", line: editorLine });
+    }
+
+    this.checkIfValidOpcode(line[0], editorLine);
 
     const parameters = line[1];
     for (let parameter of parameters.children) {
-      this.checkIfValidOpcodeParameter(parameter, localVariables, localParameters, localLabels);
+      this.checkIfValidOpcodeParameter(parameter, localVariables, localParameters, localLabels, editorLine);
     }
 
   }
 
-  private checkIfValidOpcode(opcode: ASTNode) {
+  private checkIfValidOpcode(opcode: ASTNode, editorLine: number) {
 
     if (typeof opcode.value !== "string") {
-      throw new Error(`typeError - Expected string, but ${typeof opcode.value} was given`);
+      throw new MacroError({
+        name: "typeError",
+        message: `Expected string, but ${typeof opcode.value} was given`,
+        line: editorLine,
+      })
     }
 
     if (opcode.type !== "identifier") {
-      throw new Error("syntaxError - A line must begin with an Opcode");
+      throw new MacroError({
+        name: "syntaxError",
+        message: `A line must begin with an Opcode`,
+        line: editorLine,
+      })
     }
 
     if (this.validOpcodes.includes(opcode.value)) { return }
 
-    throw new Error(`${opcode.value} is not a valid Opcode`);
+    throw new MacroError({
+      name: "syntaxError",
+      message: `${opcode.value} is not a valid Opcode`,
+      line: editorLine,
+    })
   }
 
-  private checkIfValidOpcodeParameter(parameter: ASTNode, localVariables: string[], localParameters: string[], localLabels: string[],) {
+  private checkIfValidOpcodeParameter(parameter: ASTNode, localVariables: string[], localParameters: string[], localLabels: string[], editorLine: number) {
 
     if (typeof parameter.value !== "string") {
-      throw new Error(`typeError - Expected string, but ${typeof parameter.value} was given`);
+      throw new MacroError({
+        name: "typeError",
+        message: `Expected string, but ${typeof parameter.value} was given`,
+        line: editorLine,
+      })
     }
 
     const parameterValue = parameter.value;
 
     if (!isNaN(Number(parameterValue))) {
-      this.checkIfValidNumericParameter(Number(parameterValue));
+      this.checkIfValidNumericParameter(Number(parameterValue), editorLine);
       return;
     }
-    this.checkIfValidIdentifierParameter(parameterValue, localVariables, localParameters, localLabels)
+    this.checkIfValidIdentifierParameter(parameterValue, localVariables, localParameters, localLabels, editorLine)
   }
 
-  private checkIfValidNumericParameter(number: number) {
+  private checkIfValidNumericParameter(number: number, editorLine: number) {
     if (number < -128 || number > 127) {
-      throw new Error(`syntaxError - number ${number} does not fit into a signed byte`)
+      throw new MacroError({
+        name: "syntaxError",
+        message: `number ${number} does not fit into a signed byte`,
+        line: editorLine,
+      })
     }
   }
 
-  private checkIfValidIdentifierParameter(parameterValue: string, localVariables: string[], localParameters: string[], localLabels: string[]) {
+  private checkIfValidIdentifierParameter(parameterValue: string, localVariables: string[], localParameters: string[], localLabels: string[], editorLine: number) {
     if (
       this.constantNames.includes(parameterValue) ||
       this.methodNames.includes(parameterValue) ||
@@ -301,7 +322,11 @@ export class SemanticCheckerService {
       localLabels.includes(parameterValue)
     ) { return; }
 
-    throw new Error(`undeclaredIdentifierError - identifier "${parameterValue}" was not declared in this scope`);
+    throw new MacroError({
+      name: "undeclaredIdentifierError",
+      message: `identifier "${parameterValue}" was not declared in this scope`,
+      line: editorLine,
+    })
   }
 
 
