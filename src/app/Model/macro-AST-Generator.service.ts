@@ -213,12 +213,22 @@ export class MacroASTGeneratorService {
         methodArrays[this.methods["main"]].push(token)
         mainField = false;
         methodsStartEnd["main"] = [methodsStartEnd["main"][0], token.line]
+
+        // when there are tokens in the same line after an "FIELD_END" than these would be ignored. This checks for this kind of tokens and adds a node to root if they exist. The semantic checker would than recognize this as an error.
+        if(this.tokens.filter((item: Token) => item.line === token.line).length > 1){
+          this.addNode(this.root, this.createNode("symbolAfterFieldEnd", undefined, token.line))
+        }
       }
       else if(token.type == "FIELDEND_METH" && methodField == true && mainField == false){
         methodArrays[this.methods[tmpMethodName]].push(token)
         methodField = false;
         methodsStartEnd[tmpMethodName] = [methodsStartEnd[tmpMethodName][0], token.line]
         tmpMethodName = undefined
+
+        // when there are tokens in the same line after an "FIELD_END" than these would be ignored. This checks for this kind of tokens and adds a node to root if they exist. The semantic checker would than recognize this as an error.
+        if(this.tokens.filter((item: Token) => item.line === token.line).length > 1){
+          this.addNode(this.root, this.createNode("symbolAfterFieldEnd", undefined, token.line))
+        }
       }
       else{
         if(mainField == true){

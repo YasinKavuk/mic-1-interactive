@@ -30,6 +30,8 @@ const spec: any = [
 
   [/^\n/, "BREAK"],
   [/^\s/, "SPACE"],
+
+  [/^./, "UNIDENTIFIED"],
 ];
 
 export interface Token{
