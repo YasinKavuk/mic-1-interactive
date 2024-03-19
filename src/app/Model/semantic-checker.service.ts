@@ -33,7 +33,7 @@ export class SemanticCheckerService {
     const methodNode = this.ast.children[1]
 
     if (methodNode.children.length === 0) {
-      throw new MacroError({name:"noEntryPointError", message:"The program has no main method. Add a main method by using '.main' ... '.end-main'", line: 1});
+      throw new MacroError({ name: "noEntryPointError", message: "The program has no main method. Add a main method by using '.main' ... '.end-main'", line: 1 });
     }
 
     let hasMainMethod = false;
@@ -45,11 +45,11 @@ export class SemanticCheckerService {
     }
 
     if (!hasMainMethod) {
-      throw new MacroError({name:"noEntryPointError", message:"The program has no main method. Add a main method by using '.main' ... '.end-main'", line: 1});
+      throw new MacroError({ name: "noEntryPointError", message: "The program has no main method. Add a main method by using '.main' ... '.end-main'", line: 1 });
     }
 
     if (methodNode.children[0].value !== "main" && hasMainMethod) {
-      throw new Error("noEntryPointError - The first method of the program has to be the main method.");
+      throw new MacroError({ name: "noEntryPointError", message: "The first method of the program has to be the main method.", line: 1 });
     }
   }
 
@@ -58,17 +58,45 @@ export class SemanticCheckerService {
 
     for (let constant of constants.children) {
 
+      console.log(JSON.stringify(constant, (key, value) => (key === 'parent' ? undefined : value), 2))
+
+
+      let editorLine = constant.editorLine;
+      if (isNaN(Number(constant.editorLine))) {
+        editorLine = 1;
+      } else { editorLine = constant.editorLine }
+
+
       if (!this.isValidConstantIdentifier(constant.children[0])) {
-        throw new Error(`syntaxError - A constant needs an identifier and a value. E.g.: "const 10"`)
+        throw new MacroError({ 
+          name: "syntaxError", 
+          message: "A constant needs an identifier and a value. E.g.: 'const 10'", 
+          line: editorLine 
+        });
       }
+
       if (constant.children.length !== 2) {
-        throw new Error(`argumentError - A constant needs exactly one argument, but ${constant.children.length - 1} were given`);
+        throw new MacroError({
+          name: "argumentError",
+          message: `A constant needs exactly one argument, but ${constant.children.length - 1} were given`,
+          line: editorLine
+        });
       }
+
       if (typeof constant.children[0].value !== "string") {
-        throw new Error(`typeError - Expected string, but ${typeof constant.children[0].value} was given`);
+        throw new MacroError({
+          name: "typeError",
+          message: `Expected string, but ${typeof constant.children[0].value} was given`,
+          line: editorLine
+        });
       }
+
       if (this.constantNames.includes(constant.children[0].value)) {
-        throw new Error(`redefinitionError - constant "${constant.children[0].value}" was already declared`)
+        throw new MacroError({
+          name: "redefinitionError",
+          message: `constant "${constant.children[0].value}" was already declared`,
+          line: editorLine
+        });
       }
 
       this.constantNames.push(constant.children[0].value);
