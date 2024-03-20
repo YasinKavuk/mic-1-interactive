@@ -387,6 +387,9 @@ export class ControllerService {
   }
 
   reset() {
+    this.director.reset();
+    this.macroProvider.macroGotChanged = false;
+
     // step through INVOKEVIRUAL for main method
     this.stepMacro();
   }
