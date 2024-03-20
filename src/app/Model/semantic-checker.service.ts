@@ -141,13 +141,25 @@ export class SemanticCheckerService {
 
   private checkMethodName(name: string | number) {
     if (typeof name !== "string") {
-      throw new Error(`typeError - Expected string, but ${typeof name} was given`);
+      throw new MacroError({
+        name: "typeError",
+        message: `Expected string, but ${typeof name} was given`,
+        line: 1
+      });
     }
     if (this.methodNames.includes(name)) {
-      throw new Error(`redefinitionError - method "${name}" was already declared`);
+      throw new MacroError({
+        name: "redefinitionError",
+        message: `method "${name}" was already declared`,
+        line: 1
+      });
     }
     if (/^([a-zA-Z]([a-zA-Z0-9]*))/.exec(name) === null) {
-      throw new Error(`syntaxError - "${name}" is not a valid method Identifier`);
+      throw new MacroError({
+        name: "syntaxError",
+        message: `"${name}" is not a valid method Identifier`,
+        line: 1
+      });
     }
     this.methodNames.push(name);
   }
@@ -159,21 +171,37 @@ export class SemanticCheckerService {
     for (const variable of variables.children) {
 
       if (variable.children.length !== 1) {
-        throw new Error(`syntaxError - in the variable block you can only define variables but not assign values`);
+        throw new MacroError({
+          name: "syntaxError",
+          message: `in the variable block you can only define variables but not assign values`,
+          line: 1
+        });
       }
 
       if (typeof variable.children[0].value !== "string") {
-        throw new Error(`typeError - Expected string, but ${typeof variable.value} was given`);
+        throw new MacroError({
+          name: "typeError",
+          message: `Expected string, but ${typeof variable.value} was given`,
+          line: 1
+        });
       }
 
       const name = variable.children[0].value
 
       if (localVariableNames.includes(name)) {
-        throw new Error(`redefinitionError - variable  "${name}" was already declared in this scope`);
+        throw new MacroError({
+          name: "redefinitionError",
+          message: `variable "${name}" was already declared in this scope`,
+          line: 1
+        });
       }
 
       if (this.constantNames.includes(name)) {
-        throw new Error(`redefinitionError - variable identifier "${name}" was already declared as a constant`);
+        throw new MacroError({
+          name: "redefinitionError",
+          message: `variable identifier "${name}" was already declared as a constant`,
+          line: 1
+        });
       }
 
       localVariableNames.push(name);
@@ -187,16 +215,32 @@ export class SemanticCheckerService {
     for (let parameter of parameters.children) {
 
       if (typeof parameter.value !== "string") {
-        throw new Error(`typeError - Expected string, but ${typeof parameter.value} was given`);
+        throw new MacroError({
+          name: "typeError",
+          message: `Expected string, but ${typeof parameter.value} was given`,
+          line: 1
+        });
       }
       if (/^([a-zA-Z]([a-zA-Z0-9]*))/.exec(parameter.value) === null) {
-        throw new Error(`syntaxError - "${parameter.value}" is not a valid identifier for a method parameter`);
+        throw new MacroError({
+          name: "syntaxError",
+          message: `"${parameter.value}" is not a valid identifier for a method parameter`,
+          line: 1
+        });
       }
       if (this.constantNames.includes(parameter.value)) {
-        throw new Error(`redefinitionError - parameter name "${parameter.value}" collides with a constant identifier`);
+        throw new MacroError({
+          name: "redefinitionError",
+          message: `parameter name "${parameter.value}" collides with a constant identifier`,
+          line: 1
+        });
       }
       if (localParameterNames.includes(parameter.value)) {
-        throw new Error(`redefinitionError - parameter name "${parameter.value}" was already declared in this scope`);
+        throw new MacroError({
+          name: "redefinitionError",
+          message: `parameter name "${parameter.value}" was already declared in this scope`,
+          line: 1
+        });
       }
 
       localParameterNames.push(parameter.value)
@@ -212,22 +256,42 @@ export class SemanticCheckerService {
     for (let label of labels.children) {
 
       if (typeof label.value !== "string") {
-        throw new Error(`typeError - Expected string, but ${typeof label.value} was given`);
+        throw new MacroError({
+          name: "typeError",
+          message: `Expected string, but ${typeof label.value} was given`,
+          line: 1
+        });
       }
       if (/^.*:/.exec(label.value) === null) {
-        throw new Error(`syntaxError - "${label.value}" is not a valid Label declaration`);
+        throw new MacroError({
+          name: "syntaxError",
+          message: `"${label.value}" is not a valid Label declaration`,
+          line: 1
+        });
       }
 
       const labelName = label.value.slice(0, -1);
 
       if (this.constantNames.includes(labelName)) {
-        throw new Error(`redefinitionError - Label identifier "${labelName}" was already used as a constant identifier`);
+        throw new MacroError({
+          name: "redefinitionError",
+          message: `Label identifier "${labelName}" was already used as a constant identifier`,
+          line: 1
+        });
       }
       if (this.validOpcodes.includes(labelName)) {
-        throw new Error(`redefinitionError - Label  "${labelName}" overshadows an opcode in the Microprogram`);
+        throw new MacroError({
+          name: "redefinitionError",
+          message: `Label  "${labelName}" overshadows an opcode in the Microprogram`,
+          line: 1
+        });
       }
       if (localLabelNames.includes(labelName)) {
-        throw new Error(`redefinitionError - Label "${labelName}" was already created in this scope`);
+        throw new MacroError({
+          name: "redefinitionError",
+          message: `Label "${labelName}" was already created in this scope`,
+          line: 1
+        });
       }
 
       localLabelNames.push(labelName)
