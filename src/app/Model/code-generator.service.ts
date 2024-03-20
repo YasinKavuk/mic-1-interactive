@@ -36,6 +36,9 @@ export class CodeGeneratorService {
   constants: string[] = []
   variables: string[] = []
 
+  lineAddrMap: number[][] = []
+
+
   constructor(
     private memory: MainMemoryService, 
     private presentationController: PresentationControllerService
@@ -84,6 +87,9 @@ export class CodeGeneratorService {
     console.table(this.constants)
     console.log("variables")
     console.table(this.variables)
+
+    console.log("Mapping for editor line to address start and end")
+    console.table(this.lineAddrMap)
 
     this.memory.setCode(this.mcMethods)
     this.memory.setConstants(this.mcConstants)
@@ -169,6 +175,9 @@ export class CodeGeneratorService {
 
 
     for(let opCode of methNode.children[0].children){
+      let addrStart: number = this.currentAddress
+      let addrEnd: number = undefined
+      
       if(labelLine.includes(opCode.children[2].value as number)){
         this.labelToAddress[lineToLabelName[opCode.children[2].value as number]] = this.currentAddress + 1
       }
@@ -220,6 +229,8 @@ export class CodeGeneratorService {
           this.currentAddress++
         }
       }
+      addrEnd = this.currentAddress-1
+      this.lineAddrMap.push([opCode.children[2].value as number, addrStart, addrEnd])
     }
 
     this.mcMethods.push(255)
