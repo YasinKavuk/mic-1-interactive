@@ -83,8 +83,7 @@ export class EditorComponent implements AfterViewInit {
     let editor = this.aceEditor;
 
     let setBreakpoint = (line: number) => {
-      let editorLineWithoutEmptyRows = this.controller.getEditorLineWithoutEmptyRows(line);
-      this.directorService.setMacroBreakpoint(editorLineWithoutEmptyRows + 1);
+      this.directorService.setMacroBreakpoint(line + 1);
     }
 
     let clearBreakpoint = (line: number) => {
@@ -145,8 +144,7 @@ export class EditorComponent implements AfterViewInit {
     // highlight line if we hit a breakpoint
     this.directorService.breakpointFlasherMacro$.subscribe(breakpoint => {
       if (breakpoint.line) {
-        let editorBreakpointLine = this.controller.getEditorLineWithParserLine(breakpoint.line);
-        this.highlightBreakpoint(editorBreakpointLine)
+        this.highlightBreakpoint(breakpoint.line)
         const source = timer(10000);
         source.subscribe(() => this.removeBreakpointHighlighting())
       }

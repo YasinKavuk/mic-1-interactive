@@ -544,10 +544,6 @@ export class ControllerService {
     return this.macroProvider.getEditorLineWithoutEmptyRows(line);
   }
 
-  getEditorLineWithParserLine(parserLine: number) {
-    return this.macroProvider.getEditorLineWithParserLine(parserLine);
-  }
-
   getTestSettings(){
     return this.testSettings;
   }

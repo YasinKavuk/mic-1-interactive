@@ -41,7 +41,7 @@ export class DirectorService {
     private macroTokenizer: MacroTokenizerService,
     private semanticChecker: SemanticCheckerService,
     private videoController: VideoControllerService,
-    private macroASTGenerator: MacroASTGeneratorService, 
+    private macroASTGenerator: MacroASTGeneratorService,
     private presentationController: PresentationControllerService,
   ) {
     // load AnimationEnabled from LocalStorage
@@ -65,7 +65,6 @@ export class DirectorService {
 
   private currentAddress = 1;
   private lineNumber = 0;
-  private currentMacroAddr = 0;
 
   private MBRMemoryQueue: Array<number> = [];
   private MDRMemoryQueue: Array<number> = [];
@@ -184,9 +183,9 @@ export class DirectorService {
 
 
     // if we find opcode of NOP wait for 0ms -> otherwise the screen does not render (since we only have one Thread)
-    if (this.presentationController.getGraphicsFunctionalityEnabled() || this.currentAddress === 0){
-      await  new Promise(resolve => setTimeout(resolve, 0));
-    }    
+    if (this.presentationController.getGraphicsFunctionalityEnabled() || this.currentAddress === 0) {
+      await new Promise(resolve => setTimeout(resolve, 0));
+    }
 
 
     let line = this.controlStore.getMicro()[this.currentAddress];
@@ -226,26 +225,29 @@ export class DirectorService {
       this._breakpointFlasher.next({ line: this.lineNumber });
     }
 
-    // check if we hit a Breakpoint in the macro-code
-    if (this.macroBreakpointsAddr.includes(this.currentMacroAddr)) {
-      console.log("%cHit Breakpoint in the memory address: " + (this.currentMacroAddr), "color: #248c46");
-      this.hitBreakpoint = true;
-      this._finishedRun.next(true)
-      // this._breakpointFlasherMacro.next({ line: this.macroParser.getLineOfAddress(this.currentMacroAddr) });
+
+    const currentAddress = this.regProvider.getRegister("PC").getValue();
+    console.log(currentAddress);
+    console.log(this.codeGenerator.lineAddrMap)
+    console.log(this.macroBreakpoints)
+    if (this.lineNumber == 1) {
+      for (let breakpointLine of this.macroBreakpoints) {
+        for (let [editorLine, minMemory, maxMemory] of this.codeGenerator.lineAddrMap) {
+          if (breakpointLine === editorLine && currentAddress >= minMemory && currentAddress <= maxMemory) {
+            console.log("%cHit Breakpoint in the memory address: " + (currentAddress) + ", MacroEditorLine: " + editorLine, "color: #248c46");
+            this.hitBreakpoint = true;
+            this._finishedRun.next(true)
+            this._breakpointFlasherMacro.next({ line: editorLine });
+          }
+        }
+      }
     }
+
 
     // set MBR
     if (this.MBRMemoryQueue[0]) {
       let addr = this.MBRMemoryQueue.shift();
       let MBR = this.regProvider.getRegister("MBR");
-
-      // if (this.macroParser.getOffsetOnAddress(this.currentMacroAddr) !== undefined) {
-      //   let offset = this.macroParser.getOffsetOnAddress(this.currentMacroAddr) - 1;
-      //   this.currentMacroAddr = offset;
-      //   console.log("%cHit Jump-Instruction offset. Jump to memory address: " + (this.currentMacroAddr + 1), "color: #248c46");
-      // }
-      this.currentMacroAddr += 1;
-
 
       MBR.setValue(this.mainMemory.get_8(addr));
     } else {
@@ -416,7 +418,6 @@ export class DirectorService {
   public reset() {
     this.isRunning = false;
     this.currentAddress = 1;
-    this.currentMacroAddr = 0;
 
     // reset all registers
     let registers = this.regProvider.getRegisters();
@@ -442,7 +443,7 @@ export class DirectorService {
       this.codeGenerator.generate(ast, opcodes);
 
     } catch (error) {
-      if (error instanceof MacroError){
+      if (error instanceof MacroError) {
         this.presentationController.flashErrorInMacro(error);
       }
       else if (error instanceof Error) {

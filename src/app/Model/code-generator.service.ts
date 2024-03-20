@@ -47,6 +47,7 @@ export class CodeGeneratorService {
   // generates a machine code that can be executed by the MIC1
   generate(ast: ASTNode, opcodes: { [opcode: string]: number }){
     this.opCodeToValue = opcodes
+    this.lineAddrMap  = [];
 
     this.setTypeLists(ast)
 
