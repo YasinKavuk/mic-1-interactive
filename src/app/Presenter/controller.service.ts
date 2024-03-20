@@ -387,8 +387,6 @@ export class ControllerService {
   }
 
   reset() {
-    this.director.reset();
-
     // step through INVOKEVIRUAL for main method
     this.stepMacro();
   }
