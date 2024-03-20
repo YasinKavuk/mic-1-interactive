@@ -227,9 +227,6 @@ export class DirectorService {
 
 
     const currentAddress = this.regProvider.getRegister("PC").getValue();
-    console.log(currentAddress);
-    console.log(this.codeGenerator.lineAddrMap)
-    console.log(this.macroBreakpoints)
     if (this.lineNumber == 1) {
       for (let breakpointLine of this.macroBreakpoints) {
         for (let [editorLine, minMemory, maxMemory] of this.codeGenerator.lineAddrMap) {

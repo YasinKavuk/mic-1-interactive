@@ -330,6 +330,8 @@ export class ControllerService {
   public switchOnTutorMode$ = this._switchOnTutorMode.asObservable();
   private _testStatus = new BehaviorSubject({ fileIndex: -1, status: "", error: "" })
   public testStatus = this._testStatus.asObservable();
+  private _clearBreakpoint = new BehaviorSubject(undefined)
+  public clearBreakpoint$ = this._clearBreakpoint.asObservable();
 
   private testSettings = {
     testTos: false,
@@ -368,6 +370,7 @@ export class ControllerService {
 
     this.director.init();
     this.director.step();
+    this._clearBreakpoint.next(undefined);
 
     this.macroProvider.isLoaded();
     this.microProvider.isLoaded();
@@ -380,14 +383,18 @@ export class ControllerService {
     }
 
     this.director.init();
+    this._clearBreakpoint.next(undefined);
     this.director.runMacroInstruction();
+
 
     this.macroProvider.isLoaded();
     this.microProvider.isLoaded();
   }
 
   reset() {
+    this._clearBreakpoint.next(undefined);
     this.director.reset();
+    
     this.macroProvider.macroGotChanged = false;
 
     // step through INVOKEVIRUAL for main method
@@ -400,7 +407,9 @@ export class ControllerService {
       this.director.reset(); // also parses the macrocode
     }
 
+    this._clearBreakpoint.next(undefined);
     this.director.run();
+    
 
     this.macroProvider.isLoaded();
     this.microProvider.isLoaded();

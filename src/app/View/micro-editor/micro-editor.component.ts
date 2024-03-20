@@ -78,7 +78,7 @@ export class MicroEditorComponent implements AfterViewInit {
       lightMode => {
         if (lightMode) {
           this.aceEditor.setTheme(THEME_LIGHT)
-        }else{
+        } else {
           this.aceEditor.setTheme(THEME_DARK)
         }
       }
@@ -125,10 +125,10 @@ export class MicroEditorComponent implements AfterViewInit {
 
     // change editor options when Presentationmode is toggled
     this.presentationController.presentationMode$.subscribe(presentationMode => {
-      if(presentationMode.presentationMode == true){
+      if (presentationMode.presentationMode == true) {
         this.aceEditor.setOptions(editorOptionsPresentation)
       }
-      else{
+      else {
         this.aceEditor.setOptions(editorOptions)
       }
     });
@@ -137,13 +137,14 @@ export class MicroEditorComponent implements AfterViewInit {
     this.directorService.breakpointFlasher$.subscribe(breakpoint => {
       if (breakpoint.line) {
         this.highlightBreakpoint(breakpoint.line)
-        const source = timer(10000);
-        source.subscribe(() => this.removeBreakpointHighlighting())
       }
     });
 
+    // clear Breakpoint when user clicks on Run / Step / StepMacro / Reset
+    this.controller.clearBreakpoint$.subscribe(_ => { this.removeBreakpointHighlighting(); })
+
     // Current Line Highlighting
-    this.directorService.currentLineNotifier$.subscribe( line => {
+    this.directorService.currentLineNotifier$.subscribe(line => {
       this.highlightLine(line.line);
     })
 
@@ -160,13 +161,13 @@ export class MicroEditorComponent implements AfterViewInit {
 
 
     // clear Errors on refresh
-    this.directorService.refreshNotifier$.subscribe( _ => {
+    this.directorService.refreshNotifier$.subscribe(_ => {
       this.removeErrorHighlighting();
     })
 
   }
 
-  private highlightLine(line: number){
+  private highlightLine(line: number) {
     this.removeLineHighlighting();
     this.aceEditor.getSession().addMarker(new ace.Range(line - 1, 0, line, 0), "ace_highlight-line", "text");
   }
@@ -181,7 +182,7 @@ export class MicroEditorComponent implements AfterViewInit {
   }
 
   private flashErrorMessage(errorMessage: string, line: number) {
-    if(line === 1000){return;}
+    if (line === 1000) { return; }
     this.aceEditor.getSession().setAnnotations(
       [{
         row: line - 1,
@@ -224,7 +225,7 @@ export class MicroEditorComponent implements AfterViewInit {
   }
 
 
-  private removeLineHighlighting(){
+  private removeLineHighlighting() {
     const prevMarkers = this.aceEditor.session.getMarkers();
     if (prevMarkers) {
       const prevMarkersArr: any = Object.keys(prevMarkers);
@@ -237,16 +238,16 @@ export class MicroEditorComponent implements AfterViewInit {
   }
 
 
-  getOptions(){
-    if(this.presentationController.getPresentationMode() == false){
+  getOptions() {
+    if (this.presentationController.getPresentationMode() == false) {
       return editorOptions
     }
-    else{
+    else {
       return editorOptionsPresentation
     }
   }
 
-  onSelect(event: any){
+  onSelect(event: any) {
     this.controller.importFile(event.addedFiles[0], "micro");
   }
 

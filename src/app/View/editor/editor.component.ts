@@ -145,8 +145,6 @@ export class EditorComponent implements AfterViewInit {
     this.directorService.breakpointFlasherMacro$.subscribe(breakpoint => {
       if (breakpoint.line) {
         this.highlightBreakpoint(breakpoint.line)
-        const source = timer(10000);
-        source.subscribe(() => this.removeBreakpointHighlighting())
       }
     });
 
@@ -158,6 +156,13 @@ export class EditorComponent implements AfterViewInit {
         this.aceEditor.session.setValue(this.content);
         this.directorService.clearMacroBreakpoints();
         this.aceEditor.session.setValue(this.content);
+      }
+    )
+
+    // clear Breakpoint when user clicks on Run / Step / StepMacro / Reset 
+    this.controller.clearBreakpoint$.subscribe(
+      _ => {
+        this.removeBreakpointHighlighting();
       }
     )
   }
