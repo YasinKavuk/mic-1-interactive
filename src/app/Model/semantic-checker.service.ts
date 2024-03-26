@@ -129,8 +129,8 @@ export class SemanticCheckerService {
 
     const [opCodes, variables, labels, methodParameters] = methodNode.children;
 
-    const localVariables = this.checkMethodVariables(variables);
     const localParameters = this.checkMethodParameters(methodParameters);
+    const localVariables = this.checkMethodVariables(variables, localParameters);
     const localLabels = this.checkMethodLabels(labels);
 
     for (let line of opCodes.children) {
@@ -164,7 +164,7 @@ export class SemanticCheckerService {
     this.methodNames.push(name);
   }
 
-  private checkMethodVariables(variables: ASTNode): string[] {
+  private checkMethodVariables(variables: ASTNode, localParameters: string[]): string[] {
 
     let localVariableNames: string[] = [];
 
@@ -202,6 +202,14 @@ export class SemanticCheckerService {
           message: `variable identifier "${name}" was already declared as a constant`,
           line: 1
         });
+      }
+
+      if (localParameters.includes(name)){
+        throw new MacroError({
+          name: "redefinitionError",
+          message: `variable identifier "${name}" was already declared as a local parameter`,
+          line: 1
+        })
       }
 
       localVariableNames.push(name);
