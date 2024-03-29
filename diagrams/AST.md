@@ -21,6 +21,7 @@ graph TB
     LS2[labels]
     L2[label]
     LN1[line]
+    LN2[line]
     LN3[line]
 
 
@@ -43,6 +44,7 @@ graph TB
     VS3-- {0..n} -->V3
     V3-->I6
     V3-->VAL4
+    V3-->LN2
     MET-->LS2
     LS2-- {0..n} -->L2
     OP2-->LN3

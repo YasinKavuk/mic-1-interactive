@@ -119,7 +119,7 @@ export class MacroASTGeneratorService {
           }
           else{
             variablesNode = methodNode.children[1]
-            this.addNode(variablesNode, this.createNode("variable", undefined, undefined, [{type: "identifier", value: methodArray[i].value}]))
+            this.addNode(variablesNode, this.createNode("variable", undefined, undefined, [{type: "identifier", value: methodArray[i].value, editorLine: methodArray[i].line}]))
           }
         }
       }
