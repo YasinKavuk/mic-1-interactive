@@ -1,12 +1,20 @@
+<mat-radio-group [(ngModel)]="preferedValueView" [ngStyle]="{'color' : lightMode ? 'black' : 'white' }">
+    <mat-radio-button value="1">dec</mat-radio-button>
+    <mat-radio-button value="2">hex</mat-radio-button>
+</mat-radio-group>
 <div class="wrapper">
     <mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
         <!-- This is the tree node template for leaf nodes -->
         <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding [ngStyle]="{'color' : lightMode ? 'black' : 'white' }">
             <!-- use a disabled button to provide padding for tree leaf -->
             <button mat-icon-button disabled></button>
-            <div class="entry" *ngIf="node.level != 0">
+            <div class="entry" *ngIf="node.level != 0 && preferedValueView === '1'">
                 <span class="address">({{node.name.split(" ")[0]}})</span>
                 <span class="value">{{node.name.split(" ")[1]}}</span>
+            </div>
+            <div class="entry" *ngIf="node.level != 0 && preferedValueView === '2'">
+                <span class="address">({{node.name.split(" ")[0]}})</span>
+                <span class="value">{{(+ node.name.split(" ")[1]).toString(16)}}</span>
             </div>
             <div *ngIf="node.level === 0">{{node.name}}</div>
 
