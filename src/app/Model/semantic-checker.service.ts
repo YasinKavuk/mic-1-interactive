@@ -22,6 +22,7 @@ export class SemanticCheckerService {
     this.checkForMainMethod();
     this.checkConstants();
     this.checkMethods();
+    this.checkForFloatingElements();
   }
 
   private init() {
@@ -205,7 +206,7 @@ export class SemanticCheckerService {
         });
       }
 
-      if (localParameters.includes(name)){
+      if (localParameters.includes(name)) {
         throw new MacroError({
           name: "redefinitionError",
           message: `variable identifier "${name}" was already declared as a local parameter`,
@@ -402,5 +403,31 @@ export class SemanticCheckerService {
     })
   }
 
+  /** Checks if there are Elements that are outside of a valid Block */
+  private checkForFloatingElements() {
+    if (this.ast.children.length >= 3) {
+      const floatingNode = this.ast.children[2]
+      let editorLine = 1;
 
+      if (floatingNode.editorLine !== undefined) {
+        editorLine = floatingNode.editorLine;
+      }
+
+      if (floatingNode.value === ".") {
+        throw new MacroError({
+          name: "invalidBlockError",
+          message: "this is not valid block declaration",
+          line: editorLine
+        })
+      }
+
+      throw new MacroError({
+        name: "floatingElementError",
+        message: "code can only be written inside a method",
+        line: editorLine
+      })
+
+    }
+  }
 }
+
