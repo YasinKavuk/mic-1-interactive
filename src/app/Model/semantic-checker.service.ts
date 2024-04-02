@@ -169,12 +169,13 @@ export class SemanticCheckerService {
     let localVariableNames: string[] = [];
 
     for (const variable of variables.children) {
+      const editorLine = variable.children[0].editorLine;
 
       if (variable.children.length !== 1) {
         throw new MacroError({
           name: "syntaxError",
           message: `in the variable block you can only define variables but not assign values`,
-          line: 1
+          line: editorLine
         });
       }
 
@@ -182,7 +183,7 @@ export class SemanticCheckerService {
         throw new MacroError({
           name: "typeError",
           message: `Expected string, but ${typeof variable.value} was given`,
-          line: 1
+          line: editorLine
         });
       }
 
@@ -192,7 +193,7 @@ export class SemanticCheckerService {
         throw new MacroError({
           name: "redefinitionError",
           message: `variable "${name}" was already declared in this scope`,
-          line: 1
+          line: editorLine
         });
       }
 
@@ -200,7 +201,7 @@ export class SemanticCheckerService {
         throw new MacroError({
           name: "redefinitionError",
           message: `variable identifier "${name}" was already declared as a constant`,
-          line: 1
+          line: editorLine
         });
       }
 
@@ -208,7 +209,7 @@ export class SemanticCheckerService {
         throw new MacroError({
           name: "redefinitionError",
           message: `variable identifier "${name}" was already declared as a local parameter`,
-          line: 1
+          line: editorLine
         })
       }
 
