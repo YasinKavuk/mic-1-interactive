@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
-import { MacroParserService } from './macro-parser.service';
+import { MacroASTGeneratorService } from './macro-AST-Generator.service'; }
 import { MacroTokenizerService } from './macro-tokenizer.service';
 import { MainMemoryService } from './Emulator/main-memory.service';
 import { ControlStoreService } from './Emulator/control-store.service';
@@ -9,7 +9,7 @@ import { PresentationControllerService } from '../Presenter/presentation-control
 
 
 describe('MacroParserService', () => {
-  let service: MacroParserService;
+  let service: MacroASTGeneratorService;
   let macroTokenizer: MacroTokenizerService
   let memory: MainMemoryService
   let controlStore: ControlStoreService
@@ -17,7 +17,7 @@ describe('MacroParserService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(MacroParserService);
+    service = TestBed.inject(MacroASTGeneratorService);
   });
 
   it('should be created', () => {
@@ -26,7 +26,7 @@ describe('MacroParserService', () => {
 
       // Resets all instance variables to their default values.
       it('should reset all instance variables to their default values', function() {
-        const macroParser = new MacroParserService(macroTokenizer, memory, controlStore, presentationController);
+        const macroParser = new MacroASTGeneratorService(macroTokenizer, memory, controlStore, presentationController);
         service.tokens = null;
         service.constantOffsetToCPP = { constant: 1 };
         service.variableOffsetToLV = { variable: 2 };

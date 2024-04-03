@@ -83,8 +83,7 @@ export class EditorComponent implements AfterViewInit {
     let editor = this.aceEditor;
 
     let setBreakpoint = (line: number) => {
-      let editorLineWithoutEmptyRows = this.controller.getEditorLineWithoutEmptyRows(line);
-      this.directorService.setMacroBreakpoint(editorLineWithoutEmptyRows + 1);
+      this.directorService.setMacroBreakpoint(line + 1);
     }
 
     let clearBreakpoint = (line: number) => {
@@ -126,9 +125,9 @@ export class EditorComponent implements AfterViewInit {
 
     // flash an error message when an error occurs
     this.presentationController.errorFlasher$.subscribe(error => {
-      if (error.error) {
-        let editorErrorLine = this.controller.getEditorLineWithParserLine(error.line);
-        this.flashErrorMessage(error.error, editorErrorLine);
+      if (error.message) {
+        console.log(error.line);
+        this.flashErrorMessage(error.name + " - " + error.message, error.line);
       }
     });
 
@@ -145,10 +144,7 @@ export class EditorComponent implements AfterViewInit {
     // highlight line if we hit a breakpoint
     this.directorService.breakpointFlasherMacro$.subscribe(breakpoint => {
       if (breakpoint.line) {
-        let editorBreakpointLine = this.controller.getEditorLineWithParserLine(breakpoint.line);
-        this.highlightBreakpoint(editorBreakpointLine)
-        const source = timer(10000);
-        source.subscribe(() => this.removeBreakpointHighlighting())
+        this.highlightBreakpoint(breakpoint.line)
       }
     });
 
@@ -160,6 +156,13 @@ export class EditorComponent implements AfterViewInit {
         this.aceEditor.session.setValue(this.content);
         this.directorService.clearMacroBreakpoints();
         this.aceEditor.session.setValue(this.content);
+      }
+    )
+
+    // clear Breakpoint when user clicks on Run / Step / StepMacro / Reset 
+    this.controller.clearBreakpoint$.subscribe(
+      _ => {
+        this.removeBreakpointHighlighting();
       }
     )
   }

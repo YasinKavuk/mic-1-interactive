@@ -125,7 +125,7 @@ describe('complete workflow test without animation', () => {
       .type('!', {delay: 1})
     cy.pushResetButton();
     cy.get('#mat-tab-label-0-1').click();
-    cy.get('#mat-tab-content-0-1 > div > app-debug-console > div > p').should('include.text', 'Unexpected')
+    cy.get('#mat-tab-content-0-1 > div > app-debug-console > div > p').should('include.text', 'floatingElementError')
 
     // test console after inserting an error to the microcode and loading
     cy.get('body > app-root > app-grid-view > mat-grid-list > div > mat-grid-tile:nth-child(3) > div > div > app-editor > ngx-dropzone > div')
@@ -137,6 +137,16 @@ describe('complete workflow test without animation', () => {
     cy.pushPlayButton();
     cy.get('#mat-tab-label-0-1').click();
     cy.get('#mat-tab-content-0-1 > div > app-debug-console > div > p').should('include.text', 'InvalidAluInstruction')
+  })
+
+  it('Tests wether the error highlighting works', ()=>{
+    cy.getDemoCode1();
+    cy.get('body > app-root > app-grid-view > mat-grid-list > div > mat-grid-tile:nth-child(3) > div > div > app-editor > ngx-dropzone > div')
+      .type('{upArrow}{upArrow}!', {delay: 1})
+    cy.pushResetButton();
+
+    cy.get('body > app-root > app-grid-view > mat-grid-list > div > mat-grid-tile:nth-child(3) > div > div > app-editor > ngx-dropzone > div > div.ace_gutter > div > div.ace_gutter-cell.ace_gutter-active-line.ace_error')
+      .should('have.text', "10");
   })
 
   it('Tests whether the memory view does show the right values after loading the code', () => {
@@ -236,7 +246,7 @@ describe('complete workflow test without animation', () => {
     cy.pushResetButton();
     cy.get('#mat-checkbox-1-input').uncheck({force: true});
     cy.pushPlayButton();
-    cy.get('#mat-tab-content-0-0 > div > div > app-stack > div > div:nth-child(3) > div.stack-value.ng-tns-c106-2')
+    cy.get('#mat-tab-content-0-0 > div > div > app-stack > div > div:nth-child(5) > div.stack-value.ng-tns-c112-2')
       .should('have.text', ' 15 ');
   });
 
@@ -245,7 +255,7 @@ describe('complete workflow test without animation', () => {
     cy.pushResetButton();
     cy.get('#mat-checkbox-1-input').uncheck({force: true});
     cy.pushPlayButton();
-    cy.get('#mat-tab-content-0-0 > div > div > app-stack > div > div:nth-child(3) > div.stack-value.ng-tns-c106-2')
+    cy.get('#mat-tab-content-0-0 > div > div > app-stack > div > div:nth-child(5) > div.stack-value.ng-tns-c112-2')
       .should('have.text', ' 15 ');
   });
 
@@ -254,9 +264,9 @@ describe('complete workflow test without animation', () => {
     cy.pushResetButton();
     cy.get('#mat-checkbox-1-input').uncheck({force: true});
     cy.pushPlayButton();
-    cy.get('#mat-tab-content-0-0 > div > div > app-stack > div > div:nth-child(8) > div.stack-value.ng-tns-c106-2')
+    cy.get('#mat-tab-content-0-0 > div > div > app-stack > div > div:nth-child(10) > div.stack-value.ng-tns-c112-2')
       .should('have.text', ' 9 ');
-    cy.get('#mat-tab-content-0-0 > div > div > app-stack > div > div:nth-child(9) > div.stack-value.ng-tns-c106-2')
+    cy.get('#mat-tab-content-0-0 > div > div > app-stack > div > div:nth-child(11) > div.stack-value.ng-tns-c112-2')
       .should('have.text', ' 8 ');
   });
 

@@ -4,6 +4,7 @@ import { MacroProviderService } from '../Model/macro-provider.service';
 import { MicroProviderService } from '../Model/micro-provider.service';
 import { ControlStoreService } from '../Model/Emulator/control-store.service';
 import { MacroTokenizerService } from '../Model/macro-tokenizer.service';
+import { MacroASTGeneratorService } from '../Model/macro-AST-Generator.service';
 import { DirectorService } from './director.service';
 import { BehaviorSubject } from 'rxjs';
 import { MainMemoryService } from '../Model/Emulator/main-memory.service';
@@ -337,6 +338,8 @@ export class ControllerService {
   public switchOnTutorMode$ = this._switchOnTutorMode.asObservable();
   private _testStatus = new BehaviorSubject({ fileIndex: -1, status: "", error: "" })
   public testStatus = this._testStatus.asObservable();
+  private _clearBreakpoint = new BehaviorSubject(undefined)
+  public clearBreakpoint$ = this._clearBreakpoint.asObservable();
 
   private testSettings = {
     testTos: false,
@@ -352,7 +355,7 @@ export class ControllerService {
     private microProvider: MicroProviderService,
     private controlStore: ControlStoreService,
     private macroTokenizer: MacroTokenizerService,
-    private macroParser: MacroParserService,
+    private macroASTGenerator: MacroASTGeneratorService,
     private director: DirectorService,
     private mainMemory: MainMemoryService,
     private presentationController: PresentationControllerService,
@@ -370,13 +373,12 @@ export class ControllerService {
   step() {
     if (this.macroProvider.getMacroGotChanged() || this.microProvider.getMicroGotChanged()) {
       this.controlStore.loadMicro();
-      this.macroTokenizer.init();
-      this.macroParser.parse();
-      this.director.reset();
+      this.director.reset(); // also parses the macrocode
     }
 
     this.director.init();
     this.director.step();
+    this._clearBreakpoint.next(undefined);
 
     this.macroProvider.isLoaded();
     this.microProvider.isLoaded();
@@ -385,20 +387,23 @@ export class ControllerService {
   stepMacro() {
     if (this.macroProvider.getMacroGotChanged() || this.microProvider.getMicroGotChanged()) {
       this.controlStore.loadMicro();
-      this.macroTokenizer.init();
-      this.macroParser.parse();
-      this.director.reset();
+      this.director.reset(); // also parses the macrocode
     }
 
     this.director.init();
+    this._clearBreakpoint.next(undefined);
     this.director.runMacroInstruction();
+
 
     this.macroProvider.isLoaded();
     this.microProvider.isLoaded();
   }
 
   reset() {
+    this._clearBreakpoint.next(undefined);
     this.director.reset();
+    
+    this.macroProvider.macroGotChanged = false;
 
     // step through INVOKEVIRUAL for main method
     this.stepMacro();
@@ -407,12 +412,12 @@ export class ControllerService {
   run() {
     if (this.macroProvider.getMacroGotChanged() || this.microProvider.getMicroGotChanged()) {
       this.controlStore.loadMicro();
-      this.macroTokenizer.init();
-      this.macroParser.parse();
-      this.director.reset();
+      this.director.reset(); // also parses the macrocode
     }
 
+    this._clearBreakpoint.next(undefined);
     this.director.run();
+    
 
     this.macroProvider.isLoaded();
     this.microProvider.isLoaded();
@@ -462,31 +467,38 @@ export class ControllerService {
     const submissions: Submission[] = await this.readAllFiles(files);
     let errorList: string[] = [];
 
-    for (let i = 0; i < submissions.length; i++) {
-      let hasError = false;
+    for (let i = 0; i < files.length; i++) {
+      let fileReader = new FileReader();
+      fileReader.readAsText(files[i]);
 
-      try {
-        this.microProvider.setMicro(submissions[i].micro);
-        this.controlStore.loadMicro();
-        this.macroTokenizer.initWithFile(submissions[i].macro);
-        this.macroParser.parse();
-        this.director.endOfProgram = false;
-        await this.director.run();
-        this.batchTestService.test(this.testSettings);
-      } catch (error) {
-        hasError = true;
-        errorList.push("Error on file " + (i + 1) + ": " + submissions[i].name);
-        if (error instanceof Error) {
-          this._testStatus.next({ fileIndex: i, status: "failed", error: error.message })
+      
+
+      fileReader.onload = (e) => {
+        numberOfErrors = errorList.length
+        try {
+          this.microProvider.setMicro(JSON.parse(fileReader.result.toString()).micro);
+          this.controlStore.loadMicro();
+          this.macroASTGenerator.parse(this.macroTokenizer.tokenizeWithFile(JSON.parse(fileReader.result.toString()).macro));
+          this.director.endOfProgram = false;
+          this.director.run(); // this.run() would load program from editor, so we use this.director.run() this just runs the already manually loaded program
+          this.batchTestService.test(this.testSettings);
+        } catch (error) {
+          errorList.push("Error on file " + (i + 1) + ": " + JSON.parse(fileReader.result.toString()).name);
+          if (error instanceof Error) {
+            this._testStatus.next({ fileIndex: i, status: "failed", error: error.message })
+          }
+        }
+
+        if (numberOfErrors === errorList.length) {
+          this._testStatus.next({ fileIndex: i, status: "passed", error: "" });
+        }
+
+        if (i === files.length - 1) {
+          this.presentationController.batchTestRestultToConsole(errorList);
+          console.log("-- Batch test end --");
         }
       }
-      if (!hasError) {
-        this._testStatus.next({ fileIndex: i, status: "passed", error: "" });
-      }
     }
-
-    this.presentationController.batchTestResultToConsole(errorList);
-    console.log("-- Batch test end --");
   }
 
   // takes array of files and imports them to a list in the tutor mode component. There they can be imported to the editors manually by the user
@@ -587,11 +599,7 @@ export class ControllerService {
     return this.macroProvider.getEditorLineWithoutEmptyRows(line);
   }
 
-  getEditorLineWithParserLine(parserLine: number) {
-    return this.macroProvider.getEditorLineWithParserLine(parserLine);
-  }
-
-  getTestSettings() {
+  getTestSettings(){
     return this.testSettings;
   }
 

@@ -5,7 +5,7 @@ import { BehaviorSubject } from 'rxjs';
 
 const spec: any = [
   // New Label: e.g Label1:
-  [/^.*:/ , "NEW_LABEL"],
+  [/^[a-z]+([0-9]*[a-zA-Z]*)*:/ , "NEW_LABEL"],
 
   // Comment
   [/^\/\/.*/, "COMMENT"],
@@ -14,13 +14,13 @@ const spec: any = [
   [/^[A-Z]+(_[A-Z]+)*/, "OPCODE"],
   [/^(0x[a-fA-F0-9]+)/, "HEXNUMBER"],
   [/^((-)?\d+)/, "NUMBER"],
-  [/^([a-z]([a-zA-Z0-9]+))/, "IDENTIFIER"],
+  [/^[a-z]+([0-9]*[a-zA-Z]*)*/, "IDENTIFIER"],
 
   //Fields
   [/^.constant/, "FIELD_CONST"],
   [/^.main/, "FIELD_MAIN"],
   [/^.var/, "FIELD_VAR"],
-  [/^.method [a-zA-Z]([a-zA-Z0-9]+)?\(([a-z]([a-zA-Z0-9]+)?(, )?)*\)/, "FIELD_METH"],
+  [/^.method [a-zA-Z]([a-zA-Z0-9]+)?\(([a-z]([a-zA-Z0-9]+)?(, )?(,)?)*\)/, "FIELD_METH"],
 
   //End Fields
   [/^.end-constant/, "FIELDEND_CONST"],
@@ -28,12 +28,10 @@ const spec: any = [
   [/^.end-var/, "FIELDEND_VAR"],
   [/^.end-method/, "FIELDEND_METH"],
 
-  //Constant & Variable
-  [/^[a-z]([a-zA-Z0-9]+)? (-)?\d+/, "NEW_CONSTANT"],
-  [/^[a-z]([a-zA-Z0-9]+)?/, "NEW_VARIABLE"],
-
   [/^\n/, "BREAK"],
-  [/^\s/, "SPACE"]
+  [/^\s/, "SPACE"],
+
+  [/^./, "UNIDENTIFIED"],
 ];
 
 export interface Token{
@@ -66,7 +64,8 @@ export class MacroTokenizerService {
   ) { }
 
 
-  init(){
+  // Is a Lexer that tokenizes the input string from the editor and creates tokens. This tokens also have some context like "number" or "opcode" attached. The tokens also include the line number from the input string for each token generated.
+  tokenize(){
     this.tokens = [];
     this.string = this.macroProvider.getMacro();
     while(true){
@@ -78,13 +77,13 @@ export class MacroTokenizerService {
       this.tokens.push(this.token);
     }
     this.resetTokenizer();
-    console.log("---------------------------")
     console.table(this.tokens)
-    console.log("---------------------------")
+    
+    return this.tokens
   }
 
   // initialized the tokenizer and also tokenizes. It isn't using the program in the editors, it uses macrocode that is passed to this method
-  initWithFile(macro: string){
+  tokenizeWithFile(macro: string){
     this.tokens = [];
     this.string = macro;
 
@@ -97,6 +96,8 @@ export class MacroTokenizerService {
       this.tokens.push(this.token);
     }
     this.resetTokenizer();
+
+    return this.tokens;
   }
 
   private hasMoreTokens(): Boolean {
@@ -136,6 +137,9 @@ export class MacroTokenizerService {
         return this.getNextToken();
       }
       else if(tokenType == "SPACE"){
+        return this.getNextToken();
+      }
+      else if(tokenType == "COMMENT"){
         return this.getNextToken();
       }
 

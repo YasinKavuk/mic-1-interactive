@@ -9,12 +9,15 @@ import { ShifterService } from '../Model/Emulator/shifter.service';
 import { RegProviderService } from '../Model/reg-provider.service';
 import { StackProviderService } from '../Model/stack-provider.service';
 import { BehaviorSubject, Subscription } from 'rxjs';
-import { MacroParserService } from '../Model/macro-parser.service';
+import { MacroASTGeneratorService } from '../Model/macro-AST-Generator.service';
 import { MacroTokenizerService } from '../Model/macro-tokenizer.service';
 import { MacroProviderService } from '../Model/macro-provider.service';
 import { MicroProviderService } from '../Model/micro-provider.service';
 import { VideoControllerService } from '../Model/GraphicsAdapter/video-controller.service';
 import { PresentationControllerService } from './presentation-controller.service';
+import { SemanticCheckerService } from '../Model/semantic-checker.service';
+import { CodeGeneratorService } from '../Model/code-generator.service';
+import { MacroError } from '../Model/MacroErrors';
 
 
 @Injectable({
@@ -30,13 +33,15 @@ export class DirectorService {
     private shifter: ShifterService,
     private mainMemory: MainMemoryService,
     private regProvider: RegProviderService,
-    private macroParser: MacroParserService,
     private controlStore: ControlStoreService,
     private stackProvider: StackProviderService,
-    private macroTokenizer: MacroTokenizerService,
     private macroProvider: MacroProviderService,
     private microProvider: MicroProviderService,
+    private codeGenerator: CodeGeneratorService,
+    private macroTokenizer: MacroTokenizerService,
+    private semanticChecker: SemanticCheckerService,
     private videoController: VideoControllerService,
+    private macroASTGenerator: MacroASTGeneratorService,
     private presentationController: PresentationControllerService,
   ) {
     // load AnimationEnabled from LocalStorage
@@ -60,7 +65,6 @@ export class DirectorService {
 
   private currentAddress = 1;
   private lineNumber = 0;
-  private currentMacroAddr = 0;
 
   private MBRMemoryQueue: Array<number> = [];
   private MDRMemoryQueue: Array<number> = [];
@@ -178,10 +182,10 @@ export class DirectorService {
     }
 
 
-    // if we find opcode of NOP wait for 0ms -> otherwise the screen does not render
-    if (this.presentationController.getGraphicsFunctionalityEnabled() || this.currentAddress === 0){
-      await  new Promise(resolve => setTimeout(resolve, 0));
-    }    
+    // if we find opcode of NOP wait for 0ms -> otherwise the screen does not render (since we only have one Thread)
+    if (this.presentationController.getGraphicsFunctionalityEnabled() || this.currentAddress === 0) {
+      await new Promise(resolve => setTimeout(resolve, 0));
+    }
 
 
     let line = this.controlStore.getMicro()[this.currentAddress];
@@ -221,26 +225,26 @@ export class DirectorService {
       this._breakpointFlasher.next({ line: this.lineNumber });
     }
 
-    // check if we hit a Breakpoint in the macro-code
-    if (this.macroBreakpointsAddr.includes(this.currentMacroAddr)) {
-      console.log("%cHit Breakpoint in the memory address: " + (this.currentMacroAddr), "color: #248c46");
-      this.hitBreakpoint = true;
-      this._finishedRun.next(true)
-      this._breakpointFlasherMacro.next({ line: this.macroParser.getLineOfAddress(this.currentMacroAddr) });
+
+    const currentAddress = this.regProvider.getRegister("PC").getValue();
+    if (this.lineNumber == 1) {
+      for (let breakpointLine of this.macroBreakpoints) {
+        for (let [editorLine, minMemory, maxMemory] of this.codeGenerator.lineAddrMap) {
+          if (breakpointLine === editorLine && currentAddress >= minMemory && currentAddress <= maxMemory) {
+            console.log("%cHit Breakpoint in the memory address: " + (currentAddress) + ", MacroEditorLine: " + editorLine, "color: #248c46");
+            this.hitBreakpoint = true;
+            this._finishedRun.next(true)
+            this._breakpointFlasherMacro.next({ line: editorLine });
+          }
+        }
+      }
     }
+
 
     // set MBR
     if (this.MBRMemoryQueue[0]) {
       let addr = this.MBRMemoryQueue.shift();
       let MBR = this.regProvider.getRegister("MBR");
-
-      if (this.macroParser.getOffsetOnAddress(this.currentMacroAddr) !== undefined) {
-        let offset = this.macroParser.getOffsetOnAddress(this.currentMacroAddr) - 1;
-        this.currentMacroAddr = offset;
-        console.log("%cHit Jump-Instruction offset. Jump to memory address: " + (this.currentMacroAddr + 1), "color: #248c46");
-      }
-      this.currentMacroAddr += 1;
-
 
       MBR.setValue(this.mainMemory.get_8(addr));
     } else {
@@ -411,7 +415,6 @@ export class DirectorService {
   public reset() {
     this.isRunning = false;
     this.currentAddress = 1;
-    this.currentMacroAddr = 0;
 
     // reset all registers
     let registers = this.regProvider.getRegisters();
@@ -428,22 +431,22 @@ export class DirectorService {
     // reset memory
     this.mainMemory.emptyMemory();
     try {
+
       this.controlStore.loadMicro();
-      this.macroTokenizer.init();
+      let opcodes = this.controlStore.getMicroAddr()
+      let macroTokens = this.macroTokenizer.tokenize()
+      let ast = this.macroASTGenerator.parse(macroTokens)
+      this.semanticChecker.checkSemantic(opcodes, ast)
+      this.codeGenerator.generate(ast, opcodes);
+
     } catch (error) {
-      if (error instanceof Error) {
+      if (error instanceof MacroError) {
+        this.presentationController.flashErrorInMacro(error);
+      }
+      else if (error instanceof Error) {
         this._errorFlasher.next({ line: 1, error: error.message });
       }
       return;
-    }
-
-    try {
-      if (this.macroParser.parse()) { return; }
-    } catch (error) {
-      if (error instanceof Error) {
-        this._errorFlasher.next({ line: 1000, error: error.message });
-        return;
-      }
     }
 
 
@@ -462,9 +465,9 @@ export class DirectorService {
     this.videoController.wipeScreen();
 
     // set Breakpoints Addresses for Macrocode
-    for (let i = 0; i < this.macroBreakpoints.length; i++) {
-      this.macroBreakpointsAddr[i] = this.macroParser.getAddressOfLine(this.macroBreakpoints[i]);
-    }
+    // for (let i = 0; i < this.macroBreakpoints.length; i++) {
+    //   this.macroBreakpointsAddr[i] = this.macroParser.getAddressOfLine(this.macroBreakpoints[i]);
+    // }
 
     this.macroProvider.isLoaded();
     this.microProvider.isLoaded();
