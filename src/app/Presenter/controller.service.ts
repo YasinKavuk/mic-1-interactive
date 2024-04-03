@@ -11,7 +11,6 @@ import { MainMemoryService } from '../Model/Emulator/main-memory.service';
 import { PresentationControllerService } from './presentation-controller.service';
 import { BatchTestService } from '../Model/batch-test.service';
 import { TestFile } from '../View/tutor-mode/tutor-mode.component';
-import { MacroParserService } from '../Model/macro-parser.service';
 
 
 
@@ -466,6 +465,7 @@ export class ControllerService {
 
     const submissions: Submission[] = await this.readAllFiles(files);
     let errorList: string[] = [];
+    let numberOfErrors = errorList.length
 
     for (let i = 0; i < files.length; i++) {
       let fileReader = new FileReader();
@@ -494,7 +494,7 @@ export class ControllerService {
         }
 
         if (i === files.length - 1) {
-          this.presentationController.batchTestRestultToConsole(errorList);
+          this.presentationController.batchTestResultToConsole(errorList);
           console.log("-- Batch test end --");
         }
       }
