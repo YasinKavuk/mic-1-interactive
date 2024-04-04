@@ -20,9 +20,9 @@ export class SemanticCheckerService {
     this.validOpcodes = Object.keys(opcodes);
     this.ast = ast;
     this.checkForMainMethod();
+    this.checkForFloatingElements();
     this.checkConstants();
     this.checkMethods();
-    this.checkForFloatingElements();
   }
 
   private init() {
@@ -230,6 +230,9 @@ export class SemanticCheckerService {
           message: `Expected string, but ${typeof parameter.value} was given`,
           line: 1
         });
+      }
+      if (parameter.value === "") {
+        return localParameterNames
       }
       if (/^([a-zA-Z]([a-zA-Z0-9]*))/.exec(parameter.value) === null) {
         throw new MacroError({
