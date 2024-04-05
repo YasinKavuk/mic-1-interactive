@@ -131,12 +131,9 @@ describe('complete workflow test without animation', () => {
     cy.get('body > app-root > app-grid-view > mat-grid-list > div > mat-grid-tile:nth-child(3) > div > div > app-editor > ngx-dropzone > div')
       .type('{backspace}', {delay: 1})
     cy.get('body > app-root > app-grid-view > mat-grid-list > div > mat-grid-tile:nth-child(2) > div > div > app-micro-editor > ngx-dropzone > div')
-      .type('{upArrow}{upArrow}{rightarrow}{rightarrow}{rightarrow}{rightarrow}{rightarrow}1', {delay: 1})
+      .type('{upArrow}{upArrow}{rightarrow}{rightarrow}{rightarrow}{rightarrow}{rightarrow}!', {delay: 1})
     cy.pushResetButton();
-    cy.get('#mat-checkbox-1-input').uncheck({force: true});
-    cy.pushPlayButton();
-    cy.get('#mat-tab-label-0-1').click();
-    cy.get('#mat-tab-content-0-1 > div > app-debug-console > div > p').should('include.text', 'InvalidAluInstruction')
+    cy.get('#mat-tab-content-0-1 > div > app-debug-console > div > p').should('include.text', 'Unexpected token')
   })
 
   it('Tests wether the error highlighting works', ()=>{
