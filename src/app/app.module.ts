@@ -46,6 +46,7 @@ import { CommentViewComponent } from './View/comment-view/comment-view.component
 import {MatTooltipModule} from '@angular/material/tooltip';
 import { ScreenComponent } from './View/screen/screen.component';
 import { BatchSettingsDialogComponent } from './View/tutor-mode/batch-settings-dialog/batch-settings-dialog.component';
+import { MatRadioModule } from '@angular/material/radio';
 
 
 
@@ -102,6 +103,7 @@ import { BatchSettingsDialogComponent } from './View/tutor-mode/batch-settings-d
     MatInputModule,
     ReactiveFormsModule,
     MatTooltipModule,
+    MatRadioModule, 
   ],
 
   providers: [],

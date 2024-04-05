@@ -23,22 +23,22 @@
     </button>
     <mat-menu #menu="matMenu">
       <div style="margin-bottom: 2%;">
-        <mat-slide-toggle [(ngModel)]="this.lightMode" (change)="toggleTheme($event)" [ngStyle]="lightMode && {'color':'#f0f0f0'}">
+        <mat-slide-toggle (click)="$event.stopPropagation()" [(ngModel)]="this.lightMode" (change)="toggleTheme($event)" [ngStyle]="lightMode && {'color':'#f0f0f0'}">
           Light Mode
         </mat-slide-toggle>
       </div>
       <div style="margin-bottom: 2%;">
-        <mat-slide-toggle (change)="switchEditors($event)" [ngStyle]="lightMode && {'color':'#f0f0f0'}">
+        <mat-slide-toggle (click)="$event.stopPropagation()"  (change)="switchEditors($event)" [ngStyle]="lightMode && {'color':'#f0f0f0'}">
           Switch Editors
         </mat-slide-toggle>
       </div>
       <div style="margin-bottom: 2%;">
-        <mat-slide-toggle (change)="togglePresentationMode($event)" [ngStyle]="lightMode && {'color':'#f0f0f0'}">
+        <mat-slide-toggle (click)="$event.stopPropagation()"  (change)="togglePresentationMode($event)" [ngStyle]="lightMode && {'color':'#f0f0f0'}">
           Presentation Mode
         </mat-slide-toggle>
       </div>
       <div style="margin-bottom: 2%;">
-        <mat-slide-toggle (change)="toggleTutorMode($event)" [ngStyle]="lightMode && {'color':'#f0f0f0'}">
+        <mat-slide-toggle (click)="$event.stopPropagation()"  (change)="toggleTutorMode($event)" [ngStyle]="lightMode && {'color':'#f0f0f0'}">
           Tutor Mode
         </mat-slide-toggle>
       </div>

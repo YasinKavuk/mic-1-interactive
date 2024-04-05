@@ -33,6 +33,7 @@ export class DebugConsoleComponent implements OnInit, AfterViewChecked {
     // log Micro Errors
     this.director.errorFlasher$.subscribe(
       error => {
+        console.log("micro")
         if (!error.error) { return };
         let content = "microcode:" + error.line + "\t->\t" + error.error;
         if (error.line == 1000){ content = "macrocode" + "\t -> \t" + error.error; }
@@ -42,9 +43,10 @@ export class DebugConsoleComponent implements OnInit, AfterViewChecked {
 
     // log MacroErrors
     this.presentationController.errorFlasher$.subscribe(
-      a => {
-        if (!a.error) { return };
-        this.content.push({ type: "error", content: a.content });
+      error => {
+        console.log("macro")
+        if (!error.message) { return };
+        this.content.push({ type: "error", content: error.name + " - " + error.message });
       }
     )
 

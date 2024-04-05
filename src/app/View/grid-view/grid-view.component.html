@@ -3,7 +3,16 @@
         <div>
             <app-tool-bar-mic-view></app-tool-bar-mic-view>
             <hr color="black">
-
+            
+            <div *ngIf="tutorMode || registerView" style="height: 2.5%">
+                <mat-icon [ngStyle]="{'color':'#ccc5b9', 'cursor':'pointer', 'transform':'scale(1.5)'}" 
+                    matTooltip="Toggle Register View" 
+                    [matTooltipPosition]="'right'" 
+                    (click)="toggleRegisterVis()">
+                    swap_horiz
+                </mat-icon>
+            </div>
+            
             <app-mic-visualization [@flyIn]="tutorMode? 'hidden' : 'visible'"></app-mic-visualization>
             <app-tutor-mode style="position: absolute; width: 100%;" *ngIf="tutorMode"></app-tutor-mode>
 
@@ -24,13 +33,13 @@
 
     <mat-grid-tile rowspan="20" colspan="1">
         <div *ngIf="areEditorsSwapped === false">
-            <p *ngIf="tutorMode === true">Comment</p>
+            <p *ngIf="tutorMode || registerView ">Comment</p>
             <app-comment-view></app-comment-view>
             <p>Macroassembler</p>
             <app-editor></app-editor>
         </div>
         <div *ngIf="areEditorsSwapped === true">
-            <p *ngIf="tutorMode === true">Comment</p>
+            <p *ngIf="tutorMode || registerView">Comment</p>
             <app-comment-view></app-comment-view>
             <p>Microprograms</p>
             <app-micro-editor></app-micro-editor>

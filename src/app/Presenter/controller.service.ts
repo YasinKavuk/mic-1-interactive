@@ -4,12 +4,14 @@ import { MacroProviderService } from '../Model/macro-provider.service';
 import { MicroProviderService } from '../Model/micro-provider.service';
 import { ControlStoreService } from '../Model/Emulator/control-store.service';
 import { MacroTokenizerService } from '../Model/macro-tokenizer.service';
-import { MacroParserService } from '../Model/macro-parser.service';
+import { MacroASTGeneratorService } from '../Model/macro-AST-Generator.service';
 import { DirectorService } from './director.service';
 import { BehaviorSubject } from 'rxjs';
 import { MainMemoryService } from '../Model/Emulator/main-memory.service';
 import { PresentationControllerService } from './presentation-controller.service';
-import { StackPosition } from '../View/tutor-mode/batch-settings-dialog/batch-settings-dialog.component';
+import { BatchTestService } from '../Model/batch-test.service';
+import { TestFile } from '../View/tutor-mode/tutor-mode.component';
+
 
 
 const code1: string = `.main
@@ -307,6 +309,20 @@ MAR=SP
 LV=MDR
 MDR=TOS; wr; goto Main1`;
 
+export interface TestSettings {
+  testTos: boolean;
+  tosValue: number;
+  testStack: boolean;
+  stackPositions: number[];
+}
+
+interface Submission {
+  name: string;
+  macro: string;
+  micro: string;
+  comment: string;
+}
+
 
 @Injectable({
   providedIn: 'root'
@@ -321,23 +337,29 @@ export class ControllerService {
   public switchOnTutorMode$ = this._switchOnTutorMode.asObservable();
   private _testStatus = new BehaviorSubject({ fileIndex: -1, status: "", error: "" })
   public testStatus = this._testStatus.asObservable();
+  private _clearBreakpoint = new BehaviorSubject(undefined)
+  public clearBreakpoint$ = this._clearBreakpoint.asObservable();
 
   private testSettings = {
     testTos: false,
     tosValue: 0,
     testStack: false,
-
+    stackPositions: [0]
   }
+
+  public testFiles: TestFile[] = [];
 
   constructor(
     private macroProvider: MacroProviderService,
     private microProvider: MicroProviderService,
     private controlStore: ControlStoreService,
     private macroTokenizer: MacroTokenizerService,
-    private macroParser: MacroParserService,
+    private macroASTGenerator: MacroASTGeneratorService,
     private director: DirectorService,
     private mainMemory: MainMemoryService,
-    private presentationController: PresentationControllerService
+    private presentationController: PresentationControllerService,
+    private batchTestService: BatchTestService,
+
   ) {
     const codeMac = localStorage.getItem("macroCode");
     const codeMic = localStorage.getItem("microCode");
@@ -350,13 +372,12 @@ export class ControllerService {
   step() {
     if (this.macroProvider.getMacroGotChanged() || this.microProvider.getMicroGotChanged()) {
       this.controlStore.loadMicro();
-      this.macroTokenizer.init();
-      this.macroParser.parse();
-      this.director.reset();
+      this.director.reset(); // also parses the macrocode
     }
 
     this.director.init();
     this.director.step();
+    this._clearBreakpoint.next(undefined);
 
     this.macroProvider.isLoaded();
     this.microProvider.isLoaded();
@@ -365,20 +386,23 @@ export class ControllerService {
   stepMacro() {
     if (this.macroProvider.getMacroGotChanged() || this.microProvider.getMicroGotChanged()) {
       this.controlStore.loadMicro();
-      this.macroTokenizer.init();
-      this.macroParser.parse();
-      this.director.reset();
+      this.director.reset(); // also parses the macrocode
     }
 
     this.director.init();
+    this._clearBreakpoint.next(undefined);
     this.director.runMacroInstruction();
+
 
     this.macroProvider.isLoaded();
     this.microProvider.isLoaded();
   }
 
   reset() {
+    this._clearBreakpoint.next(undefined);
     this.director.reset();
+    
+    this.macroProvider.macroGotChanged = false;
 
     // step through INVOKEVIRUAL for main method
     this.stepMacro();
@@ -387,20 +411,59 @@ export class ControllerService {
   run() {
     if (this.macroProvider.getMacroGotChanged() || this.microProvider.getMicroGotChanged()) {
       this.controlStore.loadMicro();
-      this.macroTokenizer.init();
-      this.macroParser.parse();
-      this.director.reset();
+      this.director.reset(); // also parses the macrocode
     }
 
+    this._clearBreakpoint.next(undefined);
     this.director.run();
+    
 
     this.macroProvider.isLoaded();
     this.microProvider.isLoaded();
   }
 
-  batchTest(files: File[]) {
+
+
+  private readFile(inputFile: File) {
+
+    const fileReader = new FileReader();
+
+    return new Promise((resolve, reject) => {
+      fileReader.onerror = () => {
+        fileReader.abort();
+        reject(new DOMException("Problem parsing input file."));
+      };
+
+      fileReader.onload = () => {
+        resolve(fileReader.result.toString());
+      };
+
+      fileReader.readAsText(inputFile);
+    });
+  }
+
+  private async readAllSubmissionFiles(files: File[]): Promise<Submission[]> {
+    let testFiles: Submission[] = [];
+
+    for (let i = 0; i < files.length; i++) {
+      try {
+        const fileContent: any = await this.readFile(files[0]);
+        if (typeof fileContent === "string") {
+          testFiles.push(JSON.parse(fileContent));
+        }
+      } catch (error: any) {
+        console.warn(error.message)
+      }
+    }
+
+    return testFiles;
+  }
+
+
+  async batchTest(files: File[]) {
     console.log("-- Batch test start --");
 
+    const submissions: Submission[] = await this.readAllSubmissionFiles(files);
     let errorList: string[] = [];
     let numberOfErrors = errorList.length
 
@@ -415,9 +478,10 @@ export class ControllerService {
         try {
           this.microProvider.setMicro(JSON.parse(fileReader.result.toString()).micro);
           this.controlStore.loadMicro();
-          this.macroTokenizer.initWithFile(JSON.parse(fileReader.result.toString()).macro);
-          this.macroParser.parse();
-          this.director.run(); // this.run() would load program from editor, so we use this.director.run() this just runs the already manually loaded program    
+          this.macroASTGenerator.parse(this.macroTokenizer.tokenizeWithFile(JSON.parse(fileReader.result.toString()).macro));
+          this.director.endOfProgram = false;
+          this.director.run(); // this.run() would load program from editor, so we use this.director.run() this just runs the already manually loaded program
+          this.batchTestService.test(this.testSettings);
         } catch (error) {
           errorList.push("Error on file " + (i + 1) + ": " + JSON.parse(fileReader.result.toString()).name);
           if (error instanceof Error) {
@@ -430,15 +494,11 @@ export class ControllerService {
         }
 
         if (i === files.length - 1) {
-          this.presentationController.batchTestRestultToConsole(errorList);
+          this.presentationController.batchTestResultToConsole(errorList);
           console.log("-- Batch test end --");
         }
       }
     }
-    // having this code here resulted in this beeing executed first instead of last. 
-    // this.presentationController.batchTestRestultToConsole(errorList);
-    // console.log("-- Batch test end --");
-
   }
 
   // takes array of files and imports them to a list in the tutor mode component. There they can be imported to the editors manually by the user
@@ -450,7 +510,7 @@ export class ControllerService {
     }
   }
 
-  importFile(file: any, target?: string) {
+  importFile(file: File, target?: string) {
     if (target === "macro") {
       this.importToEditor(file, "macro");
     }
@@ -539,8 +599,13 @@ export class ControllerService {
     return this.macroProvider.getEditorLineWithoutEmptyRows(line);
   }
 
-  getEditorLineWithParserLine(parserLine: number) {
-    return this.macroProvider.getEditorLineWithParserLine(parserLine);
+  getTestSettings(){
+    return this.testSettings;
+  }
+
+
+  setTestSettings(testTos: boolean, tosValue: number, testStack: boolean, stackPositions: number[]) {
+    this.testSettings = { testTos: testTos, tosValue: tosValue, testStack: testStack, stackPositions: stackPositions };
   }
 
   dec2hex(dec: number) {
@@ -548,3 +613,5 @@ export class ControllerService {
   }
 
 }
+
+

@@ -5,7 +5,7 @@ import { BehaviorSubject } from 'rxjs';
 
 const spec: any = [
   // New Label: e.g Label1:
-  [/^[a-z]+([0-9]*[a-zA-Z]*)*:/ , "NEW_LABEL"],
+  [/^.*:/ , "NEW_LABEL"],
 
   // Comment
   [/^\/\/.*/, "COMMENT"],
@@ -14,24 +14,26 @@ const spec: any = [
   [/^[A-Z]+(_[A-Z]+)*/, "OPCODE"],
   [/^(0x[a-fA-F0-9]+)/, "HEXNUMBER"],
   [/^((-)?\d+)/, "NUMBER"],
-  [/^[a-z]+([0-9]*[a-zA-Z]*)*/, "IDENTIFIER"],
+  [/^([a-z]([a-zA-Z0-9]+))/, "IDENTIFIER"],
 
   //Fields
-  [/^\.constant/, "FIELD_CONST"],
-  [/^\.main/, "FIELD_MAIN"],
-  [/^\.var/, "FIELD_VAR"],
-  [/^\.method [a-zA-Z]([a-zA-Z0-9]+)?\(([a-z]([a-zA-Z0-9]+)?(, )?(,)?)*\)/, "FIELD_METH"],
+  [/^.constant/, "FIELD_CONST"],
+  [/^.main/, "FIELD_MAIN"],
+  [/^.var/, "FIELD_VAR"],
+  [/^.method [a-zA-Z]([a-zA-Z0-9]+)?\(([a-z]([a-zA-Z0-9]+)?(, )?)*\)/, "FIELD_METH"],
 
   //End Fields
-  [/^\.end-constant/, "FIELDEND_CONST"],
-  [/^\.end-main/, "FIELDEND_MAIN"],
-  [/^\.end-var/, "FIELDEND_VAR"],
-  [/^\.end-method/, "FIELDEND_METH"],
+  [/^.end-constant/, "FIELDEND_CONST"],
+  [/^.end-main/, "FIELDEND_MAIN"],
+  [/^.end-var/, "FIELDEND_VAR"],
+  [/^.end-method/, "FIELDEND_METH"],
+
+  //Constant & Variable
+  [/^[a-z]([a-zA-Z0-9]+)? (-)?\d+/, "NEW_CONSTANT"],
+  [/^[a-z]([a-zA-Z0-9]+)?/, "NEW_VARIABLE"],
 
   [/^\n/, "BREAK"],
-  [/^\s/, "SPACE"],
-
-  [/^./, "UNIDENTIFIED"],
+  [/^\s/, "SPACE"]
 ];
 
 export interface Token{
@@ -45,7 +47,7 @@ export interface Token{
 })
 
 
-export class MacroTokenizerService {
+export class MacroTokenizerServiceOld {
   
   private string: string = "";
   private curser: number = 0;
@@ -64,8 +66,7 @@ export class MacroTokenizerService {
   ) { }
 
 
-  // Is a Lexer that tokenizes the input string from the editor and creates tokens. This tokens also have some context like "number" or "opcode" attached. The tokens also include the line number from the input string for each token generated.
-  tokenize(){
+  init(){
     this.tokens = [];
     this.string = this.macroProvider.getMacro();
     while(true){
@@ -77,13 +78,13 @@ export class MacroTokenizerService {
       this.tokens.push(this.token);
     }
     this.resetTokenizer();
+    console.log("---------------------------")
     console.table(this.tokens)
-    
-    return this.tokens
+    console.log("---------------------------")
   }
 
   // initialized the tokenizer and also tokenizes. It isn't using the program in the editors, it uses macrocode that is passed to this method
-  tokenizeWithFile(macro: string){
+  initWithFile(macro: string){
     this.tokens = [];
     this.string = macro;
 
@@ -96,8 +97,6 @@ export class MacroTokenizerService {
       this.tokens.push(this.token);
     }
     this.resetTokenizer();
-
-    return this.tokens;
   }
 
   private hasMoreTokens(): Boolean {
@@ -137,9 +136,6 @@ export class MacroTokenizerService {
         return this.getNextToken();
       }
       else if(tokenType == "SPACE"){
-        return this.getNextToken();
-      }
-      else if(tokenType == "COMMENT"){
         return this.getNextToken();
       }
 

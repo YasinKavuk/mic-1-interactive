@@ -53,6 +53,8 @@ export class MemoryViewComponent implements OnInit {
 
   private memoryFields:MemoryField[] = MEMORY_FIELD;
 
+  preferedValueView: string = '1';
+
   constructor(
     private presentationController: PresentationControllerService,
     private themeController: ThemeControlService,

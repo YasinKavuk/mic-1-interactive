@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { CharacterROMService } from './character-rom.service';
+import { CodeGeneratorService } from './code-generator.service';
 
-describe('CharacterRomService', () => {
-  let service: CharacterROMService;
+describe('CodeGeneratorService', () => {
+  let service: CodeGeneratorService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(CharacterROMService);
+    service = TestBed.inject(CodeGeneratorService);
   });
 
   it('should be created', () => {

@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { CharacterROMService } from './character-rom.service';
+import { BatchTestService } from './batch-test.service';
 
-describe('CharacterRomService', () => {
-  let service: CharacterROMService;
+describe('BatchTestService', () => {
+  let service: BatchTestService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(CharacterROMService);
+    service = TestBed.inject(BatchTestService);
   });
 
   it('should be created', () => {
