@@ -17,16 +17,16 @@ const spec: any = [
   [/^[a-z]+([0-9]*[a-zA-Z]*)*/, "IDENTIFIER"],
 
   //Fields
-  [/^.constant/, "FIELD_CONST"],
-  [/^.main/, "FIELD_MAIN"],
-  [/^.var/, "FIELD_VAR"],
-  [/^.method [a-zA-Z]([a-zA-Z0-9]+)?\(([a-z]([a-zA-Z0-9]+)?(, )?(,)?)*\)/, "FIELD_METH"],
+  [/^\.constant/, "FIELD_CONST"],
+  [/^\.main/, "FIELD_MAIN"],
+  [/^\.var/, "FIELD_VAR"],
+  [/^\.method [a-zA-Z]([a-zA-Z0-9]+)?\(([a-z]([a-zA-Z0-9]+)?(, )?(,)?)*\)/, "FIELD_METH"],
 
   //End Fields
-  [/^.end-constant/, "FIELDEND_CONST"],
-  [/^.end-main/, "FIELDEND_MAIN"],
-  [/^.end-var/, "FIELDEND_VAR"],
-  [/^.end-method/, "FIELDEND_METH"],
+  [/^\.end-constant/, "FIELDEND_CONST"],
+  [/^\.end-main/, "FIELDEND_MAIN"],
+  [/^\.end-var/, "FIELDEND_VAR"],
+  [/^\.end-method/, "FIELDEND_METH"],
 
   [/^\n/, "BREAK"],
   [/^\s/, "SPACE"],
