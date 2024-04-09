@@ -446,7 +446,8 @@ export class DirectorService {
       else if (error instanceof Error) {
         this._errorFlasher.next({ line: 1, error: error.message });
       }
-      return;
+      this._finishedRun.next(false); // disable run Buttons
+      throw new Error("parserError");
     }
 
 
