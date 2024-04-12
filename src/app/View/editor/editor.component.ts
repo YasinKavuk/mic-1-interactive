@@ -10,7 +10,7 @@ import { ControllerService } from "src/app/Presenter/controller.service";
 
 const LANG = "ace/mode/mic1";
 const THEME_DARK = "ace/theme/gruvbox";
-const THEME_LIGHT= "ace/theme/eclipse";
+const THEME_LIGHT = "ace/theme/eclipse";
 
 const editorOptions: Partial<ace.Ace.EditorOptions> = {
   highlightActiveLine: true,
@@ -96,7 +96,7 @@ export class EditorComponent implements AfterViewInit {
       lightMode => {
         if (lightMode) {
           this.aceEditor.setTheme(THEME_LIGHT)
-        }else{
+        } else {
           this.aceEditor.setTheme(THEME_DARK)
         }
       }
@@ -133,10 +133,10 @@ export class EditorComponent implements AfterViewInit {
 
     // change editor options when Presentationmode is toggled
     this.presentationController.presentationMode$.subscribe(presentationMode => {
-      if(presentationMode.presentationMode == true){
+      if (presentationMode.presentationMode == true) {
         this.aceEditor.setOptions(editorOptionsPresentation)
       }
-      else{
+      else {
         this.aceEditor.setOptions(editorOptions)
       }
     });
@@ -147,6 +147,15 @@ export class EditorComponent implements AfterViewInit {
         this.highlightBreakpoint(breakpoint.line)
       }
     });
+
+    // current line Highlighting
+    this.directorService.currentLineNotifierMacro$.subscribe(line => {
+      if (line.line === 0) {
+        this.removeLineHighlighting();
+        return;
+      }
+      this.highlightLine(line.line);
+    })
 
     // updates macrocode when new code is imported or macrocode is loaded from local storage
     this.controller.macroCode$.subscribe(
@@ -216,17 +225,33 @@ export class EditorComponent implements AfterViewInit {
     }
   }
 
-  getOptions(){
-    if(this.presentationController.getPresentationMode() == false){
+  getOptions() {
+    if (this.presentationController.getPresentationMode() == false) {
       return editorOptions
     }
-    else{
+    else {
       return editorOptionsPresentation
     }
   }
 
-  onSelect(event: any){
+  onSelect(event: any) {
     this.controller.importFile(event.addedFiles[0], "macro");
   }
 
+  private highlightLine(line: number) {
+    this.removeLineHighlighting();
+    this.aceEditor.getSession().addMarker(new ace.Range(line - 1, 0, line, 0), "ace_highlight-line", "text");
+  }
+
+  private removeLineHighlighting() {
+    const prevMarkers = this.aceEditor.session.getMarkers();
+    if (prevMarkers) {
+      const prevMarkersArr: any = Object.keys(prevMarkers);
+      for (let item of prevMarkersArr) {
+        if (prevMarkers[item].clazz == "ace_highlight-line") {
+          this.aceEditor.session.removeMarker(prevMarkers[item].id);
+        }
+      }
+    }
+  }
 }

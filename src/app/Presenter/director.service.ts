@@ -82,7 +82,6 @@ export class DirectorService {
 
   private microBreakpoints: Array<number> = [];
   private macroBreakpoints: Array<number> = [];
-  private macroBreakpointsAddr: Array<number> = [];
   private hitBreakpoint = false;
 
 
@@ -110,6 +109,9 @@ export class DirectorService {
 
   private _currentLineNotifier = new BehaviorSubject({ line: 0 });
   public currentLineNotifier$ = this._currentLineNotifier.asObservable();
+
+  private _currentLineNotifierMacro = new BehaviorSubject({ line: 0 });
+  public currentLineNotifierMacro$ = this._currentLineNotifierMacro.asObservable();
 
   private _aluFlags = new BehaviorSubject({ N: false, Z: false });
   public aluFlags$ = this._aluFlags.asObservable();
@@ -228,6 +230,20 @@ export class DirectorService {
 
     const currentAddress = this.regProvider.getRegister("PC").getValue();
     if (this.lineNumber == 1) {
+
+      // lineHighlighting
+      for (let i = 0; i < this.codeGenerator.lineAddrMap.length; i++) {
+        let [editorLine, minMemory, maxMemory] = this.codeGenerator.lineAddrMap[i];
+
+
+        if (currentAddress >= minMemory && currentAddress <= maxMemory) {
+          this._currentLineNotifierMacro.next({ line: editorLine });
+          break;
+        }
+      }
+
+
+      // Check for MacroBreakpoints
       for (let breakpointLine of this.macroBreakpoints) {
         for (let [editorLine, minMemory, maxMemory] of this.codeGenerator.lineAddrMap) {
           if (breakpointLine === editorLine && currentAddress >= minMemory && currentAddress <= maxMemory) {
@@ -421,6 +437,8 @@ export class DirectorService {
     for (let register of registers) {
       register.setValue(0);
     }
+
+    this._currentLineNotifierMacro.next({ line: 0 })
 
     this._refreshNotifier.next(true);
 
