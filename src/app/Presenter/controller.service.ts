@@ -400,7 +400,17 @@ export class ControllerService {
 
   reset() {
     this._clearBreakpoint.next(undefined);
-    this.director.reset();
+    
+    try{
+      this.director.reset();
+    }catch(error){
+      if(error instanceof Error){
+        if( error.message === "parserError"){
+          console.warn("parserError - Disable Run Buttons!")
+          return;
+        }
+      }
+    }
     
     this.macroProvider.macroGotChanged = false;
 
