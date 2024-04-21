@@ -9,8 +9,9 @@ import { DirectorService } from './director.service';
 import { BehaviorSubject } from 'rxjs';
 import { MainMemoryService } from '../Model/Emulator/main-memory.service';
 import { PresentationControllerService } from './presentation-controller.service';
-import { BatchTestService } from '../Model/batch-test.service';
 import { TestFile } from '../View/tutor-mode/tutor-mode.component';
+import { SemanticCheckerService } from '../Model/semantic-checker.service';
+import { CodeGeneratorService } from '../Model/code-generator.service';
 
 
 
@@ -358,7 +359,8 @@ export class ControllerService {
     private director: DirectorService,
     private mainMemory: MainMemoryService,
     private presentationController: PresentationControllerService,
-    private batchTestService: BatchTestService,
+    private semanticChecker: SemanticCheckerService,
+    private codeGenerator: CodeGeneratorService,
 
   ) {
     const codeMac = localStorage.getItem("macroCode");
@@ -457,7 +459,7 @@ export class ControllerService {
 
     for (let i = 0; i < files.length; i++) {
       try {
-        const fileContent: any = await this.readFile(files[0]);
+        const fileContent: any = await this.readFile(files[i]);
         if (typeof fileContent === "string") {
           testFiles.push(JSON.parse(fileContent));
         }
@@ -476,37 +478,43 @@ export class ControllerService {
     const submissions: Submission[] = await this.readAllSubmissionFiles(files);
     let errorList: string[] = [];
     let numberOfErrors = errorList.length
+    let currentError = false
 
-    for (let i = 0; i < files.length; i++) {
-      let fileReader = new FileReader();
-      fileReader.readAsText(files[i]);
+    for (let i = 0; i < submissions.length; i++) {
+      this.director.resetBatch()
+      currentError = false
+      numberOfErrors = errorList.length
+      try {
+        this.microProvider.setMicro(submissions[i].micro);
+        this.controlStore.loadMicro();
+        let opcodes = this.controlStore.getMicroAddr()
+        let macroTokens = this.macroTokenizer.tokenizeWithFile(submissions[i].macro)
+        let ast = this.macroASTGenerator.parse(macroTokens)
+        this.semanticChecker.checkSemantic(opcodes, ast)
 
-      
-
-      fileReader.onload = (e) => {
-        numberOfErrors = errorList.length
-        try {
-          this.microProvider.setMicro(JSON.parse(fileReader.result.toString()).micro);
-          this.controlStore.loadMicro();
-          this.macroASTGenerator.parse(this.macroTokenizer.tokenizeWithFile(JSON.parse(fileReader.result.toString()).macro));
+        if(!currentError){
           this.director.endOfProgram = false;
-          this.director.run(); // this.run() would load program from editor, so we use this.director.run() this just runs the already manually loaded program
-          this.batchTestService.test(this.testSettings);
-        } catch (error) {
-          errorList.push("Error on file " + (i + 1) + ": " + JSON.parse(fileReader.result.toString()).name);
-          if (error instanceof Error) {
-            this._testStatus.next({ fileIndex: i, status: "failed", error: error.message })
-          }
-        }
+          this.codeGenerator.generate(ast, opcodes)
 
-        if (numberOfErrors === errorList.length) {
-          this._testStatus.next({ fileIndex: i, status: "passed", error: "" });
+          // this.run() would load program from editor, so we use this.director.run() this just runs the already by the code generater loaded program
+          // also passes the testSettings because when you pass this run() will also perform additional tests
+          await this.director.run(this.testSettings); 
         }
+      } catch (error) {
+        errorList.push("Error on file " + (i + 1) + ": " + submissions[i].name);
+        currentError = true
+        if (error instanceof Error) {
+          this._testStatus.next({ fileIndex: i, status: "failed", error: error.message })
+        }
+      }
 
-        if (i === files.length - 1) {
-          this.presentationController.batchTestResultToConsole(errorList);
-          console.log("-- Batch test end --");
-        }
+      if (numberOfErrors === errorList.length) {
+        this._testStatus.next({ fileIndex: i, status: "passed", error: "" });
+      }
+
+      if (i === files.length - 1) {
+        this.presentationController.batchTestResultToConsole(errorList);
+        console.log("-- Batch test end --");
       }
     }
   }
