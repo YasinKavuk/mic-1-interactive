@@ -32,9 +32,10 @@ export class TutorModeComponent implements OnInit {
     this.presentationController.loadFilesToTutMode$.subscribe(
       content => {
         if (content.files[0] !== undefined) {
-          content.files.forEach((file: File) => this.files.push({ status: "", file: file }))
+          content.files.forEach((file: File) => this.files.push({ file: file, status: "" }))
           this.controller.testFiles = this.files;
         }
+        content.files = []
       }
     )
 

@@ -28,6 +28,7 @@ export class ImportDialogComponent implements OnInit {
 
   onAddFiles(){
     this.controller.importFiles(this.files);
+    this.files = []
     this.dialogRef.close();
   }
 
