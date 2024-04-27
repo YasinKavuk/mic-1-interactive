@@ -18,6 +18,7 @@ import { PresentationControllerService } from './presentation-controller.service
 import { SemanticCheckerService } from '../Model/semantic-checker.service';
 import { CodeGeneratorService } from '../Model/code-generator.service';
 import { MacroError } from '../Model/MacroErrors';
+import { BatchTestService } from '../Model/batch-test.service';
 
 
 @Injectable({
@@ -34,6 +35,7 @@ export class DirectorService {
     private mainMemory: MainMemoryService,
     private regProvider: RegProviderService,
     private controlStore: ControlStoreService,
+    private batchTestService: BatchTestService,
     private stackProvider: StackProviderService,
     private macroProvider: MacroProviderService,
     private microProvider: MicroProviderService,
@@ -82,7 +84,6 @@ export class DirectorService {
 
   private microBreakpoints: Array<number> = [];
   private macroBreakpoints: Array<number> = [];
-  private macroBreakpointsAddr: Array<number> = [];
   private hitBreakpoint = false;
 
 
@@ -111,6 +112,9 @@ export class DirectorService {
   private _currentLineNotifier = new BehaviorSubject({ line: 0 });
   public currentLineNotifier$ = this._currentLineNotifier.asObservable();
 
+  private _currentLineNotifierMacro = new BehaviorSubject({ line: 0 });
+  public currentLineNotifierMacro$ = this._currentLineNotifierMacro.asObservable();
+
   private _aluFlags = new BehaviorSubject({ N: false, Z: false });
   public aluFlags$ = this._aluFlags.asObservable();
 
@@ -127,7 +131,7 @@ export class DirectorService {
   }
 
   /** Run until macro-program is finished */
-  public async run() {
+  public async run(testSettings?: any) {
     let counter = 0;
     this.isRunning = true;
     while (!this.endOfProgram && this.isRunning) {
@@ -142,6 +146,10 @@ export class DirectorService {
         break;
       }
       counter++;
+    }
+
+    if(testSettings !== undefined){
+      this.batchTestService.test(testSettings)
     }
   }
 
@@ -168,7 +176,6 @@ export class DirectorService {
   }
 
   public async step() {
-
     if (this.isAnimating) {
       this.updateRegisterVis();
     }
@@ -228,6 +235,20 @@ export class DirectorService {
 
     const currentAddress = this.regProvider.getRegister("PC").getValue();
     if (this.lineNumber == 1) {
+
+      // lineHighlighting
+      for (let i = 0; i < this.codeGenerator.lineAddrMap.length; i++) {
+        let [editorLine, minMemory, maxMemory] = this.codeGenerator.lineAddrMap[i];
+
+
+        if (currentAddress >= minMemory && currentAddress <= maxMemory) {
+          this._currentLineNotifierMacro.next({ line: editorLine });
+          break;
+        }
+      }
+
+
+      // Check for MacroBreakpoints
       for (let breakpointLine of this.macroBreakpoints) {
         for (let [editorLine, minMemory, maxMemory] of this.codeGenerator.lineAddrMap) {
           if (breakpointLine === editorLine && currentAddress >= minMemory && currentAddress <= maxMemory) {
@@ -422,6 +443,8 @@ export class DirectorService {
       register.setValue(0);
     }
 
+    this._currentLineNotifierMacro.next({ line: 0 })
+
     this._refreshNotifier.next(true);
 
     // reset Queues
@@ -446,8 +469,54 @@ export class DirectorService {
       else if (error instanceof Error) {
         this._errorFlasher.next({ line: 1, error: error.message });
       }
-      return;
+      this._finishedRun.next(false); // disable run Buttons
+      throw new Error("parserError");
     }
+
+
+    // animate new register Values
+    this.updateRegisterVis();
+
+    //reset program
+    this.endOfProgram = false;
+
+    // reset stack View
+    this.stackProvider.update()
+
+    //enable buttons
+    this._finishedRun.next(true);
+
+    this.videoController.wipeScreen();
+
+    // set Breakpoints Addresses for Macrocode
+    // for (let i = 0; i < this.macroBreakpoints.length; i++) {
+    //   this.macroBreakpointsAddr[i] = this.macroParser.getAddressOfLine(this.macroBreakpoints[i]);
+    // }
+
+    this.macroProvider.isLoaded();
+    this.microProvider.isLoaded();
+
+
+    // notify console that reset was successful
+    this._consoleNotifier.next("Macrocode loaded successfully!");
+  }
+
+  public resetBatch() {
+    this.isRunning = false;
+    this.currentAddress = 1;
+
+    // reset all registers
+    let registers = this.regProvider.getRegisters();
+    for (let register of registers) {
+      register.setValue(0);
+    }
+
+    // reset Queues
+    this.MBRMemoryQueue = [];
+    this.MDRMemoryQueue = [];
+
+    // reset memory
+    this.mainMemory.emptyMemory();
 
 
     // animate new register Values
