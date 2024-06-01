@@ -691,6 +691,8 @@ export class ParserService {
       block.length = block.length + 1;
     }
 
+    blocks.push(block);
+
 
     // assure that "if labels" are 256 bit apart
     for (let line of tokens) {
