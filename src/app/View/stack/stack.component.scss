@@ -1,20 +1,26 @@
 
 
 .stack-container{
-    margin-top: 5%;
+    margin-top: 1%;
+    margin-bottom: 5px;
     height: 100%;
     width: 80%;
     overflow-y: auto;
     overflow-x: hidden;
+    min-height: 0;
+    flex-grow: 1;
 }
 
 
 .stack-entry{
     text-align: center;
-    padding: 1%;
-    margin-top: 1%;
+    margin-bottom: 4px;
     display: flex;
     flex-direction: row;
+}
+
+.stack-entry:nth-child(odd){
+    background-color: rgba(0, 0, 0, 0.12);
 }
 
 .stack-address{
