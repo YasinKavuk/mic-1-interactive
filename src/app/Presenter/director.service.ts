@@ -329,6 +329,7 @@ export class DirectorService {
       // MDR reads 32Bit Words -> multiply address in MAR with 4
       this.MDRMemoryQueue.push(this.regProvider.getRegister("MAR").getValue() * 4);
     }
+    this.updateRegisterVis();
     //write
     if (microInstruction.mem[0]) {
       let addr = this.regProvider.getRegister("MAR").getValue() * 4;
