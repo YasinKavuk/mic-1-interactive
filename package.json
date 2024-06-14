@@ -1,9 +1,10 @@
 {
   "name": "mic-1-toolbox",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
+    "patch": "npm --no-git-tag-version version patch",
     "build": "npm --no-git-tag-version version patch && ng build",
     "deploy": "ng build --base-href=/mic-1-toolbox/ --configuration production",
     "watch": "ng build --watch --configuration development",
