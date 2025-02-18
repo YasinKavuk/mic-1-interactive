@@ -1,0 +1,26 @@
+.console{
+    background-color: #1D2021;
+    height: calc(95% - 4px);
+    width: 97%;
+    color: #EBDAB4;
+    border-radius: 2px;
+    border: 2px solid white;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'Source Code Pro', 'source-code-pro', monospace;
+    font-size: 14px;
+    padding: 4px;
+}
+
+.inp{
+    width: 97%;
+    padding: 4px;
+}
+
+input{
+    background-color: transparent;
+    border: none;
+    outline: none;
+    color: #EBDAB4;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'Source Code Pro', 'source-code-pro', monospace;
+    font-size: 14px;
+    width: 95%;
+}

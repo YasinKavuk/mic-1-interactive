@@ -1,0 +1,9 @@
+<div class="console">
+    <div class="out">
+        <span>{{outputHistory}}</span>
+    </div>
+    <div class="inp">
+        <span class="prompt">></span>
+        <input type="text" (keydown)="onInput($event)" [value]="input">
+    </div>
+</div>

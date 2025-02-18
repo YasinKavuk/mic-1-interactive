@@ -47,6 +47,7 @@ import {MatTooltipModule} from '@angular/material/tooltip';
 import { ScreenComponent } from './View/screen/screen.component';
 import { BatchSettingsDialogComponent } from './View/tutor-mode/batch-settings-dialog/batch-settings-dialog.component';
 import { MatRadioModule } from '@angular/material/radio';
+import { ConsoleComponent } from './Bachelor/Components/console/console.component';
 
 
 
@@ -77,6 +78,7 @@ import { MatRadioModule } from '@angular/material/radio';
     CommentViewComponent,
     ScreenComponent,
     BatchSettingsDialogComponent,
+    ConsoleComponent,
   ],
   imports: [
     BrowserModule,
