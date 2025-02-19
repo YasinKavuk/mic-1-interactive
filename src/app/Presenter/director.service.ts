@@ -19,6 +19,7 @@ import { SemanticCheckerService } from '../Model/semantic-checker.service';
 import { CodeGeneratorService } from '../Model/code-generator.service';
 import { MacroError } from '../Model/MacroErrors';
 import { BatchTestService } from '../Model/batch-test.service';
+import { InterruptService } from '../Bachelor/Services/interrupt.service';
 
 
 @Injectable({
@@ -35,6 +36,7 @@ export class DirectorService {
     private mainMemory: MainMemoryService,
     private regProvider: RegProviderService,
     private controlStore: ControlStoreService,
+    private interruptService: InterruptService,
     private batchTestService: BatchTestService,
     private stackProvider: StackProviderService,
     private macroProvider: MacroProviderService,
@@ -188,6 +190,14 @@ export class DirectorService {
       return;
     }
 
+    // triggers an Event when MBR is the address of IRET
+    if(this.currentAddress === 211){
+      this.endOfProgram = true
+      this._consoleNotifier.next("Interrupt-Return!")
+      this._finishedRun.next(false)
+      this.interruptService.returnContex()
+      // this._iRetEvent.next(true)
+    }
 
     // if we find opcode of NOP wait for 0ms -> otherwise the screen does not render (since we only have one Thread)
     if (this.presentationController.getGraphicsFunctionalityEnabled() || this.currentAddress === 0) {
@@ -367,7 +377,7 @@ export class DirectorService {
           }
         }
       }
-      console.log("next line is ", micro[parseInt(address)].lineNumber)
+      // console.log("next line is ", micro[parseInt(address)].lineNumber)
       this.currentAddress = parseInt(address);
     }
 

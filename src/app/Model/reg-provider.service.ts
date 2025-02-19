@@ -31,5 +31,14 @@ export class RegProviderService {
     }
     return null;
   }
+
+  setRegister(name: String, value: number){
+    for(let register of this.registers){
+      if(register.getName() === name){
+        register.setValue(value)
+      }
+    }
+  }
+
 }
 

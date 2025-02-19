@@ -1,6 +1,6 @@
 
 <div class="stack-container">
-    <div class="stack-entry" ng   *ngFor="let element of this.stackProvider.items"><!-- for animation use: @flyInOut -->
+    <div class="stack-entry" ng *ngFor="let element of this.stackProvider.items"><!-- for animation use: @flyInOut -->
         <div class="SP" [ngClass]="{'hidden': !isSP(element[0]), 'presentationMode':presentationMode} ">SP></div>
         <div class="LV" [ngClass]="{'hidden': !isLV(element[0]), 'presentationMode':presentationMode}">LV></div>
         <div class="stack-address" [ngClass]="{'presentationMode': presentationMode}">({{ dec2hex(element[0]) }})  </div>

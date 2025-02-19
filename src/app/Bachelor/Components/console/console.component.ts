@@ -1,5 +1,5 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { isNumber } from 'cypress/types/lodash';
+import { InterruptService } from '../../Services/interrupt.service';
 
 @Component({
   selector: 'app-console',
@@ -12,7 +12,9 @@ export class ConsoleComponent implements OnInit {
   outputHistory: string = ``
   inputBufferDevice: Uint8Array[] = []
 
-  constructor() { }
+  constructor(
+    private interruptService: InterruptService, 
+  ) { }
 
   ngOnInit(): void {
   }
@@ -21,10 +23,7 @@ export class ConsoleComponent implements OnInit {
     event.preventDefault() // stops the character from beeing inserted in the input-field
 
     const key = event.key
+    this.interruptService.triggerInterrupt(key)
     
-
-    // put utf8 into the inputBufferDevice and than continue with the interrupt. slice array with (0,1). repeat when array is not empty.
-    // how to handle 2byte operands like 167 -5 (167 is goto, -5 would be 2 byte. When its not negative its still 2 bytes.) Maybe flag? like 167 -4 oder 167 +4.
-    // trigger interrupt and pass this key into an register while contex switching
   }
 }

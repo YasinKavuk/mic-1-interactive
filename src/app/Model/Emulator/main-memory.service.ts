@@ -180,5 +180,33 @@ export class MainMemoryService {
     return this.memory;
   }
 
+  pop12Stack() {
+    const slicedMemory: { [key: number]: number } = {}
+
+    const keys = Object.keys(this.memory).map(Number).sort((a, b) => a - b)
+
+    const addressesToRemove = 48;
+    const keepCount = Math.max(0, keys.length - addressesToRemove)
+
+    const endAddressToKeep = keys[keepCount - 1]
+    for (const key in this.memory) {
+      const numericKey = Number(key);
+      if (numericKey <= endAddressToKeep) {
+        slicedMemory[numericKey] = this.memory[numericKey]
+      }
+    }
+
+    this.memory = slicedMemory
+  }
+
+  // saveContex(cpuState){}
+
+  public getLastUsedAddress(): number {
+    const addresses = Object.keys(this.memory).map(Number);
+    if (addresses.length === 0) return -1; // Return -1 if memory is empty
+    
+    // Return the maximum address using reduce for better performance with large memory
+    return addresses.reduce((max, addr) => Math.max(max, addr), -1);
+  }
 
 }
