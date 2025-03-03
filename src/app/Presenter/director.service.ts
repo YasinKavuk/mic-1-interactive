@@ -195,7 +195,7 @@ export class DirectorService {
       this.endOfProgram = true
       this._consoleNotifier.next("Interrupt-Return!")
       this._finishedRun.next(false)
-      this.interruptService.returnContex()
+      this.interruptService.returnContext()
       // this._iRetEvent.next(true)
     }
 

@@ -9,6 +9,7 @@ import { StackProviderService } from 'src/app/Model/stack-provider.service';
   providedIn: 'root'
 })
 export class InterruptService {
+  contextOrder: string[] = ["PC", "MAR", "MDR", "MBR", "SP", "LV", "CPP", "TOS", "OPC", "H"]
 
   constructor(
     private regProvider: RegProviderService, 
@@ -32,6 +33,7 @@ export class InterruptService {
 
     let addr = lastUsedAddr + 1
     for(let i = 0; i < regValues.length; i++){
+      console.log(regValues[i].getName())
       this.mainMemory.store_32(addr, regValues[i].getValue());
       addr += 4
     }
@@ -49,12 +51,18 @@ export class InterruptService {
     // Does not return the Context here
   }
 
-  returnContex(){
+  returnContext(){
     console.log("--RETURNING CONTEXT--")
     const oldState = this.stackProvider.pop12() // get old register and ALU values for contex restoring
     this.mainMemory.pop12Stack() // needed to update Stack-View in the emulator not critical
     this.stackProvider.update()
-    
-    // set registers with old state
+
+    // returns registers and alu to old context
+    for(let i = 0; i < oldState.length; i++){
+      this.regProvider.setRegister(this.contextOrder[i], oldState[i][1])
+    }
+    this.alu.setN(Boolean(oldState[10][1]))
+    this.alu.setZ(Boolean(oldState[11][1]))
+
   }
 }

@@ -99,4 +99,12 @@ export class AluService {
 
   }
 
+  public setN(n: boolean){
+    this._n = n
+  }
+
+  public setZ(z: boolean){
+    this._z = z
+  }
+
 }
