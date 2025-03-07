@@ -19,7 +19,7 @@ import { SemanticCheckerService } from '../Model/semantic-checker.service';
 import { CodeGeneratorService } from '../Model/code-generator.service';
 import { MacroError } from '../Model/MacroErrors';
 import { BatchTestService } from '../Model/batch-test.service';
-import { InterruptService } from '../Bachelor/Services/interrupt.service';
+import { add } from 'cypress/types/lodash';
 
 
 @Injectable({
@@ -36,7 +36,6 @@ export class DirectorService {
     private mainMemory: MainMemoryService,
     private regProvider: RegProviderService,
     private controlStore: ControlStoreService,
-    private interruptService: InterruptService,
     private batchTestService: BatchTestService,
     private stackProvider: StackProviderService,
     private macroProvider: MacroProviderService,
@@ -134,7 +133,7 @@ export class DirectorService {
 
   /** Run until macro-program is finished */
   public async run(testSettings?: any) {
-    let counter = 0;
+    // let counter = 0;
     this.isRunning = true;
     while (!this.endOfProgram && this.isRunning) {
       await this.step();
@@ -143,11 +142,11 @@ export class DirectorService {
         break;
       }
       // stop after 1000 steps (probably endless loop)
-      if (counter >= 1000) {
-        this._consoleNotifier.next("Stopping run at Step " + counter + " - your program is probably in a endless loop. If that is not the case just press Run again!")
-        break;
-      }
-      counter++;
+      // if (counter >= 1000) {
+      //   this._consoleNotifier.next("Stopping run at Step " + counter + " - your program is probably in a endless loop. If that is not the case just press Run again!")
+      //   break;
+      // }
+      // counter++;
     }
 
     if(testSettings !== undefined){
@@ -183,19 +182,18 @@ export class DirectorService {
     }
 
     // the flag 0xFF means the program is finished - if we find it -> end program
-    if (this.currentAddress === 255) {
-      this.endOfProgram = true;
-      this._consoleNotifier.next("Program terminated successfully!");
-      this._finishedRun.next(false); // disableButtons
-      return;
-    }
+    // if (this.currentAddress === 255) {
+    //   this.endOfProgram = true;
+    //   this._consoleNotifier.next("Program terminated successfully!");
+    //   this._finishedRun.next(false); // disableButtons
+    //   return;
+    // }
 
     // triggers an Event when MBR is the address of IRET
-    if(this.currentAddress === 211){
-      this.endOfProgram = true
+    if(this.currentAddress === 217){
       this._consoleNotifier.next("Interrupt-Return!")
       this._finishedRun.next(false)
-      this.interruptService.returnContext()
+      this.returnContext()
       // this._iRetEvent.next(true)
     }
 
@@ -364,7 +362,7 @@ export class DirectorService {
 
     // find address after a jump
     let micro = this.controlStore.getMicro()
-    if (micro[this.currentAddress] === undefined && this.currentAddress !== 255) {
+    if (micro[this.currentAddress] === undefined) {
 
       let closestLine = Infinity;
       let address: string;
@@ -598,5 +596,71 @@ export class DirectorService {
   public setAnimationSpeed(speed: number) {
     this.animationSpeed = speed;
     localStorage.setItem("animationSpeed", String(speed));
+  }
+
+  triggerInterrupt(key: string){
+    console.log("--INTERRUPT--, " + key)
+
+    this.isRunning = false
+
+    // check statusbit for blocking interrupts
+    // ...
+
+    // save context (push registers to the stack)
+    let regValues = this.regProvider.getNonMemoryRegisters()
+    const lastUsedAddr = this.mainMemory.getLastUsedAddress()
+
+    let stackAddr = (this.regProvider.getRegister("SP").getValue()+1)*4
+    for(let i = 0; i < regValues.length; i++){
+      console.log(regValues[i].getName())
+      this.mainMemory.store_32(stackAddr, regValues[i].getValue());
+      stackAddr += 4
+    }
+    this.mainMemory.store_32(stackAddr, Number(this.alu.n))
+    this.mainMemory.store_32(stackAddr+4, Number(this.alu.z))
+    this.mainMemory.store_32(stackAddr+8, this.currentAddress) // saves MPC
+
+    let newSP = this.regProvider.getRegister("SP").getValue() + 11
+    this.setRegisterValuesSource.next(["SP", newSP, false]);
+    this.regProvider.setRegister("SP", newSP)
+    this.stackProvider.update()
+
+    // context swtich (jump to ISR)
+    // start of ISR and MBR is hardcoded thus needs to be updated when systemcode is changed
+    this.regProvider.setRegister("OPC", +key)
+    this.setRegisterValuesSource.next(["OPC", +key, false])
+    this.regProvider.setRegister("PC", 11)
+    this.setRegisterValuesSource.next(["PC", 11, false])
+    // this.regProvider.setRegister("MBR", 221)
+    // this.setRegisterValuesSource.next(["MBR", 221, false])
+    this.currentAddress = 221
+
+    this.run()
+
+    // Does not return the Context here
+  }
+
+  returnContext(){
+    console.log("--RETURNING CONTEXT--")
+
+    this.isRunning = false
+
+    let contextOrder: string[] = ["PC", "MAR", "SP", "LV", "CPP", "TOS", "OPC", "H"]
+
+    const oldState = this.stackProvider.pop13() // get old register and ALU values for contex restoring
+    this.mainMemory.pop13Stack() // needed to update Stack-View in the emulator not critical
+    this.stackProvider.update()
+
+    // returns registers and alu to old context
+    for(let i = 0; i < oldState.length; i++){
+      this.regProvider.setRegister(contextOrder[i], oldState[i][1])
+    }
+    this.alu.setN(Boolean(oldState[8][1]))
+    this.alu.setZ(Boolean(oldState[9][1]))
+    this.currentAddress = oldState[10][1]
+    this.regProvider.setRegister("MDR", oldState[11][1])
+    this.regProvider.setRegister("MBR", oldState[12][1])
+
+    this.run()
   }
 }

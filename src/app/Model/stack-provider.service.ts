@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { MainMemoryService } from './Emulator/main-memory.service';
 import { RegProviderService } from './reg-provider.service';
-import { DirectorService } from '../Presenter/director.service';
 
 @Injectable({
   providedIn: 'root'
@@ -34,9 +33,9 @@ export class StackProviderService  {
     }
   }
 
-  public pop12(){
-    this._sp -= 12
-    return this._items.splice(this._items.length - 12, 12)
+  public pop13(){
+    this._sp -= 13
+    return this._items.splice(this._items.length - 13, 13)
   }
 
   public growStackframe(addValue: number){

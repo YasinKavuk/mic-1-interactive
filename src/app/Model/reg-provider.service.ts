@@ -14,7 +14,8 @@ export class RegProviderService {
                                   new Register("CPP", 0, 32),
                                   new Register("TOS", 0, 32),
                                   new Register("OPC", 0, 32),
-                                  new Register("H", 0, 32)]
+                                  new Register("H", 0, 32),
+                                  new Register("ISR", 0, 1)]
 
 
   constructor() { }
@@ -30,6 +31,10 @@ export class RegProviderService {
       }
     }
     return null;
+  }
+
+  getNonMemoryRegisters(): Register[]{
+    return this.registers.filter(reg => reg.getName() !== "MDR" && reg.getName() !== "MBR")
   }
 
   setRegister(name: String, value: number){

@@ -1,5 +1,5 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { InterruptService } from '../../Services/interrupt.service';
+import { DirectorService } from 'src/app/Presenter/director.service';
 
 @Component({
   selector: 'app-console',
@@ -13,7 +13,7 @@ export class ConsoleComponent implements OnInit {
   inputBufferDevice: Uint8Array[] = []
 
   constructor(
-    private interruptService: InterruptService, 
+    private director: DirectorService, 
   ) { }
 
   ngOnInit(): void {
@@ -23,7 +23,7 @@ export class ConsoleComponent implements OnInit {
     event.preventDefault() // stops the character from beeing inserted in the input-field
 
     const key = event.key
-    this.interruptService.triggerInterrupt(key)
+    this.director.triggerInterrupt(key)
     
   }
 }

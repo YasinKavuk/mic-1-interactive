@@ -132,7 +132,7 @@ export class PresentationControllerService {
     let generalEntries: { name: string, address: number }[] = [];
 
     // set MethodArea
-    for (let i = 0; i < this.mainMemory.methodAreaSize; i++) {
+    for (let i = 0; i < this.mainMemory.systemCodeSize; i++) {
       methodEntries.push({ name: this.mainMemory.dec2hex(i) + " " + this.mainMemory.get_8(i, true), address: i });
     }
 

@@ -24,7 +24,7 @@ interface FlatNode {
 
 const MEMORY_FIELD:MemoryField[] = [
   {
-    name: 'MethodArea',
+    name: 'SystemCode',
     children: [],
   },
   {

@@ -6,7 +6,6 @@ import { ABusComponent } from '../SVG/a-bus/a-bus.component';
 import { BBusComponent } from '../SVG/b-bus/b-bus.component';
 import { CBusComponent } from '../SVG/c-bus/c-bus.component';
 import { ShifterComponent } from '../SVG/shifter/shifter.component';
-import { InterruptService } from 'src/app/Bachelor/Services/interrupt.service';
 
 @Component({
   selector: 'app-mic-visualization',
@@ -23,7 +22,6 @@ export class MicVisualizationComponent implements AfterViewInit {
 
   constructor(
     private director: DirectorService,
-    private interruptService: InterruptService,
   ) { }
 
   endAnimation(event: string) {
@@ -43,7 +41,7 @@ export class MicVisualizationComponent implements AfterViewInit {
       }
     )
 
-    this.interruptService.setRegisterValues.subscribe(
+    this.director.setRegisterValues.subscribe(
       results => {
         if (results[0]) {
           const register:string = results[0];

@@ -9,8 +9,10 @@ export class MainMemoryService {
 
   private memory: { [key: number]: number } = {}
 
-  public methodAreaSize: number;
+  public systemCodeSize: number;
   public constantPoolSize: number;
+  public inputBufferSize: number;
+  public outputBufferSize: number;
 
   private _stackStartAddress = 0;
 
@@ -19,7 +21,10 @@ export class MainMemoryService {
 
   constructor(
     private regProvider: RegProviderService,
-  ) { }
+  ) {
+    this.inputBufferSize = 128
+    this.outputBufferSize = 128
+  }
 
   public get stackStartAddress(): number {
     return this._stackStartAddress;
@@ -27,8 +32,10 @@ export class MainMemoryService {
 
   public emptyMemory(){
     this.memory = {}
-    this.methodAreaSize = 0;
+    this.systemCodeSize = 0;
     this.constantPoolSize = 0;
+    this.inputBufferSize = 128;
+    this.outputBufferSize = 128;
     this._stackStartAddress = 0;
   }
 
@@ -36,10 +43,10 @@ export class MainMemoryService {
 
     console.log("change at address", address, "value:", value)
 
-    //check if we have permission to write in this area
-    if (!setter && (address < this.methodAreaSize + this.constantPoolSize)) {
-      throw new Error("Segmentation fault - The area you are trying to write is read only");
-    }
+    // //check if we have permission to write in this area
+    // if (!setter && (address < this.systemCodeSize + this.constantPoolSize)) {
+    //   throw new Error("Segmentation fault - The area you are trying to write is read only");
+    // }
 
     const buffer = new ArrayBuffer(4);
     const view = new DataView(buffer, 0);
@@ -53,14 +60,10 @@ export class MainMemoryService {
 
     this._updateMemory.next({ address: address, value: value});
 
-
+    this.printMemory()
   }
 
   private store_8(address: number, value: number) {
-
-    // if (value < -128 || value >= 128) {
-    //   throw new Error('InvalidSizeException: value must be >= 0 and must fit in a byte. Your value: ' + value);
-    // }
     this.memory[address] = value;
   }
 
@@ -77,9 +80,6 @@ export class MainMemoryService {
   }
 
   public get_8(address: number, intern?: boolean): number {
-    if (address >= this.methodAreaSize) {
-      console.warn("PC reading outside of Method Area (PC is not pointing to Code), current PC value: ", address);
-    }
     if (address in this.memory) {
       return this.memory[address];
     }
@@ -90,15 +90,17 @@ export class MainMemoryService {
   }
 
   public printMemory() {
-    this.printCodeArea();
+    this.printSystemCode();
     this.printConstantArea();
+    this.printInputBuffer();
+    this.printOutputBuffer();
     this.printStack();
   }
 
-  private printCodeArea() {
-    console.group('%cMethodArea', 'color: green');
+  private printSystemCode() {
+    console.group('%cSystemCode', 'color: green');
     console.log(`  Address     Value  `)
-    for (let i = 0; i < this.methodAreaSize; i++) {
+    for (let i = 0; i < this.systemCodeSize; i++) {
       console.log(`  ${this.dec2hex(i)}        0b${this.get_8(i, true).toString(2)} = ${this.get_8(i, true)}`)
     }
     console.groupEnd();
@@ -116,11 +118,33 @@ export class MainMemoryService {
     console.groupEnd();
   }
 
+  private printInputBuffer() {
+    console.group('%cInputBuffer', 'color: yellow');
+    console.log(`  Address     Value  `);
+
+    const start = this.regProvider.getRegister("CPP").getValue() * 4 + this.constantPoolSize;
+    for (let i = start; i < start + this.inputBufferSize; i++) {
+      console.log(`  ${this.dec2hex(i)}        0b${this.get_8(i, true).toString(2)} = ${this.get_8(i, true)}`);
+    }
+    console.groupEnd();
+  }
+
+  private printOutputBuffer() {
+    console.group('%cOutputBuffer', 'color: orange');
+    console.log(`  Address     Value  `);
+    const start = this.regProvider.getRegister("CPP").getValue() * 4 + this.constantPoolSize + this.inputBufferSize;
+    for (let i = start; i < start + this.outputBufferSize; i++) {
+      console.log(`  ${this.dec2hex(i)}        0b${this.get_8(i, true).toString(2)} = ${this.get_8(i, true)}`);
+    }
+    console.groupEnd();
+  }
+
+
   private printStack() {
-    console.group('%cGeneral Memory', 'color: brown');
+    console.group('%cGeneral Memory (Stack)', 'color: brown');
     console.log(`  Address     Value  `)
 
-    let start = this.regProvider.getRegister("CPP").getValue() * 4 + this.constantPoolSize;
+    let start = this.regProvider.getRegister("CPP").getValue() * 4 + this.constantPoolSize + this.inputBufferSize + this.outputBufferSize;
     let keys = Object.keys(this.memory).filter(address => parseInt(address) >= start).sort();
 
     for (let i = 0; i < keys.length; i += 4) {
@@ -140,7 +164,7 @@ export class MainMemoryService {
   }
 
   public setCode(code: number[]) {
-    this.methodAreaSize = code.length; // align next Memory Addresses
+    this.systemCodeSize = code.length; // align next Memory Addresses
 
     this.regProvider.getRegister("MBR").setValue(code[0]); // Initialize MBR with first instruction
 
@@ -154,13 +178,17 @@ export class MainMemoryService {
    */
   public setConstants(constants: number[]) {
     this.constantPoolSize = constants.length * 4;
-    let alignedMethodAreaSize = Math.ceil(this.methodAreaSize / 4) * 4;
+    let alignedSystemCodeSize = Math.ceil(this.systemCodeSize / 4) * 4;
+    let inputBufferOffset = alignedSystemCodeSize + this.constantPoolSize;
+    let outputBufferOffset = inputBufferOffset + this.inputBufferSize;
 
-    this.regProvider.getRegister("CPP").setValue(alignedMethodAreaSize / 4); // set CPP to first constant
+
+    this.regProvider.getRegister("CPP").setValue(alignedSystemCodeSize / 4); // set CPP to first constant
     for (let i = 0; i < constants.length; i++) {
-      this.store_32(alignedMethodAreaSize + i * 4, constants[i], true); // constants start after the MethodArea
+      this.store_32(alignedSystemCodeSize + i * 4, constants[i], true); // constants start after the SystemCode
     }
-    this._stackStartAddress = alignedMethodAreaSize + this.constantPoolSize;
+
+    this._stackStartAddress = outputBufferOffset + this.outputBufferSize;
 
     // Set SP and LV to start of Stack
     this.regProvider.getRegister("SP").setValue(this._stackStartAddress / 4);
@@ -180,12 +208,12 @@ export class MainMemoryService {
     return this.memory;
   }
 
-  pop12Stack() {
+  pop13Stack() {
     const slicedMemory: { [key: number]: number } = {}
 
     const keys = Object.keys(this.memory).map(Number).sort((a, b) => a - b)
 
-    const addressesToRemove = 48;
+    const addressesToRemove = 52;
     const keepCount = Math.max(0, keys.length - addressesToRemove)
 
     const endAddressToKeep = keys[keepCount - 1]
@@ -204,7 +232,7 @@ export class MainMemoryService {
   public getLastUsedAddress(): number {
     const addresses = Object.keys(this.memory).map(Number);
     if (addresses.length === 0) return -1; // Return -1 if memory is empty
-    
+
     // Return the maximum address using reduce for better performance with large memory
     return addresses.reduce((max, addr) => Math.max(max, addr), -1);
   }
