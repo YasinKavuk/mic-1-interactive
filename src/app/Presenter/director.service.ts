@@ -608,7 +608,6 @@ export class DirectorService {
 
     // save context (push registers to the stack)
     let regValues = this.regProvider.getNonMemoryRegisters()
-    const lastUsedAddr = this.mainMemory.getLastUsedAddress()
 
     let stackAddr = (this.regProvider.getRegister("SP").getValue()+1)*4
     for(let i = 0; i < regValues.length; i++){
@@ -633,9 +632,9 @@ export class DirectorService {
     this.setRegisterValuesSource.next(["PC", 11, false])
     // this.regProvider.setRegister("MBR", 221)
     // this.setRegisterValuesSource.next(["MBR", 221, false])
-    this.currentAddress = 221
+    this.currentAddress = 222
 
-    this.run()
+    // this.run()
 
     // Does not return the Context here
   }
@@ -661,6 +660,6 @@ export class DirectorService {
     this.regProvider.setRegister("MDR", oldState[11][1])
     this.regProvider.setRegister("MBR", oldState[12][1])
 
-    this.run()
+    // this.run()
   }
 }

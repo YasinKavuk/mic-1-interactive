@@ -14,8 +14,7 @@ export class RegProviderService {
                                   new Register("CPP", 0, 32),
                                   new Register("TOS", 0, 32),
                                   new Register("OPC", 0, 32),
-                                  new Register("H", 0, 32),
-                                  new Register("ISR", 0, 1)]
+                                  new Register("H", 0, 32)]
 
 
   constructor() { }
