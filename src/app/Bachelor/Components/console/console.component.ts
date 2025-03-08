@@ -1,4 +1,5 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { MainMemoryService } from 'src/app/Model/Emulator/main-memory.service';
 import { DirectorService } from 'src/app/Presenter/director.service';
 
 @Component({
@@ -14,9 +15,15 @@ export class ConsoleComponent implements OnInit {
 
   constructor(
     private director: DirectorService, 
+    private memory: MainMemoryService,
   ) { }
 
   ngOnInit(): void {
+    this.memory.updateMemory$.subscribe(
+      content => {
+        this.input = this.memory.getInputBufferContent()
+      }
+    )
   }
 
   onInput(event: KeyboardEvent){

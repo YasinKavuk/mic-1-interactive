@@ -60,7 +60,7 @@ export class MainMemoryService {
 
     this._updateMemory.next({ address: address, value: value});
 
-    this.printMemory()
+    // this.printMemory()
   }
 
   private store_8(address: number, value: number) {
@@ -227,14 +227,24 @@ export class MainMemoryService {
     this.memory = slicedMemory
   }
 
-  // saveContex(cpuState){}
-
   public getLastUsedAddress(): number {
     const addresses = Object.keys(this.memory).map(Number);
     if (addresses.length === 0) return -1; // Return -1 if memory is empty
 
     // Return the maximum address using reduce for better performance with large memory
     return addresses.reduce((max, addr) => Math.max(max, addr), -1);
+  }
+
+  public getInputBufferContent(): string{
+    let result: string = ""
+    let startOfInput = this.systemCodeSize+this.constantPoolSize
+    let endOfInput = startOfInput+this.inputBufferSize
+    for(let i = startOfInput+3; i<endOfInput; i+=4){
+      if(this.memory[i] !== undefined){
+        result+=this.memory[i]
+      }
+    }
+    return result
   }
 
 }

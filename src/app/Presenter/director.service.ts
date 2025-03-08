@@ -141,12 +141,8 @@ export class DirectorService {
         this.hitBreakpoint = false;
         break;
       }
-      // stop after 1000 steps (probably endless loop)
-      // if (counter >= 1000) {
-      //   this._consoleNotifier.next("Stopping run at Step " + counter + " - your program is probably in a endless loop. If that is not the case just press Run again!")
-      //   break;
-      // }
-      // counter++;
+
+      await new Promise(resolve => setTimeout(resolve, 100))
     }
 
     if(testSettings !== undefined){
@@ -628,13 +624,13 @@ export class DirectorService {
     // start of ISR and MBR is hardcoded thus needs to be updated when systemcode is changed
     this.regProvider.setRegister("OPC", +key)
     this.setRegisterValuesSource.next(["OPC", +key, false])
-    this.regProvider.setRegister("PC", 11)
-    this.setRegisterValuesSource.next(["PC", 11, false])
+    this.regProvider.setRegister("PC", 16)
+    this.setRegisterValuesSource.next(["PC", 16, false])
     // this.regProvider.setRegister("MBR", 221)
     // this.setRegisterValuesSource.next(["MBR", 221, false])
     this.currentAddress = 222
 
-    // this.run()
+    this.run()
 
     // Does not return the Context here
   }
@@ -660,6 +656,6 @@ export class DirectorService {
     this.regProvider.setRegister("MDR", oldState[11][1])
     this.regProvider.setRegister("MBR", oldState[12][1])
 
-    // this.run()
+    this.run()
   }
 }
