@@ -88,12 +88,12 @@ export class AluService {
     this._n = this._result < 0;
 
     // print on Console
-    console.log(`Alu Operation: ${op}
-    |  values:    [a: ${this.a}=0b${(this.a >>> 0).toString(2)}, b: ${this.b}=0b${(this.b >>> 0).toString(2)}],
-    |  operation: ${this.operations[op]},
-    |  flags:     [z: ${this._z}, n: ${this._n}],
-    |  result:    ${this._result} = 0b${(this._result >>> 0).toString(2)}
-    `);
+    // console.log(`Alu Operation: ${op}
+    // |  values:    [a: ${this.a}=0b${(this.a >>> 0).toString(2)}, b: ${this.b}=0b${(this.b >>> 0).toString(2)}],
+    // |  operation: ${this.operations[op]},
+    // |  flags:     [z: ${this._z}, n: ${this._n}],
+    // |  result:    ${this._result} = 0b${(this._result >>> 0).toString(2)}
+    // `);
 
     return [this._result, this.a];
 

@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { MainMemoryService } from 'src/app/Model/Emulator/main-memory.service';
-import { DirectorService } from 'src/app/Presenter/director.service';
+import { RegProviderService } from 'src/app/Model/reg-provider.service';
+import { ConsoleService } from '../../Services/console.service';
 
 @Component({
   selector: 'app-console',
@@ -14,23 +15,44 @@ export class ConsoleComponent implements OnInit {
   inputBufferDevice: Uint8Array[] = []
 
   constructor(
-    private director: DirectorService, 
+    private consoleService: ConsoleService,
     private memory: MainMemoryService,
+    private regProvider: RegProviderService,
   ) { }
 
   ngOnInit(): void {
     this.memory.updateMemory$.subscribe(
       content => {
-        this.input = this.memory.getInputBufferContent()
+        let ibAsciiArr: number[] = this.memory.getInputBufferContent()
+        this.input = ""
+        for(let asciiCode of ibAsciiArr){
+          this.input += String.fromCharCode(asciiCode)
+          // this.input += asciiCode
+        }
       }
     )
   }
 
-  onInput(event: KeyboardEvent){
-    event.preventDefault() // stops the character from beeing inserted in the input-field
+  onInput(event: KeyboardEvent) {
+    event.preventDefault() // Prevents the character from being inserted into the input field
 
-    const key = event.key
-    this.director.triggerInterrupt(key)
-    
-  }
+    console.log("INPUT: ", event.key)
+
+    switch (event.key) {
+      case "Enter":
+        this.consoleService.setKey("\r")
+        break
+
+      case "Backspace":
+        this.consoleService.setKey("\b")
+        break
+
+      default:
+        this.consoleService.setKey(event.key)
+        break
+    }
+
+    this.regProvider.setRegister("ISR", 1)
+}
+
 }

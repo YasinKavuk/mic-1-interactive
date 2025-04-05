@@ -8,7 +8,7 @@ import { Instruction, Line, ParserService } from '../Model/Emulator/parser.servi
 import { ShifterService } from '../Model/Emulator/shifter.service';
 import { RegProviderService } from '../Model/reg-provider.service';
 import { StackProviderService } from '../Model/stack-provider.service';
-import { BehaviorSubject, Subscription } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 import { MacroASTGeneratorService } from '../Model/macro-AST-Generator.service';
 import { MacroTokenizerService } from '../Model/macro-tokenizer.service';
 import { MacroProviderService } from '../Model/macro-provider.service';
@@ -19,7 +19,7 @@ import { SemanticCheckerService } from '../Model/semantic-checker.service';
 import { CodeGeneratorService } from '../Model/code-generator.service';
 import { MacroError } from '../Model/MacroErrors';
 import { BatchTestService } from '../Model/batch-test.service';
-import { add } from 'cypress/types/lodash';
+import { ConsoleService } from '../Bachelor/Services/console.service';
 
 
 @Injectable({
@@ -34,6 +34,7 @@ export class DirectorService {
     private parser: ParserService,
     private shifter: ShifterService,
     private mainMemory: MainMemoryService,
+    private consoleService: ConsoleService,
     private regProvider: RegProviderService,
     private controlStore: ControlStoreService,
     private batchTestService: BatchTestService,
@@ -79,6 +80,10 @@ export class DirectorService {
   public animationEnabled = true;
   public isAnimating = false;
 
+  noIntList: number[] = []
+  noIntInstruction: boolean = false
+  interrupted: boolean = false
+
   private delay = function (ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms))
   }
@@ -122,6 +127,9 @@ export class DirectorService {
   private _refreshNotifier = new BehaviorSubject(false);
   public refreshNotifier$ = this._consoleNotifier.asObservable();
 
+  private _updateInterruptView = new BehaviorSubject({isr: 0, imr: 0});
+  public updateInterruptView$ = this._updateInterruptView.asObservable();
+
 
 
 
@@ -129,6 +137,7 @@ export class DirectorService {
   public init() {
     this.controlStore.loadMicro();
     this.endOfProgram = false;
+    this.noIntList = this.parser.getNoIntList()
   }
 
   /** Run until macro-program is finished */
@@ -136,13 +145,14 @@ export class DirectorService {
     // let counter = 0;
     this.isRunning = true;
     while (!this.endOfProgram && this.isRunning) {
+      await new Promise(resolve => setTimeout(resolve, 0))
+
       await this.step();
+
       if (this.hitBreakpoint) {
         this.hitBreakpoint = false;
         break;
       }
-
-      await new Promise(resolve => setTimeout(resolve, 100))
     }
 
     if(testSettings !== undefined){
@@ -185,12 +195,22 @@ export class DirectorService {
     //   return;
     // }
 
-    // triggers an Event when MBR is the address of IRET
+    if(this.regProvider.getRegister("ISR").getValue() == 1 && this.regProvider.getRegister("IMR").getValue() != 1){
+      this.regProvider.setRegister("IMR", 1)
+      this._updateInterruptView.next({isr: 1, imr: 1})
+      this.triggerInterrupt()
+    }
+
+    if(this.regProvider.getRegister("ISR").getValue() == 1 && this.regProvider.getRegister("IMR").getValue() == 1){
+      console.log("INTERRUPT BLOCKED")
+      this.regProvider.setRegister("ISR", 0)
+    }
+
+    // triggers an Event when MPC is the address of IRET
     if(this.currentAddress === 217){
       this._consoleNotifier.next("Interrupt-Return!")
       this._finishedRun.next(false)
-      this.returnContext()
-      // this._iRetEvent.next(true)
+      await this.returnContext()
     }
 
     // if we find opcode of NOP wait for 0ms -> otherwise the screen does not render (since we only have one Thread)
@@ -211,7 +231,7 @@ export class DirectorService {
 
     // get line number of the Editor
     this.lineNumber = line.lineNumber;
-    console.log("Executing Instruction at Address: " + this.currentAddress + " line: " + this.lineNumber);
+    // console.log("Executing Instruction at Address: " + this.currentAddress + " line: " + this.lineNumber);
     this._currentLineNotifier.next({ line: line.lineNumber });
 
 
@@ -238,6 +258,21 @@ export class DirectorService {
 
 
     const currentAddress = this.regProvider.getRegister("PC").getValue();
+
+    if(this.noIntInstruction){
+      this.noIntInstruction = false
+      this.regProvider.setRegister("IMR", 0)
+      this._updateInterruptView.next({isr: 0, imr: 0})
+    }
+
+    if(this.noIntList.includes(this.currentAddress) && this.interrupted == false){
+      // console.log("-- Interrupts are blocked for this instruction --")
+      // console.table(this.noIntList)
+      this.noIntInstruction = true
+      this.regProvider.setRegister("IMR", 1)
+      this._updateInterruptView.next({isr: 0, imr: 1})
+    }
+
     if (this.lineNumber == 1) {
 
       // lineHighlighting
@@ -456,6 +491,10 @@ export class DirectorService {
     this.MBRMemoryQueue = [];
     this.MDRMemoryQueue = [];
 
+    this.regProvider.setRegister("ISR", 0)
+    this.regProvider.setRegister("ISR", 0)
+    this._updateInterruptView.next({isr: 0, imr: 0})
+
     // reset memory
     this.mainMemory.emptyMemory();
     try {
@@ -594,48 +633,23 @@ export class DirectorService {
     localStorage.setItem("animationSpeed", String(speed));
   }
 
-  triggerInterrupt(key: string){
+  triggerInterrupt(){
+    const key = this.consoleService.fetchKey()
     console.log("--INTERRUPT--, " + key)
 
-    this.isRunning = false
+    this.interrupted = true
+    this.isRunning = false // stops the MIC-1
 
-    // check statusbit for blocking interrupts
-    // ...
+    this.saveContext()
+    this.contextSwitch(key)
 
-    // save context (push registers to the stack)
-    let regValues = this.regProvider.getNonMemoryRegisters()
-
-    let stackAddr = (this.regProvider.getRegister("SP").getValue()+1)*4
-    for(let i = 0; i < regValues.length; i++){
-      console.log(regValues[i].getName())
-      this.mainMemory.store_32(stackAddr, regValues[i].getValue());
-      stackAddr += 4
-    }
-    this.mainMemory.store_32(stackAddr, Number(this.alu.n))
-    this.mainMemory.store_32(stackAddr+4, Number(this.alu.z))
-    this.mainMemory.store_32(stackAddr+8, this.currentAddress) // saves MPC
-
-    let newSP = this.regProvider.getRegister("SP").getValue() + 11
-    this.setRegisterValuesSource.next(["SP", newSP, false]);
-    this.regProvider.setRegister("SP", newSP)
-    this.stackProvider.update()
-
-    // context swtich (jump to ISR)
-    // start of ISR and MBR is hardcoded thus needs to be updated when systemcode is changed
-    this.regProvider.setRegister("OPC", +key)
-    this.setRegisterValuesSource.next(["OPC", +key, false])
-    this.regProvider.setRegister("PC", 16)
-    this.setRegisterValuesSource.next(["PC", 16, false])
-    // this.regProvider.setRegister("MBR", 221)
-    // this.setRegisterValuesSource.next(["MBR", 221, false])
-    this.currentAddress = 222
-
-    this.run()
+    this.mainMemory.printInputBuffer()
+    this.isRunning = true
 
     // Does not return the Context here
   }
 
-  returnContext(){
+  async returnContext(){
     console.log("--RETURNING CONTEXT--")
 
     this.isRunning = false
@@ -656,6 +670,42 @@ export class DirectorService {
     this.regProvider.setRegister("MDR", oldState[11][1])
     this.regProvider.setRegister("MBR", oldState[12][1])
 
-    this.run()
+    this.regProvider.setRegister("IMR", 0)
+    this.regProvider.setRegister("ISR", 0)
+    this._updateInterruptView.next({isr: 0, imr: 0})
+
+    this.interrupted = false
+    this.isRunning = true
+  }
+
+  // save context (push registers to the stack)
+  saveContext(){
+    let regValues = this.regProvider.getNonMemoryRegisters()
+
+    let stackAddr = (this.regProvider.getRegister("SP").getValue()+1)*4
+    for(let i = 0; i < regValues.length; i++){
+      console.log(regValues[i].getName())
+      this.mainMemory.store_32(stackAddr, regValues[i].getValue());
+      stackAddr += 4
+    }
+    this.mainMemory.store_32(stackAddr, Number(this.alu.n))
+    this.mainMemory.store_32(stackAddr+4, Number(this.alu.z))
+    console.log("current address: ", this.currentAddress)
+    this.mainMemory.store_32(stackAddr+8, this.currentAddress) // saves MPC
+
+    let newSP = this.regProvider.getRegister("SP").getValue() + 11
+    this.setRegisterValuesSource.next(["SP", newSP, false]);
+    this.regProvider.setRegister("SP", newSP)
+    this.stackProvider.update()
+  }
+
+  // context swtich (jump to ISR)
+  contextSwitch(key: number){
+    // start of ISR is hardcoded thus needs to be updated when systemcode is changed. this.currentAddress is the MPC
+    this.regProvider.setRegister("OPC", key)
+    this.setRegisterValuesSource.next(["OPC", key, false])
+    this.regProvider.setRegister("PC", 16)
+    this.setRegisterValuesSource.next(["PC", 16, false])
+    this.currentAddress = 222
   }
 }

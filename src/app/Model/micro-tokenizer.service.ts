@@ -39,6 +39,9 @@ const Spec: any= [
   [/^wr/, "MEMORY_INSTRUCTION"],
   [/^fetch/, "MEMORY_INSTRUCTION"],
 
+  // Interrupt Masking in microcode
+  [/^noInt/, "NO_INT"],
+
   // if else
   [/^if\s*\(N\)/ , "JUMP"],
   [/^if\s*\(Z\)/ , "JUMP"],

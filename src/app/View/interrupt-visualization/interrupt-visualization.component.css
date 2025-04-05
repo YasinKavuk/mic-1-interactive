@@ -1,0 +1,20 @@
+.box {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 80px;
+    padding: 5px;
+    background: white;
+    border: 2px solid black;
+  }
+  
+  .separator {
+    width: 2px;
+    height: 20px;
+    background: black;
+  }
+  
+  .left, .right {
+    padding: 1px;
+  }
+  

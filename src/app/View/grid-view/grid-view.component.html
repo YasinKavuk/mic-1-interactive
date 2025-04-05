@@ -13,6 +13,7 @@
                 </mat-icon>
             </div>
             
+            <app-interrupt-visualization></app-interrupt-visualization>
             <app-mic-visualization [@flyIn]="tutorMode? 'hidden' : 'visible'"></app-mic-visualization>
             <app-tutor-mode style="position: absolute; width: 100%;" *ngIf="tutorMode"></app-tutor-mode>
 

@@ -48,6 +48,7 @@ import { ScreenComponent } from './View/screen/screen.component';
 import { BatchSettingsDialogComponent } from './View/tutor-mode/batch-settings-dialog/batch-settings-dialog.component';
 import { MatRadioModule } from '@angular/material/radio';
 import { ConsoleComponent } from './Bachelor/Components/console/console.component';
+import { InterruptVisualizationComponent } from './View/interrupt-visualization/interrupt-visualization.component';
 
 
 
@@ -79,6 +80,7 @@ import { ConsoleComponent } from './Bachelor/Components/console/console.componen
     ScreenComponent,
     BatchSettingsDialogComponent,
     ConsoleComponent,
+    InterruptVisualizationComponent,
   ],
   imports: [
     BrowserModule,

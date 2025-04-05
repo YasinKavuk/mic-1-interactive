@@ -33,11 +33,11 @@ export class ShifterService {
     
 
     // Print to Console
-    console.log(`Shifter Operation: ${op}
-    |  input:     ${aluResult},
-    |  function:  ${this.operations[op]},
-    |  result:    ${this._result}
-    `);
+    // console.log(`Shifter Operation: ${op}
+    // |  input:     ${aluResult},
+    // |  function:  ${this.operations[op]},
+    // |  result:    ${this._result}
+    // `);
 
     return this._result;
   }

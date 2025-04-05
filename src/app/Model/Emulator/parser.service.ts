@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { RegProviderService } from '../reg-provider.service';
 import { MicroTokenizerService } from '../micro-tokenizer.service';
 import { Token } from '../micro-tokenizer.service';
+import { add } from 'cypress/types/lodash';
 
 export interface Instruction {
   addr: Array<number>;
@@ -22,7 +23,7 @@ export interface Line {
 })
 export class ParserService {
 
-  constructor(private RegisterProvider: RegProviderService) { }
+  constructor(private registerProvider: RegProviderService) { }
 
   private microTokenizer = new MicroTokenizerService();
   private tokens: Token[];
@@ -30,7 +31,7 @@ export class ParserService {
   // jump labels and address
   public labels: { [id: string]: number } = {};
 
-  public static print = true;
+  public static print = false;
 
   // address of current instruction
   private address: number;
@@ -41,6 +42,8 @@ export class ParserService {
   c = Array(9)
   mem = Array(3)
   b = Array(4)
+
+  noIntList: number[] = []
 
 
 
@@ -72,6 +75,12 @@ export class ParserService {
     this.setCBus();
 
     this.setAlu();
+
+    if(instruction[instruction.length-1].type == "NO_INT"){
+      if(!this.noIntList.includes(address)){
+        this.noIntList.push(address)
+      }
+    }
 
     // goto and Memory Instructions are optional
     while (this.tokens.length != 0) {
@@ -210,21 +219,19 @@ export class ParserService {
       }
     } else if (nextToken.type == "BRANCH_TO_MBR") {
       // Overwrite nextAddress with the Address in MBR
-      let nextAddress = this.RegisterProvider.getRegister("MBR").getValue();
+      let nextAddress = this.registerProvider.getRegister("MBR").getValue();
       this.addr.fill(0);
       this.setAddr(nextAddress);
     } else if (nextToken.type == "MULTIWAY_BRANCH_TO_MBR") {
-      let number = parseInt(/0x[a-fA-F0-9]+/.exec(nextToken.value)[0]);
-      // or number with MBR content
-      let mbr = this.RegisterProvider.getRegister("MBR").getValue();
-      let nextAddress = number | mbr;
+      // Extract the BASE ADDRESS (e.g., 0x00) from the token
+      const baseAddress = parseInt(/0x([a-fA-F0-9]+)/.exec(nextToken.value)[1], 16);
 
-      //set JMPC bit
+      // Set JMPC bit to enable MBR combination at RUNTIME
       this.jam[0] = 1;
 
-      // Overwrite nextAddress to new Address
+      // Write ONLY THE BASE ADDRESS to the addr field (DO NOT combine with MBR here)
       this.addr.fill(0);
-      this.setAddr(nextAddress);
+      this.setAddr(baseAddress); // e.g., 0x00
 
     } else {
       throw new Error(`Unexpected Token: ${nextToken.value}, expected a label or (MBR)`);
@@ -731,5 +738,9 @@ export class ParserService {
     console.table(this.labels);
     return microprogram;
 
+  }
+
+  public getNoIntList(){
+    return this.noIntList
   }
 }

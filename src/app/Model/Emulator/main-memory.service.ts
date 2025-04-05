@@ -118,7 +118,7 @@ export class MainMemoryService {
     console.groupEnd();
   }
 
-  private printInputBuffer() {
+  public printInputBuffer() {
     console.group('%cInputBuffer', 'color: yellow');
     console.log(`  Address     Value  `);
 
@@ -235,16 +235,19 @@ export class MainMemoryService {
     return addresses.reduce((max, addr) => Math.max(max, addr), -1);
   }
 
-  public getInputBufferContent(): string{
-    let result: string = ""
+  public getInputBufferContent(): number[]{
+    let ib: number[] = []
     let startOfInput = this.systemCodeSize+this.constantPoolSize
+    startOfInput += (4-(startOfInput % 4)) % 4
+    console.log("start input: " + startOfInput)
     let endOfInput = startOfInput+this.inputBufferSize
     for(let i = startOfInput+3; i<endOfInput; i+=4){
       if(this.memory[i] !== undefined){
-        result+=this.memory[i]
+        ib.push(this.memory[i])
       }
     }
-    return result
+    console.log(ib)
+    return ib
   }
 
 }
