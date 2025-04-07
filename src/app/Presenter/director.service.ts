@@ -145,7 +145,7 @@ export class DirectorService {
     // let counter = 0;
     this.isRunning = true;
     while (!this.endOfProgram && this.isRunning) {
-      await new Promise(resolve => setTimeout(resolve, 0))
+      // await new Promise(resolve => setTimeout(resolve, 0))
 
       await this.step();
 
@@ -644,6 +644,7 @@ export class DirectorService {
     this.contextSwitch(key)
 
     this.mainMemory.printInputBuffer()
+    this.mainMemory.printOutputBuffer()
     this.isRunning = true
 
     // Does not return the Context here
@@ -699,13 +700,35 @@ export class DirectorService {
     this.stackProvider.update()
   }
 
+  // // context swtich (jump to ISR)
+  // contextSwitch(key: number){
+  //   // start of ISR is hardcoded thus needs to be updated when systemcode is changed. this.currentAddress is the MPC
+  //   this.regProvider.setRegister("OPC", key)
+  //   this.setRegisterValuesSource.next(["OPC", key, false])
+  //   this.regProvider.setRegister("PC", 16)
+  //   this.setRegisterValuesSource.next(["PC", 16, false])
+  //   this.currentAddress = 222
+  // }
+
   // context swtich (jump to ISR)
   contextSwitch(key: number){
     // start of ISR is hardcoded thus needs to be updated when systemcode is changed. this.currentAddress is the MPC
-    this.regProvider.setRegister("OPC", key)
-    this.setRegisterValuesSource.next(["OPC", key, false])
-    this.regProvider.setRegister("PC", 16)
-    this.setRegisterValuesSource.next(["PC", 16, false])
-    this.currentAddress = 222
+    if(key == 13){
+      this.regProvider.setRegister("PC", 55)
+      this.setRegisterValuesSource.next(["PC", 55, false])
+      this.currentAddress = 222
+    }
+    else if(key == 8){
+      this.regProvider.setRegister("PC", 27)
+      this.setRegisterValuesSource.next(["PC", 27, false])
+      this.currentAddress = 222
+    }
+    else{
+      this.regProvider.setRegister("OPC", key)
+      this.setRegisterValuesSource.next(["OPC", key, false])
+      this.regProvider.setRegister("PC", 16)
+      this.setRegisterValuesSource.next(["PC", 16, false])
+      this.currentAddress = 222
+    }
   }
 }

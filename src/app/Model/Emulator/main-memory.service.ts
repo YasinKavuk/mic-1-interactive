@@ -34,8 +34,8 @@ export class MainMemoryService {
     this.memory = {}
     this.systemCodeSize = 0;
     this.constantPoolSize = 0;
-    this.inputBufferSize = 128;
-    this.outputBufferSize = 128;
+    this.inputBufferSize = 32;
+    this.outputBufferSize = 1024;
     this._stackStartAddress = 0;
   }
 
@@ -129,7 +129,7 @@ export class MainMemoryService {
     console.groupEnd();
   }
 
-  private printOutputBuffer() {
+  public printOutputBuffer() {
     console.group('%cOutputBuffer', 'color: orange');
     console.log(`  Address     Value  `);
     const start = this.regProvider.getRegister("CPP").getValue() * 4 + this.constantPoolSize + this.inputBufferSize;
@@ -248,6 +248,44 @@ export class MainMemoryService {
     }
     console.log(ib)
     return ib
+  }
+
+  // public getOutputBufferContent(): number[] {
+  //   let ob: number[] = []
+  //   let startOfOutput = this.systemCodeSize + this.constantPoolSize + this.inputBufferSize
+  //   startOfOutput += (4-(startOfOutput % 4)) % 4
+  //   console.log("start output: " + startOfOutput)
+  //   let endOfOutput = startOfOutput + this.outputBufferSize
+  
+  //   for (let i = startOfOutput + 3; i < endOfOutput; i += 4) {
+  //     if (this.memory[i] !== undefined) {
+  //       ob.push(this.memory[i])
+  //     }
+  //   }
+  //   console.log(ob)
+  //   return ob
+  // }
+
+  public getOutputBufferContent(): number[] {
+    let ob: number[] = []
+    let startOfOutput = this.systemCodeSize + this.constantPoolSize + this.inputBufferSize
+    startOfOutput += (4 - (startOfOutput % 4)) % 4
+    let endOfOutput = startOfOutput + this.outputBufferSize
+  
+    for (let i = startOfOutput; i < endOfOutput; i += 4) {
+      const byte1 = this.memory[i]
+      const byte2 = this.memory[i + 1]
+      const byte3 = this.memory[i + 2]
+      const byte4 = this.memory[i + 3]
+  
+      const value = (byte1 << 24) | (byte2 << 16) | (byte3 << 8) | byte4
+
+      if(byte1 !== undefined && byte2 !== undefined && byte3 !== undefined && byte4 !== undefined){
+        ob.push(value)
+      }
+    }
+  
+    return ob;
   }
 
 }

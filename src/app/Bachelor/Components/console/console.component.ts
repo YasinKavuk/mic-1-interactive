@@ -29,6 +29,18 @@ export class ConsoleComponent implements OnInit {
           this.input += String.fromCharCode(asciiCode)
           // this.input += asciiCode
         }
+
+        // let obArr: number[] = this.memory.getOutputBufferContent()
+        // console.table(obArr)
+        // this.output = ""
+        // for(let value of obArr){
+        //   this.output += String(value) + ", "
+        // }
+        // this.outputHistory += this.output
+
+        let obArr: number[] = this.memory.getOutputBufferContent()
+        this.output = obArr.map(value => String(value)).join(', ')
+        
       }
     )
   }
