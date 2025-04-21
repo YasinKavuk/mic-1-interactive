@@ -22,8 +22,8 @@ export class MainMemoryService {
   constructor(
     private regProvider: RegProviderService,
   ) {
-    this.inputBufferSize = 128
-    this.outputBufferSize = 128
+    this.inputBufferSize = 32
+    this.outputBufferSize = 1024
   }
 
   public get stackStartAddress(): number {
@@ -63,7 +63,7 @@ export class MainMemoryService {
     // this.printMemory()
   }
 
-  private store_8(address: number, value: number) {
+  public store_8(address: number, value: number) {
     this.memory[address] = value;
   }
 
@@ -134,6 +134,9 @@ export class MainMemoryService {
     console.log(`  Address     Value  `);
     const start = this.regProvider.getRegister("CPP").getValue() * 4 + this.constantPoolSize + this.inputBufferSize;
     for (let i = start; i < start + this.outputBufferSize; i++) {
+      console.log(`  ${this.dec2hex(i)}        0b${this.get_8(i, true).toString(2)} = ${this.get_8(i, true)}`);
+    }
+    for (let i = 4294967292-28; i < 4294967292+8; i++) {
       console.log(`  ${this.dec2hex(i)}        0b${this.get_8(i, true).toString(2)} = ${this.get_8(i, true)}`);
     }
     console.groupEnd();

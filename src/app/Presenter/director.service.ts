@@ -714,18 +714,19 @@ export class DirectorService {
   contextSwitch(key: number){
     // start of ISR is hardcoded thus needs to be updated when systemcode is changed. this.currentAddress is the MPC
     if(key == 13){
-      this.regProvider.setRegister("PC", 55)
-      this.setRegisterValuesSource.next(["PC", 55, false])
+      this.regProvider.setRegister("PC", 61)
+      this.setRegisterValuesSource.next(["PC", 61, false])
       this.currentAddress = 222
     }
     else if(key == 8){
-      this.regProvider.setRegister("PC", 27)
-      this.setRegisterValuesSource.next(["PC", 27, false])
+      this.regProvider.setRegister("PC", 33)
+      this.setRegisterValuesSource.next(["PC", 33, false])
       this.currentAddress = 222
     }
     else{
-      this.regProvider.setRegister("OPC", key)
-      this.setRegisterValuesSource.next(["OPC", key, false])
+      // this.regProvider.setRegister("OPC", key)
+      // this.setRegisterValuesSource.next(["OPC", key, false])
+      this.mainMemory.store_32(4294967288, key)
       this.regProvider.setRegister("PC", 16)
       this.setRegisterValuesSource.next(["PC", 16, false])
       this.currentAddress = 222
