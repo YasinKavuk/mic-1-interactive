@@ -64,8 +64,6 @@ export class ConsoleComponent implements OnInit {
         this.consoleService.setKey(event.key)
         break
     }
-
-    this.regProvider.setRegister("ISR", 1)
 }
 
 }

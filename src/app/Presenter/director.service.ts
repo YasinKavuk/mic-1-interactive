@@ -195,13 +195,14 @@ export class DirectorService {
     //   return;
     // }
 
-    if(this.regProvider.getRegister("ISR").getValue() == 1 && this.regProvider.getRegister("IMR").getValue() != 1){
+    if(this.regProvider.getRegister("ISR").getValue() !== 0 && this.regProvider.getRegister("IMR").getValue() !== 1){
+      let isrVal = this.regProvider.getRegister("ISR").getValue()
       this.regProvider.setRegister("IMR", 1)
-      this._updateInterruptView.next({isr: 1, imr: 1})
+      this._updateInterruptView.next({isr: isrVal, imr: 1})
       this.triggerInterrupt()
     }
 
-    if(this.regProvider.getRegister("ISR").getValue() == 1 && this.regProvider.getRegister("IMR").getValue() == 1){
+    if(this.regProvider.getRegister("ISR").getValue() !== 0 && this.regProvider.getRegister("IMR").getValue() == 1){
       console.log("INTERRUPT BLOCKED")
       this.regProvider.setRegister("ISR", 0)
     }
@@ -634,14 +635,13 @@ export class DirectorService {
   }
 
   triggerInterrupt(){
-    const key = this.consoleService.fetchKey()
-    console.log("--INTERRUPT--, " + key)
+    let intVec = this.regProvider.getRegister("ISR").getValue()
 
     this.interrupted = true
     this.isRunning = false // stops the MIC-1
 
     this.saveContext()
-    this.contextSwitch(key)
+    this.contextSwitch(intVec)
 
     this.mainMemory.printInputBuffer()
     this.mainMemory.printOutputBuffer()
@@ -700,33 +700,23 @@ export class DirectorService {
     this.stackProvider.update()
   }
 
-  // // context swtich (jump to ISR)
-  // contextSwitch(key: number){
-  //   // start of ISR is hardcoded thus needs to be updated when systemcode is changed. this.currentAddress is the MPC
-  //   this.regProvider.setRegister("OPC", key)
-  //   this.setRegisterValuesSource.next(["OPC", key, false])
-  //   this.regProvider.setRegister("PC", 16)
-  //   this.setRegisterValuesSource.next(["PC", 16, false])
-  //   this.currentAddress = 222
-  // }
-
   // context swtich (jump to ISR)
-  contextSwitch(key: number){
+  contextSwitch(intVec: number){
+    let key = this.consoleService.fetchKey()
+
     // start of ISR is hardcoded thus needs to be updated when systemcode is changed. this.currentAddress is the MPC
-    if(key == 13){
+    if(intVec == 3){
       this.regProvider.setRegister("PC", 66)
       this.setRegisterValuesSource.next(["PC", 66, false])
       this.currentAddress = 222
     }
-    else if(key == 8){
+    else if(intVec == 2){
       this.regProvider.setRegister("PC", 38)
       this.setRegisterValuesSource.next(["PC", 38, false])
       this.currentAddress = 222
     }
     else{
-      // this.regProvider.setRegister("OPC", key)
-      // this.setRegisterValuesSource.next(["OPC", key, false])
-      this.mainMemory.store_32(4294967288, key)
+      this.mainMemory.store_32(4294967288, key) // saves key to last wortaddress in the memory to simulate the CPU fetching the key directly from the device-Buffer. The MIC-1 can only access the RAM this is why this key has to be there as a workaround. 
       this.regProvider.setRegister("PC", 21)
       this.setRegisterValuesSource.next(["PC", 21, false])
       this.currentAddress = 222
