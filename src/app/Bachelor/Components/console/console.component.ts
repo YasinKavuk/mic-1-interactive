@@ -14,6 +14,8 @@ export class ConsoleComponent implements OnInit {
   outputHistory: string = ``
   inputBufferDevice: Uint8Array[] = []
 
+  lastOutput = ""
+
   constructor(
     private consoleService: ConsoleService,
     private memory: MainMemoryService,
@@ -30,16 +32,15 @@ export class ConsoleComponent implements OnInit {
           // this.input += asciiCode
         }
 
-        // let obArr: number[] = this.memory.getOutputBufferContent()
-        // console.table(obArr)
-        // this.output = ""
-        // for(let value of obArr){
-        //   this.output += String(value) + ", "
-        // }
-        // this.outputHistory += this.output
-
         let obArr: number[] = this.memory.getOutputBufferContent()
         this.output = obArr.map(value => String(value)).join(', ')
+
+        // for output history but does not work properly
+        // if (obArr[0] === 0 && (this.lastOutput !== this.output)) {
+        //   this.outputHistory += (this.outputHistory ? "\n" : "") + this.output
+        //   this.lastOutput = this.output
+        // }
+
         
       }
     )
