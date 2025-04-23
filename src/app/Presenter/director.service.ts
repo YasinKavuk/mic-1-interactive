@@ -69,6 +69,7 @@ export class DirectorService {
 
   private currentAddress = 1;
   private lineNumber = 0;
+  private memMapAddr = 1073741822 // wortaddress
 
   private MBRMemoryQueue: Array<number> = [];
   private MDRMemoryQueue: Array<number> = [];
@@ -316,7 +317,16 @@ export class DirectorService {
     if (this.MDRMemoryQueue[0]) {
       let addr = this.MDRMemoryQueue.shift();
       let MDR = this.regProvider.getRegister("MDR");
-      MDR.setValue(this.mainMemory.get_32(addr));
+
+      // check if this is an read to an memory-mapped address. If yes fetch data from device-controller ( In this case console.service).
+      if(addr === this.memMapAddr*4){
+        console.log("Memory-mapped address detected: ", addr)
+        this.regProvider.setRegister("MDR", this.consoleService.fetchKey())
+      }
+      else{
+        MDR.setValue(this.mainMemory.get_32(addr));
+      }
+
     } else { this.MDRMemoryQueue.shift(); }
 
 
@@ -716,7 +726,6 @@ export class DirectorService {
       this.currentAddress = 222
     }
     else{
-      this.mainMemory.store_32(4294967288, key) // saves key to last wortaddress in the memory to simulate the CPU fetching the key directly from the device-Buffer. The MIC-1 can only access the RAM this is why this key has to be there as a workaround. 
       this.regProvider.setRegister("PC", 21)
       this.setRegisterValuesSource.next(["PC", 21, false])
       this.currentAddress = 222
