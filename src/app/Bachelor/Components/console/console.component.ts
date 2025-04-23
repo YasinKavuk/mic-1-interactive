@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { MainMemoryService } from 'src/app/Model/Emulator/main-memory.service';
 import { ConsoleService } from '../../Services/console.service';
 
 @Component({
@@ -8,16 +7,14 @@ import { ConsoleService } from '../../Services/console.service';
   styleUrls: ['./console.component.css']
 })
 export class ConsoleComponent implements OnInit {
-  input: string = `` //memory-mapped to input-buffer in the system memory
-  output: string = `` //memory-mapped to output-buffer in the system memory
+  input: string = ``
+  output: string = ``
   outputHistory: string = ``
-  inputBufferDevice: Uint8Array[] = []
 
   lastOutput = ""
 
   constructor(
     private consoleService: ConsoleService,
-    private memory: MainMemoryService,
   ) { }
 
   ngOnInit(): void {
@@ -35,6 +32,10 @@ export class ConsoleComponent implements OnInit {
       content => {
         let obArr: number[] = content.outputBufferContent
         this.output = obArr.map(value => String(value)).join(', ')
+
+        if(content.saveToHistory){
+          this.outputHistory += this.output + '\n'
+        }
       }
     )
   }

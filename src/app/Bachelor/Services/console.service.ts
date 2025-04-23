@@ -14,7 +14,7 @@ export class ConsoleService {
   private _updateInput = new BehaviorSubject({inputBufferContent: []});
   public updateInput$ = this._updateInput.asObservable();
 
-  private _updateOutput = new BehaviorSubject({outputBufferContent: []});
+  private _updateOutput = new BehaviorSubject({outputBufferContent: [], saveToHistory: false});
   public updateOutput$ = this._updateOutput.asObservable();
 
   constructor(
@@ -28,13 +28,16 @@ export class ConsoleService {
 
   setOutput(char: number){
     this.output.push(char)
-    this._updateOutput.next({outputBufferContent: this.output})
+    this._updateOutput.next({outputBufferContent: this.output, saveToHistory: false})
   }
 
   emptyIO(){
+    if(this.output.length > 0){
+      this._updateOutput.next({outputBufferContent: [...this.output], saveToHistory: true})
+    }
     this.input = []
     this.output = []
-    this._updateOutput.next({outputBufferContent: this.output})
+    this._updateOutput.next({outputBufferContent: this.output, saveToHistory: false})
     this._updateInput.next({inputBufferContent: this.input})
   }
 
