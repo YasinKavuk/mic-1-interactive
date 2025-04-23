@@ -69,7 +69,11 @@ export class DirectorService {
 
   private currentAddress = 1;
   private lineNumber = 0;
-  private memMapAddr = 1073741822 // wortaddress
+
+  // wortaddresses for memory-mapped IO
+  private memMapAddrGetKey = 1073741822
+  private memMapAddrSetOut = 1073741821
+  private memMapAddrEmptOut = 1073741820
 
   private MBRMemoryQueue: Array<number> = [];
   private MDRMemoryQueue: Array<number> = [];
@@ -319,8 +323,8 @@ export class DirectorService {
       let MDR = this.regProvider.getRegister("MDR");
 
       // check if this is an read to an memory-mapped address. If yes fetch data from device-controller ( In this case console.service).
-      if(addr === this.memMapAddr*4){
-        console.log("Memory-mapped address detected: ", addr)
+      if(addr === this.memMapAddrGetKey*4){
+        console.log("Memory-mapped address for getKey detected: ", addr)
         this.regProvider.setRegister("MDR", this.consoleService.fetchKey())
       }
       else{
@@ -383,16 +387,27 @@ export class DirectorService {
     //write
     if (microInstruction.mem[0]) {
       let addr = this.regProvider.getRegister("MAR").getValue() * 4;
-      try {
-        this.mainMemory.store_32(addr, this.regProvider.getRegister("MDR").getValue());
-      } catch (error) {
-        if (error instanceof Error) {
-          console.error("Error in line " + this.lineNumber + " - " + error);
-          this._errorFlasher.next({ line: this.lineNumber, error: error.message });
-          this.isRunning = false;
-          this.endOfProgram = true;
+
+      if(addr === this.memMapAddrSetOut*4){
+        console.log("Memory-mapped address for setOut detected: ", addr)
+        this.consoleService.setOutput(this.regProvider.getRegister("MDR").getValue())
+      }
+      else if(addr === this.memMapAddrEmptOut*4){
+        console.log("Memory-mapped address for emptyOut detected: ", addr)
+        this.consoleService.emptyOut()
+      }
+      else{
+        try {
+          this.mainMemory.store_32(addr, this.regProvider.getRegister("MDR").getValue());
+        } catch (error) {
+          if (error instanceof Error) {
+            console.error("Error in line " + this.lineNumber + " - " + error);
+            this._errorFlasher.next({ line: this.lineNumber, error: error.message });
+            this.isRunning = false;
+            this.endOfProgram = true;
+          }
+          return
         }
-        return
       }
     }
 

@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
 import { RegProviderService } from 'src/app/Model/reg-provider.service';
 
 @Injectable({
@@ -7,6 +8,11 @@ import { RegProviderService } from 'src/app/Model/reg-provider.service';
 export class ConsoleService {
   private key: number = undefined
 
+  private output: number[] = []
+
+  private _updateOutput = new BehaviorSubject({outputBufferContent: []});
+  public updateOutput$ = this._updateOutput.asObservable();
+
   constructor(
     private regProvider: RegProviderService
   ) { }
@@ -14,6 +20,15 @@ export class ConsoleService {
   fetchKey(){
     console.log("fetch key")
     return this.key
+  }
+
+  setOutput(char: number){
+    this.output.push(char)
+    this._updateOutput.next({outputBufferContent: this.output})
+  }
+
+  emptyOut(){
+    this.output = []
   }
 
   setKey(key: string){

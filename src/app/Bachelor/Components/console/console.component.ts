@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { MainMemoryService } from 'src/app/Model/Emulator/main-memory.service';
-import { RegProviderService } from 'src/app/Model/reg-provider.service';
 import { ConsoleService } from '../../Services/console.service';
 
 @Component({
@@ -19,7 +18,6 @@ export class ConsoleComponent implements OnInit {
   constructor(
     private consoleService: ConsoleService,
     private memory: MainMemoryService,
-    private regProvider: RegProviderService,
   ) { }
 
   ngOnInit(): void {
@@ -31,17 +29,13 @@ export class ConsoleComponent implements OnInit {
           this.input += String.fromCharCode(asciiCode)
           // this.input += asciiCode
         }
+      }
+    )
 
-        let obArr: number[] = this.memory.getOutputBufferContent()
+    this.consoleService.updateOutput$.subscribe(
+      content => {
+        let obArr: number[] = content.outputBufferContent
         this.output = obArr.map(value => String(value)).join(', ')
-
-        // for output history but does not work properly
-        // if (obArr[0] === 0 && (this.lastOutput !== this.output)) {
-        //   this.outputHistory += (this.outputHistory ? "\n" : "") + this.output
-        //   this.lastOutput = this.output
-        // }
-
-        
       }
     )
   }
