@@ -8,7 +8,11 @@ import { RegProviderService } from 'src/app/Model/reg-provider.service';
 export class ConsoleService {
   private key: number = undefined
 
+  private input: number[] = []
   private output: number[] = []
+
+  private _updateInput = new BehaviorSubject({inputBufferContent: []});
+  public updateInput$ = this._updateInput.asObservable();
 
   private _updateOutput = new BehaviorSubject({outputBufferContent: []});
   public updateOutput$ = this._updateOutput.asObservable();
@@ -27,8 +31,21 @@ export class ConsoleService {
     this._updateOutput.next({outputBufferContent: this.output})
   }
 
-  emptyOut(){
+  emptyIO(){
+    this.input = []
     this.output = []
+    this._updateOutput.next({outputBufferContent: this.output})
+    this._updateInput.next({inputBufferContent: this.input})
+  }
+
+  setInput(char: number){
+    this.input.push(char)
+    this._updateInput.next({inputBufferContent: this.input})
+  }
+
+  backspaceOnInput(){
+    this.input.pop()
+    this._updateInput.next({inputBufferContent: this.input})
   }
 
   setKey(key: string){

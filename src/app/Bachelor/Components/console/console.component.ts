@@ -21,13 +21,12 @@ export class ConsoleComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this.memory.updateMemory$.subscribe(
+    this.consoleService.updateInput$.subscribe(
       content => {
-        let ibAsciiArr: number[] = this.memory.getInputBufferContent()
+        let ibAsciiArr: number[] = content.inputBufferContent
         this.input = ""
         for(let asciiCode of ibAsciiArr){
           this.input += String.fromCharCode(asciiCode)
-          // this.input += asciiCode
         }
       }
     )

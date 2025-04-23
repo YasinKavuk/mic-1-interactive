@@ -73,7 +73,9 @@ export class DirectorService {
   // wortaddresses for memory-mapped IO
   private memMapAddrGetKey = 1073741822
   private memMapAddrSetOut = 1073741821
-  private memMapAddrEmptOut = 1073741820
+  private memMapAddrEmptIO = 1073741820
+  private memMapAddrSetInp = 1073741819
+  private memMapAddrBackspace = 1073741818
 
   private MBRMemoryQueue: Array<number> = [];
   private MDRMemoryQueue: Array<number> = [];
@@ -392,9 +394,17 @@ export class DirectorService {
         console.log("Memory-mapped address for setOut detected: ", addr)
         this.consoleService.setOutput(this.regProvider.getRegister("MDR").getValue())
       }
-      else if(addr === this.memMapAddrEmptOut*4){
+      else if(addr === this.memMapAddrEmptIO*4){
         console.log("Memory-mapped address for emptyOut detected: ", addr)
-        this.consoleService.emptyOut()
+        this.consoleService.emptyIO()
+      }
+      else if(addr === this.memMapAddrSetInp*4){
+        console.log("Memory-mapped address for SetInp detected: ", addr)
+        this.consoleService.setInput(this.regProvider.getRegister("MDR").getValue())
+      }
+      else if(addr === this.memMapAddrBackspace*4){
+        console.log("Memory-mapped address for Backspace detected: ", addr)
+        this.consoleService.backspaceOnInput()
       }
       else{
         try {
@@ -731,13 +741,13 @@ export class DirectorService {
 
     // start of ISR is hardcoded thus needs to be updated when systemcode is changed. this.currentAddress is the MPC
     if(intVec == 3){
-      this.regProvider.setRegister("PC", 66)
-      this.setRegisterValuesSource.next(["PC", 66, false])
+      this.regProvider.setRegister("PC", 80)
+      this.setRegisterValuesSource.next(["PC", 80, false])
       this.currentAddress = 222
     }
     else if(intVec == 2){
-      this.regProvider.setRegister("PC", 38)
-      this.setRegisterValuesSource.next(["PC", 38, false])
+      this.regProvider.setRegister("PC", 46)
+      this.setRegisterValuesSource.next(["PC", 46, false])
       this.currentAddress = 222
     }
     else{
