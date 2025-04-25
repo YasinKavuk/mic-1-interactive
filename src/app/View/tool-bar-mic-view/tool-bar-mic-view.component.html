@@ -28,7 +28,7 @@
         <mat-slider 
             (input)="changeAnimSpeed($event)"
             value= {{this.animationSpeed}}
-            [max]="15"
+            [max]="500"
             [min]="1"
             [step]="0.01">
             <input matSliderThumb [(ngModel)]="animationSpeed">
