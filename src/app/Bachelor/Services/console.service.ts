@@ -56,17 +56,17 @@ export class ConsoleService {
     this.key = key.charCodeAt(0)
 
     if(this.key == 13){
-      this.attachInterrupt(3)
+      this.triggerInterrupt(3)
     }
     else if(this.key == 8){
-      this.attachInterrupt(2)
+      this.triggerInterrupt(2)
     }
     else{
-      this.attachInterrupt(1)
+      this.triggerInterrupt(1)
     }
   }
 
-  attachInterrupt(intVec: number){
-    this.regProvider.setRegister("ISR", intVec)
+  triggerInterrupt(intVec: number){
+    this.regProvider.setRegister("ISTR", intVec)
   }
 }

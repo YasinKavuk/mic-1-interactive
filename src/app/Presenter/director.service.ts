@@ -134,7 +134,7 @@ export class DirectorService {
   private _refreshNotifier = new BehaviorSubject(false);
   public refreshNotifier$ = this._consoleNotifier.asObservable();
 
-  private _updateInterruptView = new BehaviorSubject({isr: 0, imr: 0});
+  private _updateInterruptView = new BehaviorSubject({istr: 0, imr: 0});
   public updateInterruptView$ = this._updateInterruptView.asObservable();
 
 
@@ -202,16 +202,16 @@ export class DirectorService {
     //   return;
     // }
 
-    if(this.regProvider.getRegister("ISR").getValue() !== 0 && this.regProvider.getRegister("IMR").getValue() !== 1){
-      let isrVal = this.regProvider.getRegister("ISR").getValue()
+    if(this.regProvider.getRegister("ISTR").getValue() !== 0 && this.regProvider.getRegister("IMR").getValue() !== 1){
+      let istrVal = this.regProvider.getRegister("ISTR").getValue()
       this.regProvider.setRegister("IMR", 1)
-      this._updateInterruptView.next({isr: isrVal, imr: 1})
+      this._updateInterruptView.next({istr: istrVal, imr: 1})
       this.triggerInterrupt()
     }
 
-    if(this.regProvider.getRegister("ISR").getValue() !== 0 && this.regProvider.getRegister("IMR").getValue() == 1){
+    if(this.regProvider.getRegister("ISTR").getValue() !== 0 && this.regProvider.getRegister("IMR").getValue() == 1){
       console.log("INTERRUPT BLOCKED")
-      this.regProvider.setRegister("ISR", 0)
+      this.regProvider.setRegister("ISTR", 0)
     }
 
     // triggers an Event when MPC is the address of IRET
@@ -270,7 +270,7 @@ export class DirectorService {
     if(this.noIntInstruction){
       this.noIntInstruction = false
       this.regProvider.setRegister("IMR", 0)
-      this._updateInterruptView.next({isr: 0, imr: 0})
+      this._updateInterruptView.next({istr: 0, imr: 0})
     }
 
     if(this.noIntList.includes(this.currentAddress) && this.interrupted == false){
@@ -278,7 +278,7 @@ export class DirectorService {
       // console.table(this.noIntList)
       this.noIntInstruction = true
       this.regProvider.setRegister("IMR", 1)
-      this._updateInterruptView.next({isr: 0, imr: 1})
+      this._updateInterruptView.next({istr: 0, imr: 1})
     }
 
     if (this.lineNumber == 1) {
@@ -527,9 +527,9 @@ export class DirectorService {
     this.MBRMemoryQueue = [];
     this.MDRMemoryQueue = [];
 
-    this.regProvider.setRegister("ISR", 0)
-    this.regProvider.setRegister("ISR", 0)
-    this._updateInterruptView.next({isr: 0, imr: 0})
+    this.regProvider.setRegister("ISTR", 0)
+    this.regProvider.setRegister("ISTR", 0)
+    this._updateInterruptView.next({istr: 0, imr: 0})
 
     // reset memory
     this.mainMemory.emptyMemory();
@@ -670,7 +670,7 @@ export class DirectorService {
   }
 
   triggerInterrupt(){
-    let intVec = this.regProvider.getRegister("ISR").getValue()
+    let intVec = this.regProvider.getRegister("ISTR").getValue()
 
     this.interrupted = true
     this.isRunning = false // stops the MIC-1
@@ -707,8 +707,8 @@ export class DirectorService {
     this.regProvider.setRegister("MBR", oldState[12][1])
 
     this.regProvider.setRegister("IMR", 0)
-    this.regProvider.setRegister("ISR", 0)
-    this._updateInterruptView.next({isr: 0, imr: 0})
+    this.regProvider.setRegister("ISTR", 0)
+    this._updateInterruptView.next({istr: 0, imr: 0})
 
     this.interrupted = false
     this.isRunning = true

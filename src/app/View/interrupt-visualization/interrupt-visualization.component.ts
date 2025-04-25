@@ -7,7 +7,7 @@ import { DirectorService } from 'src/app/Presenter/director.service';
   styleUrls: ['./interrupt-visualization.component.css']
 })
 export class InterruptVisualizationComponent implements OnInit {
-  isrValue: number = 0
+  istrValue: number = 0
   imrValue: number = 0
 
   constructor(
@@ -17,7 +17,7 @@ export class InterruptVisualizationComponent implements OnInit {
   ngOnInit(): void {
     this.director.updateInterruptView$.subscribe(
       content => {
-        this.isrValue = content.isr
+        this.istrValue = content.istr
         this.imrValue = content.imr
       }
     )

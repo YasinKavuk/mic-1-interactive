@@ -15,7 +15,7 @@ export class RegProviderService {
                                   new Register("TOS", 0, 32),
                                   new Register("OPC", 0, 32),
                                   new Register("H", 0, 32),
-                                  new Register("ISR", 0, 32),
+                                  new Register("ISTR", 0, 32),
                                   new Register("IMR", 0, 32)]
 
 
