@@ -670,13 +670,13 @@ export class DirectorService {
   }
 
   triggerInterrupt(){
-    let intVec = this.regProvider.getRegister("ISTR").getValue()
+    let intIdentification = this.regProvider.getRegister("ISTR").getValue()
 
     this.interrupted = true
     this.isRunning = false // stops the MIC-1
 
     this.saveContext()
-    this.contextSwitch(intVec)
+    this.contextSwitch(intIdentification)
 
     this.mainMemory.printInputBuffer()
     this.mainMemory.printOutputBuffer()
@@ -736,16 +736,15 @@ export class DirectorService {
   }
 
   // context swtich (jump to ISR)
-  contextSwitch(intVec: number){
-    let key = this.consoleService.fetchKey()
+  contextSwitch(intIdentification: number){
 
     // start of ISR is hardcoded thus needs to be updated when systemcode is changed. this.currentAddress is the MPC
-    if(intVec == 3){
+    if(intIdentification == 3){
       this.regProvider.setRegister("PC", 80)
       this.setRegisterValuesSource.next(["PC", 80, false])
       this.currentAddress = 222
     }
-    else if(intVec == 2){
+    else if(intIdentification == 2){
       this.regProvider.setRegister("PC", 46)
       this.setRegisterValuesSource.next(["PC", 46, false])
       this.currentAddress = 222
