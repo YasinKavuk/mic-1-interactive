@@ -66,7 +66,7 @@ export class ConsoleService {
     }
   }
 
-  triggerInterrupt(intVec: number){
-    this.regProvider.setRegister("ISTR", intVec)
+  triggerInterrupt(intIdent: number){
+    this.regProvider.setRegister("ISTR", intIdent)
   }
 }
