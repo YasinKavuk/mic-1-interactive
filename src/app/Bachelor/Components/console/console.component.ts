@@ -35,6 +35,7 @@ export class ConsoleComponent implements OnInit {
 
         if(content.saveToHistory){
           this.outputHistory += this.output + '\n'
+          this.outputHistory += ">" + this.input + '\n'
         }
       }
     )
@@ -48,6 +49,9 @@ export class ConsoleComponent implements OnInit {
     switch (event.key) {
       case "Enter":
         this.consoleService.setKey("\r")
+        if(this.outputHistory.length === 0){
+          this.outputHistory += ">" + this.input + '\n'
+        }
         break
 
       case "Backspace":
