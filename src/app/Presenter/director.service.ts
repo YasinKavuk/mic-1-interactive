@@ -151,6 +151,8 @@ export class DirectorService {
   public async run(testSettings?: any) {
     // let counter = 0;
     this.isRunning = true;
+    this._finishedRun.next(false);
+    console.log("false")
     while (!this.endOfProgram && this.isRunning) {
       // await new Promise(resolve => setTimeout(resolve, 0))
 
@@ -218,6 +220,7 @@ export class DirectorService {
     if(this.currentAddress === 217){
       this._consoleNotifier.next("Interrupt-Return!")
       this._finishedRun.next(false)
+      console.log("false")
       await this.returnContext()
     }
 
@@ -261,6 +264,7 @@ export class DirectorService {
       console.log("%cHit Breakpoint in the micro-code in line " + this.lineNumber, "color: #248c46");
       this.hitBreakpoint = true;
       this._finishedRun.next(true)
+      console.log("True")
       this._breakpointFlasher.next({ line: this.lineNumber });
     }
 
@@ -302,6 +306,7 @@ export class DirectorService {
             console.log("%cHit Breakpoint in the memory address: " + (currentAddress) + ", MacroEditorLine: " + editorLine, "color: #248c46");
             this.hitBreakpoint = true;
             this._finishedRun.next(true)
+            console.log("True")
             this._breakpointFlasherMacro.next({ line: editorLine });
           }
         }
@@ -355,7 +360,8 @@ export class DirectorService {
 
           // if next instruction is defined skip to next instruction
           this.currentAddress++;
-          this._finishedRun.next(true);
+          // this._finishedRun.next(true);
+          // console.log("True")
           this.updateRegisterVis();
           return;
         }
@@ -478,7 +484,8 @@ export class DirectorService {
       // Tell Mic-Visualization to start a animation via this Observable
       this.startAnimationSource.next([bBusResult, aluResult, shifterResult, cBusResult, aBusResult]);
     } else {
-      this._finishedRun.next(true);
+      // this._finishedRun.next(true);
+      // console.log("True")
       this.updateRegisterVis();
     }
   }
@@ -504,6 +511,7 @@ export class DirectorService {
     //enable buttons
     if (!this.isRunning) {
       this._finishedRun.next(true);
+      console.log("True")
     }
   }
 
@@ -531,6 +539,11 @@ export class DirectorService {
     this.regProvider.setRegister("ISTR", 0)
     this._updateInterruptView.next({istr: 0, imr: 0})
 
+    this.noIntInstruction = false
+    this.interrupted = false
+
+    this.consoleService.emptyIO()
+
     // reset memory
     this.mainMemory.emptyMemory();
     try {
@@ -550,6 +563,7 @@ export class DirectorService {
         this._errorFlasher.next({ line: 1, error: error.message });
       }
       this._finishedRun.next(false); // disable run Buttons
+      console.log("false")
       throw new Error("parserError");
     }
 
@@ -565,6 +579,7 @@ export class DirectorService {
 
     //enable buttons
     this._finishedRun.next(true);
+    console.log("True")
 
     this.videoController.wipeScreen();
 
@@ -610,6 +625,7 @@ export class DirectorService {
 
     //enable buttons
     this._finishedRun.next(true);
+    console.log("True")
 
     this.videoController.wipeScreen();
 
