@@ -3,7 +3,7 @@
 	"version": 1,
 	"newProjectRoot": "projects",
 	"projects": {
-		"mic-1-toolbox": {
+		"mic-1-interactive": {
 			"projectType": "application",
 			"schematics": {
 				"@schematics/angular:component": {
@@ -17,7 +17,7 @@
 				"build": {
 					"builder": "@angular-devkit/build-angular:browser",
 					"options": {
-						"outputPath": "dist/mic-1-toolbox",
+						"outputPath": "dist/mic-1-interactive",
 						"index": "src/index.html",
 						"main": "src/main.ts",
 						"polyfills": "src/polyfills.ts",
@@ -69,10 +69,10 @@
 					"builder": "@angular-devkit/build-angular:dev-server",
 					"configurations": {
 						"production": {
-							"browserTarget": "mic-1-toolbox:build:production"
+							"browserTarget": "mic-1-interactive:build:production"
 						},
 						"development": {
-							"browserTarget": "mic-1-toolbox:build:development"
+							"browserTarget": "mic-1-interactive:build:development"
 						}
 					},
 					"defaultConfiguration": "development"
@@ -80,7 +80,7 @@
 				"extract-i18n": {
 					"builder": "@angular-devkit/build-angular:extract-i18n",
 					"options": {
-						"browserTarget": "mic-1-toolbox:build"
+						"browserTarget": "mic-1-interactive:build"
 					}
 				},
 				"test": {
@@ -104,11 +104,11 @@
 				"cypress-run": {
 					"builder": "@cypress/schematic:cypress",
 					"options": {
-						"devServerTarget": "mic-1-toolbox:serve"
+						"devServerTarget": "mic-1-interactive:serve"
 					},
 					"configurations": {
 						"production": {
-							"devServerTarget": "mic-1-toolbox:serve:production"
+							"devServerTarget": "mic-1-interactive:serve:production"
 						}
 					}
 				},
@@ -122,27 +122,27 @@
 				"ct": {
 					"builder": "@cypress/schematic:cypress",
 					"options": {
-						"devServerTarget": "mic-1-toolbox:serve",
+						"devServerTarget": "mic-1-interactive:serve",
 						"watch": true,
 						"headless": false,
 						"testingType": "component"
 					},
 					"configurations": {
 						"development": {
-							"devServerTarget": "mic-1-toolbox:serve:development"
+							"devServerTarget": "mic-1-interactive:serve:development"
 						}
 					}
 				},
 				"e2e": {
 					"builder": "@cypress/schematic:cypress",
 					"options": {
-						"devServerTarget": "mic-1-toolbox:serve",
+						"devServerTarget": "mic-1-interactive:serve",
 						"watch": true,
 						"headless": false
 					},
 					"configurations": {
 						"production": {
-							"devServerTarget": "mic-1-toolbox:serve:production"
+							"devServerTarget": "mic-1-interactive:serve:production"
 						}
 					}
 				}
