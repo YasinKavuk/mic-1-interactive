@@ -23,7 +23,7 @@ describe('complete workflow test without animation', () => {
     cy.get('body > app-root > app-tool-bar > mat-toolbar > a')
       .should('be.visible')
       .then(($a) => {
-        expect($a).to.have.attr('href','https://github.com/vs-ude/mic-1-toolbox/discussions/120')
+        expect($a).to.have.attr('href','https://github.com/vs-ude/mic-1-interactive/discussions/120')
       })
   });
 

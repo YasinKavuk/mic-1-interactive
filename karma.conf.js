@@ -25,7 +25,7 @@ module.exports = function (config) {
       suppressAll: true // removes the duplicated traces
     },
     coverageReporter: {
-      dir: require('path').join(__dirname, './coverage/mic-1-toolbox'),
+      dir: require('path').join(__dirname, './coverage/mic-1-interactive'),
       subdir: '.',
       reporters: [
         { type: 'html' },
